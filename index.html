@@ -3,2087 +3,1261 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GANJOKU — 玄人の岩盤浴案内</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400;700&family=Cormorant+Garamond:ital,wght@0,200;0,300;0,600;1,200;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>江戸遊 完全攻略しおり</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --black: #080604;
-  --deep: #0e0c09;
-  --stone: #181410;
-  --ember: #c8601a;
-  --amber: #e8933a;
-  --gold: #d4a853;
-  --pale-gold: #e8c97a;
-  --cream: #f0e8d8;
-  --fog: #9a9288;
-  --muted: #5a5248;
-}
+  :root {
+    --cream: #FAF7EF;
+    --cream-dark: #F0EBE0;
+    --ink: #1E1A15;
+    --ink-light: #4A4238;
+    --edo-purple: #5C4A7A;
+    --edo-purple-light: #8B7AAE;
+    --beni: #C04A3A;
+    --beni-light: #E8725F;
+    --gold: #B88B3A;
+    --gold-light: #D9AE5C;
+    --indigo: #2B4470;
+    --sage: #5C7B5A;
+    --bath: #3A6B8A;
+    --bath-light: #5A9BB5;
+    --food: #7A5C2A;
+    --food-light: #C08B45;
+    --rest: #5C4A7A;
+    --rock: #4A6B4A;
+    --sauna: #8A3A2A;
+    --border: #D4C8B4;
+  }
 
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{
-  background:var(--black);
-  color:var(--cream);
-  font-family:'Noto Serif JP',serif;
-  font-weight:300;
-  overflow-x:hidden;
-  cursor:none;
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* ─────────── CURSOR ─────────── */
-#cur{position:fixed;width:6px;height:6px;background:var(--amber);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s,background .2s}
-#cur-ring{position:fixed;width:40px;height:40px;border:1px solid rgba(232,147,58,.35);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .4s cubic-bezier(.25,.46,.45,.94),height .4s cubic-bezier(.25,.46,.45,.94),opacity .4s}
-body:has(a:hover) #cur{width:16px;height:16px;background:var(--gold)}
-body:has(a:hover) #cur-ring{width:56px;height:56px;opacity:.5}
+  html { scroll-behavior: smooth; }
 
-/* ─────────── CANVAS LAYERS ─────────── */
-#steam-canvas,#star-canvas{position:fixed;inset:0;pointer-events:none;z-index:1}
-#steam-canvas{opacity:.35}
-#star-canvas{opacity:.6}
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 300;
+    line-height: 1.8;
+    min-height: 100vh;
+    position: relative;
+  }
 
-/* noise grain */
-body::before{
-  content:'';position:fixed;inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
-  pointer-events:none;z-index:2;opacity:.5;
-}
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(circle at 15% 20%, rgba(92, 74, 122, 0.06) 0%, transparent 50%),
+      radial-gradient(circle at 85% 80%, rgba(192, 74, 58, 0.05) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23B8A888' stroke-width='0.3' opacity='0.3'%3E%3Ccircle cx='40' cy='40' r='30'/%3E%3Ccircle cx='40' cy='40' r='20'/%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
 
-/* ─────────── PROGRESS BAR ─────────── */
-#progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--ember),var(--gold),var(--pale-gold));z-index:9990;width:0%;transition:width .1s linear;box-shadow:0 0 12px var(--amber)}
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
 
-/* ─────────── NAV ─────────── */
-nav{
-  position:fixed;top:0;left:0;right:0;z-index:900;
-  display:flex;justify-content:space-between;align-items:center;
-  padding:1.8rem 5vw;
-  transition:all .6s cubic-bezier(.25,.46,.45,.94);
-}
-nav.scrolled{
-  background:rgba(8,6,4,.85);
-  backdrop-filter:blur(20px);
-  padding:1rem 5vw;
-  border-bottom:1px solid rgba(212,168,83,.1);
-}
-.nav-logo{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.6rem;
-  font-style:italic;
-  color:var(--gold);
-  letter-spacing:.02em;
-}
-.nav-links{display:flex;gap:2.5rem}
-.nav-links a{
-  font-family:'Space Mono',monospace;
-  font-size:.55rem;
-  letter-spacing:.3em;
-  color:var(--fog);
-  text-decoration:none;
-  text-transform:uppercase;
-  transition:color .3s;
-  position:relative;
-}
-.nav-links a::after{
-  content:'';position:absolute;bottom:-.4rem;left:0;width:0;height:1px;
-  background:var(--amber);transition:width .4s cubic-bezier(.25,.46,.45,.94);
-}
-.nav-links a:hover{color:var(--cream)}
-.nav-links a:hover::after{width:100%}
+  /* ========== HEADER ========== */
+  .header {
+    text-align: center;
+    padding: 60px 0 48px;
+    position: relative;
+  }
 
-/* ─────────── HERO ─────────── */
-.hero{
-  position:relative;height:100vh;
-  display:flex;flex-direction:column;
-  justify-content:center;align-items:center;
-  overflow:hidden;z-index:3;
-}
-.hero-gradient{
-  position:absolute;inset:0;
-  background:
-    radial-gradient(ellipse 70% 60% at 50% 90%,rgba(200,96,26,.18) 0%,transparent 70%),
-    radial-gradient(ellipse 40% 50% at 15% 60%,rgba(212,168,83,.07) 0%,transparent 60%),
-    radial-gradient(ellipse 50% 40% at 85% 30%,rgba(200,96,26,.09) 0%,transparent 60%);
-  animation:gradShift 12s ease-in-out infinite alternate;
-}
-@keyframes gradShift{
-  0%{background:radial-gradient(ellipse 70% 60% at 50% 90%,rgba(200,96,26,.18) 0%,transparent 70%),radial-gradient(ellipse 40% 50% at 15% 60%,rgba(212,168,83,.07) 0%,transparent 60%)}
-  100%{background:radial-gradient(ellipse 60% 70% at 50% 85%,rgba(200,96,26,.22) 0%,transparent 70%),radial-gradient(ellipse 50% 60% at 20% 55%,rgba(212,168,83,.1) 0%,transparent 60%)}
-}
+  .header-deco {
+    font-family: 'Shippori Mincho', serif;
+    color: var(--edo-purple-light);
+    font-size: 11px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin-bottom: 20px;
+    animation: fadeIn 0.8s ease both;
+  }
 
-/* Floating vertical lines */
-.hero-lines{position:absolute;inset:0;overflow:hidden}
-.hline{
-  position:absolute;width:1px;
-  background:linear-gradient(to bottom,transparent,rgba(212,168,83,.25),transparent);
-  animation:hlineAnim 10s ease-in-out infinite;
-}
-.hline:nth-child(1){left:18%;height:55vh;top:5vh;animation-delay:0s;animation-duration:11s}
-.hline:nth-child(2){left:38%;height:70vh;top:0;animation-delay:2s;animation-duration:9s}
-.hline:nth-child(3){left:62%;height:65vh;top:10vh;animation-delay:4s;animation-duration:13s}
-.hline:nth-child(4){right:20%;height:45vh;top:20vh;animation-delay:1s;animation-duration:8s}
-@keyframes hlineAnim{
-  0%,100%{opacity:.15;transform:scaleY(.8) translateY(0)}
-  50%{opacity:.55;transform:scaleY(1.15) translateY(-10px)}
-}
+  .header-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(36px, 8vw, 56px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    animation: fadeUp 0.9s ease both 0.1s;
+  }
 
-/* Character split animation */
-.hero-eyebrow{
-  font-family:'Space Mono',monospace;font-size:.62rem;
-  letter-spacing:.5em;color:var(--ember);text-transform:uppercase;
-  margin-bottom:2.5rem;
-  opacity:0;animation:slideUp .8s .2s forwards;
-}
-.hero-main{
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(5.5rem,15vw,12rem);
-  font-weight:200;line-height:.85;
-  text-align:center;letter-spacing:-.03em;
-  position:relative;
-}
-.hero-main .char{
-  display:inline-block;
-  opacity:0;transform:translateY(80px) rotate(5deg);
-  animation:charIn .7s forwards cubic-bezier(.22,1,.36,1);
-}
-.hero-main .italic{font-style:italic;color:var(--gold)}
-.hero-jp{
-  display:block;
-  font-family:'Noto Serif JP',serif;
-  font-size:clamp(1rem,2.5vw,1.8rem);
-  font-weight:200;letter-spacing:.7em;
-  color:var(--fog);margin-top:2rem;
-  opacity:0;animation:slideUp .8s 1.2s forwards;
-}
-.hero-tagline{
-  margin-top:2.5rem;
-  font-family:'Space Mono',monospace;
-  font-size:.65rem;letter-spacing:.25em;
-  color:var(--muted);
-  opacity:0;animation:slideUp .8s 1.5s forwards;
-  display:flex;align-items:center;gap:1.5rem;
-}
-.hero-tagline::before,.hero-tagline::after{
-  content:'';flex:1;height:1px;
-  background:linear-gradient(to right,transparent,rgba(154,146,136,.3),transparent);
-  max-width:120px;
-}
-@keyframes charIn{to{opacity:1;transform:translateY(0) rotate(0)}}
-@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  .header-title span {
+    color: var(--beni);
+    display: inline-block;
+  }
 
-/* Scroll indicator */
-.scroll-hint{
-  position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);
-  display:flex;flex-direction:column;align-items:center;gap:.8rem;
-  opacity:0;animation:fadeIn 1s 2s forwards;
-}
-.scroll-hint span{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.4em;color:var(--muted)}
-.scroll-worm{
-  width:24px;height:40px;border:1px solid rgba(154,146,136,.3);
-  border-radius:12px;position:relative;overflow:hidden;
-}
-.scroll-worm::after{
-  content:'';position:absolute;
-  width:4px;height:8px;background:var(--amber);
-  border-radius:2px;top:6px;left:50%;transform:translateX(-50%);
-  animation:worm 2s ease-in-out infinite;
-}
-@keyframes worm{0%{top:6px;opacity:1}100%{top:24px;opacity:0}}
-@keyframes fadeIn{to{opacity:1}}
+  .header-subtitle {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--ink-light);
+    letter-spacing: 4px;
+    animation: fadeIn 1s ease both 0.3s;
+  }
 
-/* ─────────── MARQUEE ─────────── */
-.marquee-wrap{
-  position:relative;z-index:3;overflow:hidden;
-  border-top:1px solid rgba(212,168,83,.15);
-  border-bottom:1px solid rgba(212,168,83,.15);
-  padding:.9rem 0;background:rgba(200,96,26,.04);
-}
-.marquee-track{
-  display:flex;gap:4rem;width:max-content;
-  animation:marq 30s linear infinite;
-}
-.marquee-track:hover{animation-play-state:paused}
-.marquee-item{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.1rem;font-style:italic;
-  color:rgba(212,168,83,.5);
-  white-space:nowrap;letter-spacing:.05em;
-}
-.marquee-dot{color:var(--ember);margin:0 1rem}
-@keyframes marq{to{transform:translateX(-50%)}}
+  .header-date-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    background: var(--edo-purple);
+    color: #fff;
+    padding: 8px 24px;
+    border-radius: 2px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    animation: fadeIn 1s ease both 0.4s;
+  }
 
-/* ─────────── SECTION SYSTEM ─────────── */
-section{position:relative;z-index:3}
-.sec-label{
-  font-family:'Space Mono',monospace;
-  font-size:.58rem;letter-spacing:.45em;
-  color:var(--ember);text-transform:uppercase;margin-bottom:1.8rem;
-  display:flex;align-items:center;gap:1rem;
-}
-.sec-label::after{
-  content:'';flex:0 0 40px;height:1px;
-  background:linear-gradient(to right,var(--ember),transparent);
-}
-.sec-head{
-  font-family:'Cormorant Garamond',serif;
-  font-weight:200;line-height:1.05;
-}
-.sec-head em{font-style:italic;color:var(--gold)}
+  .header-rule {
+    margin: 32px auto 0;
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    animation: fadeIn 1.2s ease both 0.5s;
+  }
 
-/* ─────────── REVEAL SYSTEM ─────────── */
-.r{opacity:0;transform:translateY(44px);
-   transition:opacity .9s cubic-bezier(.25,.46,.45,.94),
-              transform .9s cubic-bezier(.25,.46,.45,.94)}
-.r.on{opacity:1;transform:none}
-.r.r2{transition-delay:.12s}
-.r.r3{transition-delay:.24s}
-.r.r4{transition-delay:.36s}
-.r.r5{transition-delay:.48s}
+  /* ========== INTRO CARD ========== */
+  .intro-card {
+    background: linear-gradient(135deg, var(--edo-purple) 0%, var(--indigo) 100%);
+    color: #fff;
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.8s ease both 0.5s;
+  }
 
-/* ─────────── STATS STRIP ─────────── */
-.stats-strip{
-  display:grid;grid-template-columns:repeat(5,1fr);
-  border-top:1px solid rgba(212,168,83,.12);
-  border-bottom:1px solid rgba(212,168,83,.12);
-  background:var(--deep);z-index:3;position:relative;
-}
-.stat-block{
-  padding:3.5rem 2rem;
-  border-right:1px solid rgba(212,168,83,.08);
-  text-align:center;position:relative;overflow:hidden;
-  transition:background .4s;
-}
-.stat-block:last-child{border-right:none}
-.stat-block:hover{background:var(--stone)}
-.stat-block::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at center,rgba(200,96,26,.1),transparent);
-  opacity:0;transition:opacity .4s;
-}
-.stat-block:hover::before{opacity:1}
-.stat-num{
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(2.5rem,4vw,4rem);
-  font-weight:200;color:var(--gold);
-  line-height:1;display:block;margin-bottom:.5rem;
-}
-.stat-unit{font-size:.7em;color:var(--amber)}
-.stat-desc{
-  font-family:'Space Mono',monospace;
-  font-size:.55rem;letter-spacing:.2em;
-  color:var(--muted);text-transform:uppercase;line-height:1.6;
-}
+  .intro-card::before {
+    content: '◎';
+    position: absolute;
+    right: -20px;
+    top: -20px;
+    font-size: 120px;
+    opacity: 0.06;
+    color: #fff;
+  }
 
-/* ─────────── SCIENCE INTRO ─────────── */
-.sci-intro{
-  padding:9rem 6vw;
-  display:grid;grid-template-columns:1fr 1.2fr;
-  gap:7rem;align-items:start;
-  border-top:1px solid rgba(212,168,83,.1);
-}
-.sci-sticky{position:sticky;top:5rem}
-.sci-head{font-size:clamp(3rem,5.5vw,4.5rem);margin-bottom:2.5rem}
-.sci-para{font-size:.9rem;line-height:2.3;color:rgba(240,232,216,.72);margin-bottom:1.4rem}
-.sci-highlight{
-  border-left:2px solid var(--ember);
-  padding:1.2rem 1.8rem;
-  background:rgba(200,96,26,.06);
-  margin:2rem 0;
-}
-.sci-highlight p{font-size:.85rem;line-height:2;color:rgba(240,232,216,.8)}
-.sci-highlight strong{color:var(--amber)}
+  .intro-card h3 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    margin-bottom: 14px;
+    opacity: 0.8;
+  }
 
-/* Animated wave chart */
-.wave-chart{
-  width:100%;height:120px;margin:2rem 0;
-  position:relative;overflow:hidden;
-}
-.wave-chart svg{width:100%;height:100%}
+  .intro-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
 
-/* Science cards grid */
-.sci-cards{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(212,168,83,.08)}
-.sci-card{
-  background:var(--deep);padding:2.2rem 1.8rem;
-  transition:background .35s,transform .35s;
-  transform-origin:center;
-}
-.sci-card:hover{background:var(--stone);transform:scale(1.01)}
-.sci-card-num{
-  font-family:'Cormorant Garamond',serif;
-  font-size:3.5rem;font-weight:200;
-  color:rgba(212,168,83,.2);line-height:1;margin-bottom:.6rem;
-}
-.sci-card-key{
-  font-family:'Space Mono',monospace;
-  font-size:.56rem;letter-spacing:.22em;
-  color:var(--amber);margin-bottom:.9rem;
-}
-.sci-card-val{
-  font-size:.82rem;line-height:2;color:var(--fog);
-}
-.sci-card-pill{
-  display:inline-block;margin-top:1rem;
-  font-family:'Space Mono',monospace;font-size:.52rem;
-  letter-spacing:.15em;padding:.2rem .7rem;
-  border:1px solid rgba(200,96,26,.3);color:var(--ember);
-}
+  .intro-item {
+    text-align: center;
+  }
 
-/* ─────────── HORMONE DIAGRAM ─────────── */
-.hormone-section{
-  padding:7rem 6vw;background:var(--deep);
-  border-top:1px solid rgba(212,168,83,.1);
-}
-.hormone-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:1px;background:rgba(212,168,83,.08);margin-top:5rem;
-}
-.hormone-card{
-  background:var(--deep);padding:3rem 2.5rem;
-  position:relative;overflow:hidden;
-  transition:background .4s;cursor:default;
-}
-.hormone-card:hover{background:var(--stone)}
-.hormone-card::after{
-  content:'';position:absolute;
-  width:150px;height:150px;border-radius:50%;
-  bottom:-60px;right:-40px;
-  background:radial-gradient(circle,rgba(200,96,26,.15),transparent);
-  opacity:0;transition:opacity .4s,transform .4s;
-  transform:scale(.5);
-}
-.hormone-card:hover::after{opacity:1;transform:scale(1)}
-.h-icon{font-size:2.4rem;margin-bottom:1.5rem;display:block;line-height:1}
-.h-name{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.9rem;font-weight:200;margin-bottom:.3rem;line-height:1.1;
-}
-.h-eng{
-  font-family:'Space Mono',monospace;font-size:.56rem;
-  letter-spacing:.2em;color:var(--ember);margin-bottom:1.2rem;
-}
-.h-desc{font-size:.8rem;line-height:2;color:var(--fog);margin-bottom:1.5rem}
-.h-arrow{
-  display:flex;align-items:center;gap:.8rem;
-}
-.h-arrow-label{font-family:'Space Mono',monospace;font-size:.55rem;letter-spacing:.15em;color:var(--muted)}
-.h-bar-wrap{flex:1;height:3px;background:rgba(212,168,83,.1)}
-.h-bar{height:100%;background:linear-gradient(to right,var(--ember),var(--gold));width:0;transition:width 1.4s cubic-bezier(.25,.46,.45,.94)}
-.h-val{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--gold);min-width:3rem;text-align:right}
+  .intro-item .val {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #FFD580;
+    display: block;
+  }
 
-/* ─────────── STONES SECTION ─────────── */
-.stones-sec{
-  padding:9rem 6vw;
-  border-top:1px solid rgba(212,168,83,.1);
-}
-.stones-header{
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:4rem;align-items:end;margin-bottom:6rem;
-}
-.stone-list{display:flex;flex-direction:column;gap:1px;background:rgba(212,168,83,.08)}
-.stone-item{
-  display:grid;grid-template-columns:4rem 14rem 1fr 18rem;
-  background:var(--deep);
-  transition:background .4s;
-  position:relative;overflow:hidden;cursor:default;
-}
-.stone-item::before{
-  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
-  background:linear-gradient(to bottom,var(--ember),var(--gold));
-  transform:scaleY(0);transform-origin:bottom;
-  transition:transform .5s cubic-bezier(.25,.46,.45,.94);
-}
-.stone-item:hover::before{transform:scaleY(1)}
-.stone-item:hover{background:#141109}
-.s-idx{
-  padding:2.5rem 1rem;
-  font-family:'Cormorant Garamond',serif;
-  font-size:2rem;font-weight:200;
-  color:rgba(212,168,83,.2);
-  display:flex;align-items:center;justify-content:center;
-  border-right:1px solid rgba(212,168,83,.07);
-}
-.s-info{
-  padding:2.5rem 2rem;
-  border-right:1px solid rgba(212,168,83,.07);
-}
-.s-name{font-family:'Noto Serif JP',serif;font-size:1.2rem;margin-bottom:.4rem}
-.s-kanji{font-size:.75rem;color:var(--fog);margin-bottom:.3rem}
-.s-origin{
-  font-family:'Space Mono',monospace;font-size:.54rem;
-  letter-spacing:.18em;color:var(--ember);
-}
-.s-detail{
-  padding:2.5rem 2rem;font-size:.8rem;line-height:2;
-  color:var(--fog);display:flex;align-items:center;
-  border-right:1px solid rgba(212,168,83,.07);
-}
-.s-meters{
-  padding:2.5rem 1.5rem;
-  display:flex;flex-direction:column;justify-content:center;gap:.8rem;
-}
-.s-meter-row{display:flex;align-items:center;gap:.7rem}
-.s-meter-key{
-  font-family:'Space Mono',monospace;font-size:.5rem;
-  letter-spacing:.1em;color:rgba(154,146,136,.55);width:5rem;
-}
-.s-meter-track{flex:1;height:2px;background:rgba(212,168,83,.08);position:relative}
-.s-meter-fill{
-  height:100%;
-  background:linear-gradient(to right,var(--ember),var(--gold));
-  width:0%;transition:width 1.2s cubic-bezier(.25,.46,.45,.94);
-}
-.s-meter-val{
-  font-family:'Space Mono',monospace;font-size:.5rem;
-  color:var(--fog);min-width:2.5rem;text-align:right;
-}
+  .intro-item .label {
+    font-size: 11px;
+    opacity: 0.75;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
 
-/* ─────────── FACILITIES ─────────── */
-.fac-sec{
-  padding:9rem 6vw;background:var(--deep);
-  border-top:1px solid rgba(212,168,83,.1);
-}
-.fac-intro{
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:5rem;align-items:end;margin-bottom:7rem;
-}
-.fac-intro-desc{font-size:.88rem;line-height:2.2;color:var(--fog)}
+  /* ========== DRY SKIN NOTICE ========== */
+  .dryskin-banner {
+    border: 1.5px solid var(--beni-light);
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    background: rgba(192, 74, 58, 0.04);
+    animation: fadeUp 0.8s ease both 0.6s;
+  }
 
-/* Featured card */
-.fac-featured{
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:0;
-  border:1px solid rgba(212,168,83,.2);
-  background:linear-gradient(145deg,#110d08,#1a1410);
-  margin-bottom:1px;position:relative;overflow:hidden;
-}
-.fac-featured::before{
-  content:'';position:absolute;inset:0;
-  background:
-    radial-gradient(ellipse 60% 60% at 0% 100%,rgba(200,96,26,.12),transparent),
-    radial-gradient(ellipse 40% 50% at 100% 0%,rgba(212,168,83,.06),transparent);
-  pointer-events:none;
-}
-.fac-featured-left{padding:4rem 3.5rem;border-right:1px solid rgba(212,168,83,.12)}
-.fac-featured-right{padding:4rem 3.5rem}
-.fac-rank-bg{
-  position:absolute;top:-1rem;right:2rem;
-  font-family:'Cormorant Garamond',serif;
-  font-size:12rem;font-weight:200;
-  color:rgba(212,168,83,.04);line-height:1;
-  pointer-events:none;user-select:none;
-}
-.fac-badge{
-  display:inline-flex;align-items:center;gap:.6rem;
-  font-family:'Space Mono',monospace;font-size:.55rem;
-  letter-spacing:.25em;color:var(--black);
-  background:var(--ember);padding:.3rem 1rem;
-  margin-bottom:2rem;
-}
-.fac-badge .dot{width:5px;height:5px;background:rgba(0,0,0,.4);border-radius:50%}
-.fac-name{
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(2rem,3.5vw,3rem);font-weight:200;
-  line-height:1.05;margin-bottom:.5rem;
-}
-.fac-name-jp{
-  font-family:'Noto Serif JP',serif;font-size:.85rem;
-  color:var(--fog);margin-bottom:2rem;letter-spacing:.05em;
-}
-.fac-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:2rem}
-.tag{
-  font-family:'Space Mono',monospace;font-size:.52rem;
-  letter-spacing:.12em;color:var(--amber);
-  border:1px solid rgba(232,147,58,.25);
-  padding:.18rem .6rem;
-}
-.fac-text{font-size:.82rem;line-height:2.1;color:var(--fog);margin-bottom:2rem}
-.price-block{
-  background:rgba(200,96,26,.07);
-  border:1px solid rgba(200,96,26,.18);
-  padding:1.8rem 2rem;margin-bottom:2rem;
-  position:relative;overflow:hidden;
-}
-.price-block::after{
-  content:'¥';
-  position:absolute;right:1.5rem;top:50%;transform:translateY(-50%);
-  font-family:'Cormorant Garamond',serif;font-size:5rem;
-  font-weight:200;color:rgba(212,168,83,.06);line-height:1;
-}
-.price-lbl{
-  font-family:'Space Mono',monospace;font-size:.52rem;
-  letter-spacing:.28em;color:var(--ember);margin-bottom:.8rem;
-}
-.price-num{
-  font-family:'Cormorant Garamond',serif;
-  font-size:3rem;font-weight:200;color:var(--gold);line-height:1;
-}
-.price-num span{font-size:1rem;color:var(--fog);margin-left:.3rem}
-.price-note{font-size:.7rem;color:var(--fog);margin-top:.6rem}
-.fac-highlights{list-style:none;display:flex;flex-direction:column;gap:1rem}
-.fac-highlights li{
-  display:flex;gap:1rem;font-size:.8rem;line-height:1.7;
-  color:rgba(240,232,216,.72);align-items:flex-start;
-}
-.fac-highlights li::before{
-  content:'';flex:0 0 6px;height:6px;
-  background:var(--ember);border-radius:50%;
-  margin-top:.55rem;
-}
-.score-rows{display:flex;flex-direction:column;gap:1rem;margin-top:2rem}
-.score-row{display:flex;align-items:center;gap:1rem}
-.score-key{
-  font-family:'Space Mono',monospace;font-size:.53rem;
-  letter-spacing:.12em;color:var(--muted);width:8rem;
-}
-.score-track{flex:1;height:3px;background:rgba(212,168,83,.1)}
-.score-fill{height:100%;background:linear-gradient(to right,var(--ember),var(--gold));width:0;transition:width 1.4s cubic-bezier(.25,.46,.45,.94)}
-.score-num{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--gold);min-width:3rem;text-align:right}
+  .dryskin-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
 
-/* Sub cards grid */
-.fac-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(212,168,83,.08)}
-.fac-card{
-  background:var(--deep);padding:3rem 2.5rem;
-  position:relative;overflow:hidden;transition:background .4s;cursor:default;
-}
-.fac-card:hover{background:var(--stone)}
-.fac-card-rank{
-  position:absolute;top:2rem;right:2.5rem;
-  font-family:'Cormorant Garamond',serif;
-  font-size:5rem;font-weight:200;
-  color:rgba(212,168,83,.06);line-height:1;
-}
-/* Hover shimmer */
-.fac-card::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(212,168,83,.04),transparent 60%);
-  opacity:0;transition:opacity .4s;
-}
-.fac-card:hover::after{opacity:1}
+  .dryskin-content h4 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 15px;
+    color: var(--beni);
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
 
-/* ─────────── PROTOCOL TIMELINE ─────────── */
-.proto-sec{
-  padding:9rem 6vw;
-  border-top:1px solid rgba(212,168,83,.1);
-}
-.proto-inner{max-width:900px;margin:6rem auto 0}
-.proto-line-wrap{position:relative}
-.proto-spine{
-  position:absolute;left:6.5rem;top:0;bottom:0;width:1px;
-  background:linear-gradient(to bottom,transparent,rgba(212,168,83,.25) 10%,rgba(212,168,83,.25) 90%,transparent);
-}
-.tl-row{
-  display:grid;grid-template-columns:6rem 2.5rem 1fr;
-  gap:0 1.5rem;margin-bottom:4rem;
-  position:relative;
-}
-.tl-row:last-child{margin-bottom:0}
-.tl-time{
-  font-family:'Space Mono',monospace;font-size:.68rem;
-  letter-spacing:.1em;color:var(--ember);
-  padding-top:.3rem;text-align:right;
-}
-.tl-node{display:flex;justify-content:center;padding-top:.35rem;z-index:2}
-.tl-dot{
-  width:12px;height:12px;background:var(--black);
-  border:2px solid var(--ember);border-radius:50%;
-  position:relative;transition:background .3s,box-shadow .3s;
-}
-.tl-row:hover .tl-dot{background:var(--ember);box-shadow:0 0 20px var(--ember)}
-.tl-dot::after{
-  content:'';position:absolute;inset:-5px;
-  border:1px solid rgba(200,96,26,.25);border-radius:50%;
-  animation:pulse 3s ease-in-out infinite;
-}
-@keyframes pulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:0;transform:scale(1.5)}}
-.tl-body{}
-.tl-title{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.8rem;font-weight:200;margin-bottom:.5rem;line-height:1.1;
-}
-.tl-desc{font-size:.82rem;line-height:2;color:var(--fog);margin-bottom:.8rem}
-.tl-science{
-  border-left:2px solid rgba(200,96,26,.3);
-  padding:.7rem 1rem;margin:.8rem 0;
-  background:rgba(200,96,26,.04);
-  font-size:.78rem;line-height:1.9;color:rgba(240,232,216,.65);
-}
-.tl-science strong{color:var(--amber);font-weight:400}
-.tl-tip-tag{
-  display:inline-flex;align-items:center;gap:.5rem;
-  font-family:'Space Mono',monospace;font-size:.52rem;
-  letter-spacing:.15em;color:var(--gold);
-  border:1px solid rgba(212,168,83,.2);padding:.2rem .8rem;
-  margin-top:.5rem;
-}
+  .dryskin-content p {
+    font-size: 12.5px;
+    color: var(--ink-light);
+    line-height: 1.9;
+  }
 
-/* ─────────── DEEP SCIENCE ─────────── */
-.deep-sci{
-  padding:9rem 6vw;background:var(--deep);
-  border-top:1px solid rgba(212,168,83,.1);
-}
-.deep-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:1px;background:rgba(212,168,83,.08);margin-top:6rem;
-}
-.deep-card{
-  background:var(--deep);padding:2.8rem 2.2rem;
-  transition:background .4s;cursor:default;
-  position:relative;overflow:hidden;
-}
-.deep-card:hover{background:var(--stone)}
-.deep-card:hover .deep-card-line{transform:scaleX(1)}
-.deep-card-line{
-  position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(to right,var(--ember),var(--gold));
-  transform:scaleX(0);transform-origin:left;
-  transition:transform .6s cubic-bezier(.25,.46,.45,.94);
-}
-.deep-icon{font-size:2.2rem;margin-bottom:1.5rem;display:block;line-height:1}
-.deep-title{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.6rem;font-weight:200;margin-bottom:.8rem;line-height:1.15;
-}
-.deep-body{font-size:.78rem;line-height:2;color:var(--fog);margin-bottom:1.4rem}
-.deep-data{
-  border-top:1px solid rgba(212,168,83,.1);
-  padding-top:1.2rem;display:flex;flex-direction:column;gap:.6rem;
-}
-.deep-data-row{display:flex;justify-content:space-between;align-items:center}
-.deep-data-key{
-  font-family:'Space Mono',monospace;font-size:.52rem;
-  letter-spacing:.1em;color:rgba(154,146,136,.6);
-}
-.deep-data-val{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.2rem;color:var(--gold);
-}
+  .dryskin-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
 
-/* ─────────── COMPARISON ─────────── */
-.comp-sec{
-  padding:9rem 6vw;
-  border-top:1px solid rgba(212,168,83,.1);
-}
-.comp-table{width:100%;border-collapse:collapse;margin-top:5rem}
-.comp-table th{
-  font-family:'Space Mono',monospace;font-size:.56rem;
-  letter-spacing:.2em;color:var(--ember);
-  text-transform:uppercase;font-weight:400;
-  padding:1rem 1.5rem;text-align:left;
-  border-bottom:1px solid rgba(212,168,83,.12);
-}
-.comp-table td{
-  padding:1.4rem 1.5rem;font-size:.8rem;
-  color:rgba(240,232,216,.72);
-  border-bottom:1px solid rgba(212,168,83,.05);
-  vertical-align:middle;line-height:1.6;
-  transition:background .3s;
-}
-.comp-table tr{transition:background .3s;position:relative}
-.comp-table tbody tr:hover td{background:rgba(212,168,83,.03)}
-.comp-table .name-c{
-  font-family:'Noto Serif JP',serif;color:var(--cream);font-size:.88rem;
-}
-.comp-table .price-c{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.4rem;color:var(--gold);white-space:nowrap;
-}
-.dot-y{color:#7ab87a}.dot-p{color:var(--amber)}.dot-n{color:rgba(154,146,136,.35)}
-.comp-dim{opacity:.35}
-.rec-badge{
-  font-family:'Space Mono',monospace;font-size:.48rem;
-  letter-spacing:.15em;background:var(--ember);
-  color:var(--black);padding:.15rem .6rem;vertical-align:middle;margin-left:.5rem;
-}
-.exc-badge{
-  font-family:'Space Mono',monospace;font-size:.48rem;
-  letter-spacing:.15em;border:1px solid rgba(154,146,136,.2);
-  color:rgba(154,146,136,.5);padding:.15rem .6rem;
-}
+  .dryskin-tag {
+    background: rgba(192, 74, 58, 0.1);
+    color: var(--beni);
+    border-radius: 2px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 500;
+  }
 
-/* ─────────── INFOGRAPHIC: HEAT MAP ─────────── */
-.heat-sec{
-  padding:9rem 6vw;background:var(--deep);
-  border-top:1px solid rgba(212,168,83,.1);
-}
-.heat-grid{
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:5rem;align-items:center;margin-top:6rem;
-}
-.heat-canvas-wrap{
-  position:relative;
-  background:rgba(212,168,83,.04);
-  border:1px solid rgba(212,168,83,.1);
-  padding:2rem;
-}
-.body-svg{width:100%;max-width:360px;margin:0 auto;display:block}
-.heat-points{list-style:none;display:flex;flex-direction:column;gap:1.5rem}
-.heat-point{
-  display:flex;align-items:flex-start;gap:1.5rem;
-  opacity:0;transform:translateX(-20px);
-  transition:opacity .6s,transform .6s;
-}
-.heat-point.on{opacity:1;transform:none}
-.heat-point-dot{
-  flex:0 0 10px;height:10px;border-radius:50%;margin-top:.35rem;
-}
-.heat-point-body{}
-.heat-point-title{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.2rem;font-weight:200;margin-bottom:.3rem;
-}
-.heat-point-desc{font-size:.78rem;line-height:1.9;color:var(--fog)}
+  /* ========== SECTION LABEL ========== */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 40px 0 20px;
+    animation: fadeIn 0.8s ease both;
+  }
 
-/* ─────────── SWEAT SCIENCE ─────────── */
-.sweat-sec{
-  padding:9rem 6vw;
-  border-top:1px solid rgba(212,168,83,.1);
-}
-.sweat-compare{
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:1px;background:rgba(212,168,83,.08);
-  margin-top:5rem;
-}
-.sweat-col{background:var(--deep);padding:3.5rem 3rem}
-.sweat-col.ganban{background:linear-gradient(180deg,#120f0a,var(--deep))}
-.sweat-col-head{
-  font-family:'Cormorant Garamond',serif;
-  font-size:2.2rem;font-weight:200;margin-bottom:.3rem;
-}
-.sweat-col-sub{
-  font-family:'Space Mono',monospace;font-size:.56rem;
-  letter-spacing:.2em;color:var(--ember);margin-bottom:2rem;
-}
-.sweat-attr{display:flex;flex-direction:column;gap:1.4rem;margin-top:2rem}
-.sweat-attr-row{display:flex;align-items:start;gap:1.2rem}
-.sweat-attr-icon{font-size:1.2rem;flex:0 0 1.5rem;margin-top:.1rem}
-.sweat-attr-key{
-  font-family:'Space Mono',monospace;font-size:.55rem;
-  letter-spacing:.15em;color:var(--amber);margin-bottom:.3rem;
-}
-.sweat-attr-val{font-size:.8rem;line-height:1.8;color:var(--fog)}
+  .section-label span {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 13px;
+    letter-spacing: 5px;
+    color: var(--ink-light);
+    font-weight: 600;
+  }
 
-/* ─────────── EXCLUDE ─────────── */
-.exc-sec{
-  padding:7rem 6vw;background:var(--deep);
-  border-top:1px solid rgba(212,168,83,.1);
-}
-.exc-row{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:1.8rem 0;border-bottom:1px solid rgba(212,168,83,.06);
-  gap:2rem;
-}
-.exc-name{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.3rem;font-weight:200;text-decoration:line-through;
-  text-decoration-color:rgba(154,146,136,.4);
-}
-.exc-reason{font-size:.78rem;color:var(--fog);flex:1;max-width:420px;line-height:1.8}
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
 
-/* ─────────── GLOSSARY ─────────── */
-.gloss-sec{
-  padding:9rem 6vw;
-  border-top:1px solid rgba(212,168,83,.1);
-}
-.gloss-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:1px;background:rgba(212,168,83,.08);margin-top:5rem;
-}
-.gloss-card{
-  background:var(--deep);padding:2rem 1.8rem;
-  transition:background .35s;cursor:default;
-}
-.gloss-card:hover{background:var(--stone)}
-.gloss-term{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.4rem;font-weight:200;color:var(--gold);
-  margin-bottom:.3rem;line-height:1.2;
-}
-.gloss-read{
-  font-family:'Space Mono',monospace;font-size:.52rem;
-  letter-spacing:.2em;color:var(--ember);margin-bottom:.8rem;
-}
-.gloss-def{font-size:.78rem;line-height:1.9;color:var(--fog)}
+  /* ========== TIMELINE ========== */
+  .timeline {
+    position: relative;
+  }
 
-/* ─────────── FOOTER ─────────── */
-footer{
-  padding:6rem 6vw 3rem;
-  border-top:1px solid rgba(212,168,83,.15);
-  z-index:3;position:relative;
-}
-.footer-top{
-  display:grid;grid-template-columns:1fr 2fr 1fr;
-  gap:4rem;align-items:start;margin-bottom:5rem;
-}
-.footer-brand{
-  font-family:'Cormorant Garamond',serif;
-  font-size:3.5rem;font-weight:200;font-style:italic;
-  color:var(--gold);line-height:1;
-}
-.footer-brand span{
-  display:block;font-style:normal;
-  font-family:'Space Mono',monospace;font-size:.54rem;
-  letter-spacing:.3em;color:var(--muted);margin-top:.5rem;
-}
-.footer-links{display:flex;flex-direction:column;gap:.8rem}
-.footer-links a{
-  font-family:'Space Mono',monospace;font-size:.56rem;
-  letter-spacing:.2em;color:var(--fog);text-decoration:none;
-  transition:color .3s;text-transform:uppercase;
-}
-.footer-links a:hover{color:var(--amber)}
-.footer-note{font-size:.72rem;line-height:1.9;color:rgba(154,146,136,.5)}
-.footer-bottom{
-  display:flex;justify-content:space-between;align-items:center;
-  padding-top:2rem;border-top:1px solid rgba(212,168,83,.07);
-}
-.footer-copy{
-  font-family:'Space Mono',monospace;font-size:.52rem;
-  letter-spacing:.2em;color:rgba(154,146,136,.35);
-}
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 56px;
+    top: 0;
+    bottom: 0;
+    width: 1.5px;
+    background: linear-gradient(180deg, transparent, var(--border) 5%, var(--border) 95%, transparent);
+  }
 
-/* ─────────── FLOATING KANJI ─────────── */
-.float-kanji{
-  position:fixed;right:2rem;top:50%;transform:translateY(-50%);
-  display:flex;flex-direction:column;gap:1.5rem;
-  z-index:5;pointer-events:none;
-}
-.fk-char{
-  font-family:'Noto Serif JP',serif;font-weight:200;
-  font-size:.9rem;writing-mode:vertical-rl;
-  color:rgba(212,168,83,.15);letter-spacing:.2em;
-  transition:color .5s;
-}
-.fk-char.active{color:rgba(212,168,83,.5)}
+  .tl-item {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease both;
+  }
 
-/* ─────────── MISC ─────────── */
-.divider{margin:0 6vw;height:1px;background:linear-gradient(to right,transparent,rgba(212,168,83,.25),transparent)}
+  .tl-item:nth-child(1)  { animation-delay: 0.1s; }
+  .tl-item:nth-child(2)  { animation-delay: 0.15s; }
+  .tl-item:nth-child(3)  { animation-delay: 0.2s; }
+  .tl-item:nth-child(4)  { animation-delay: 0.25s; }
+  .tl-item:nth-child(5)  { animation-delay: 0.3s; }
+  .tl-item:nth-child(6)  { animation-delay: 0.35s; }
+  .tl-item:nth-child(7)  { animation-delay: 0.4s; }
+  .tl-item:nth-child(8)  { animation-delay: 0.45s; }
+  .tl-item:nth-child(9)  { animation-delay: 0.5s; }
+  .tl-item:nth-child(10) { animation-delay: 0.55s; }
+  .tl-item:nth-child(11) { animation-delay: 0.6s; }
+  .tl-item:nth-child(12) { animation-delay: 0.65s; }
+  .tl-item:nth-child(13) { animation-delay: 0.7s; }
 
-.glow-text{
-  text-shadow:0 0 40px rgba(212,168,83,.4);
-  animation:glowPulse 4s ease-in-out infinite;
-}
-@keyframes glowPulse{0%,100%{text-shadow:0 0 30px rgba(212,168,83,.3)}50%{text-shadow:0 0 60px rgba(212,168,83,.6),0 0 100px rgba(200,96,26,.2)}}
+  .tl-time {
+    width: 56px;
+    flex-shrink: 0;
+    padding-top: 18px;
+    text-align: right;
+    padding-right: 0;
+  }
 
-/* ─────────── HERO TEMP DISPLAY ─────────── */
-.hero-temps{
-  position:absolute;bottom:8rem;
-  display:flex;gap:3rem;
-  opacity:0;animation:slideUp .8s 1.8s forwards;
-}
-.hero-temp-item{text-align:center}
-.hero-temp-num{
-  font-family:'Cormorant Garamond',serif;
-  font-size:2rem;font-weight:200;color:var(--amber);
-  display:block;line-height:1;
-}
-.hero-temp-lbl{
-  font-family:'Space Mono',monospace;font-size:.48rem;
-  letter-spacing:.2em;color:var(--muted);display:block;margin-top:.3rem;
-}
-.hero-temp-sep{
-  width:1px;background:rgba(212,168,83,.2);
-  align-self:stretch;
-}
+  .tl-time .hour {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    display: block;
+    line-height: 1;
+  }
+
+  .tl-time .min {
+    font-size: 10px;
+    color: var(--ink-light);
+    opacity: 0.6;
+  }
+
+  .tl-dot-wrap {
+    width: 40px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    padding-top: 22px;
+  }
+
+  .tl-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--cream);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 0 0 1px var(--border);
+  }
+
+  .tl-card {
+    flex: 1;
+    background: #fff;
+    border-radius: 4px;
+    padding: 18px 22px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    margin-left: 4px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .tl-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.07);
+  }
+
+  .tl-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+  }
+
+  /* Category colors */
+  .cat-checkin .tl-dot    { background: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+  .cat-checkin .tl-card::before { background: var(--gold); }
+  .cat-checkin .cat-badge { background: rgba(184, 139, 58, 0.12); color: var(--gold); }
+
+  .cat-bath .tl-dot       { background: var(--bath); box-shadow: 0 0 0 1px var(--bath); }
+  .cat-bath .tl-card::before    { background: var(--bath); }
+  .cat-bath .cat-badge    { background: rgba(58, 107, 138, 0.12); color: var(--bath); }
+
+  .cat-rock .tl-dot       { background: var(--rock); box-shadow: 0 0 0 1px var(--rock); }
+  .cat-rock .tl-card::before    { background: var(--rock); }
+  .cat-rock .cat-badge    { background: rgba(74, 107, 74, 0.12); color: var(--rock); }
+
+  .cat-rest .tl-dot       { background: var(--rest); box-shadow: 0 0 0 1px var(--rest); }
+  .cat-rest .tl-card::before    { background: var(--rest); }
+  .cat-rest .cat-badge    { background: rgba(92, 74, 122, 0.12); color: var(--rest); }
+
+  .cat-food .tl-dot       { background: var(--food); box-shadow: 0 0 0 1px var(--food); }
+  .cat-food .tl-card::before    { background: var(--food); }
+  .cat-food .cat-badge    { background: rgba(122, 92, 42, 0.12); color: var(--food); }
+
+  .cat-sauna .tl-dot      { background: var(--sauna); box-shadow: 0 0 0 1px var(--sauna); }
+  .cat-sauna .tl-card::before   { background: var(--sauna); }
+  .cat-sauna .cat-badge   { background: rgba(138, 58, 42, 0.12); color: var(--sauna); }
+
+  .cat-care .tl-dot       { background: var(--sage); box-shadow: 0 0 0 1px var(--sage); }
+  .cat-care .tl-card::before    { background: var(--sage); }
+  .cat-care .cat-badge    { background: rgba(92, 123, 90, 0.12); color: var(--sage); }
+
+  .cat-end .tl-dot        { background: var(--beni); box-shadow: 0 0 0 1px var(--beni); }
+  .cat-end .tl-card::before     { background: var(--beni); }
+  .cat-end .cat-badge     { background: rgba(192, 74, 58, 0.12); color: var(--beni); }
+
+  .tl-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .tl-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+  }
+
+  .tl-title .emoji {
+    margin-right: 6px;
+  }
+
+  .cat-badge {
+    flex-shrink: 0;
+    padding: 3px 10px;
+    border-radius: 2px;
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+
+  .tl-body {
+    font-size: 13px;
+    color: var(--ink-light);
+    line-height: 1.9;
+  }
+
+  .tl-body strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .tip-box {
+    margin-top: 12px;
+    background: var(--cream);
+    border-left: 2.5px solid var(--gold);
+    padding: 10px 14px;
+    border-radius: 0 3px 3px 0;
+    font-size: 12px;
+    color: var(--ink-light);
+    line-height: 1.8;
+  }
+
+  .tip-box .tip-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 4px;
+    display: block;
+    text-transform: uppercase;
+  }
+
+  .skin-tip {
+    margin-top: 10px;
+    background: rgba(192, 74, 58, 0.04);
+    border: 1px dashed rgba(192, 74, 58, 0.3);
+    border-radius: 3px;
+    padding: 9px 13px;
+    font-size: 12px;
+    color: var(--beni);
+    line-height: 1.8;
+  }
+
+  .skin-tip::before {
+    content: '🌿 乾燥肌ケア ▸ ';
+    font-weight: 500;
+  }
+
+  .mini-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .mini-cell {
+    background: var(--cream);
+    border-radius: 3px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--ink-light);
+    line-height: 1.7;
+  }
+
+  .mini-cell strong {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ========== HIGHLIGHT BLOCK ========== */
+  .highlight-block {
+    background: linear-gradient(135deg, #FFF8F0, #FFF2E8);
+    border: 1px solid var(--gold-light);
+    border-radius: 4px;
+    padding: 24px 28px;
+    margin: 32px 0;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .highlight-block::after {
+    content: '★';
+    position: absolute;
+    right: 20px;
+    bottom: -10px;
+    font-size: 80px;
+    opacity: 0.06;
+    color: var(--gold);
+  }
+
+  .highlight-block h3 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+  }
+
+  .highlight-block ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .highlight-block li {
+    font-size: 13px;
+    color: var(--ink-light);
+    padding: 5px 0;
+    padding-left: 18px;
+    position: relative;
+    line-height: 1.7;
+  }
+
+  .highlight-block li::before {
+    content: '─';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  /* ========== SAUNA GUIDE ========== */
+  .sauna-guide {
+    background: linear-gradient(135deg, #FFF5F3, #FFF0ED);
+    border: 1px solid rgba(192, 74, 58, 0.25);
+    border-radius: 4px;
+    padding: 24px 28px;
+    margin: 32px 0;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .sauna-guide h3 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--sauna);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  .sauna-types {
+    display: grid;
+    gap: 10px;
+  }
+
+  .sauna-type {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: #fff;
+    border-radius: 3px;
+    padding: 12px 16px;
+    border: 1px solid rgba(192, 74, 58, 0.12);
+  }
+
+  .sauna-type .icon {
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .sauna-type .name {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+
+  .sauna-type .desc {
+    font-size: 12px;
+    color: var(--ink-light);
+    line-height: 1.8;
+  }
+
+  .sauna-type .badge-temp {
+    margin-left: auto;
+    flex-shrink: 0;
+    background: var(--sauna);
+    color: #fff;
+    border-radius: 2px;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    align-self: flex-start;
+  }
+
+  /* ========== PACKING LIST ========== */
+  .packing {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .packing-header {
+    background: var(--edo-purple);
+    color: #fff;
+    padding: 14px 22px;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+  }
+
+  .packing-body {
+    padding: 20px 22px;
+    background: #fff;
+  }
+
+  .packing-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .packing-group h4 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--edo-purple);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .packing-list {
+    list-style: none;
+  }
+
+  .packing-list li {
+    font-size: 13px;
+    color: var(--ink-light);
+    padding: 4px 0;
+    padding-left: 18px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .packing-list li::before {
+    content: '□';
+    position: absolute;
+    left: 0;
+    color: var(--edo-purple);
+    font-size: 11px;
+  }
+
+  /* ========== FLOOR MAP ========== */
+  .floor-map {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 32px 0;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .floor-map-header {
+    background: var(--indigo);
+    color: #fff;
+    padding: 14px 22px;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+  }
+
+  .floor-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .floor-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--cream-dark);
+    font-size: 13px;
+    transition: background 0.15s;
+  }
+
+  .floor-item:last-child { border-bottom: none; }
+  .floor-item:hover { background: var(--cream); }
+
+  .floor-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 16px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .floor-name {
+    font-weight: 500;
+    color: var(--ink);
+    flex: 1;
+  }
+
+  .floor-sub {
+    font-size: 12px;
+    color: var(--ink-light);
+  }
+
+  /* ========== FOOTER ========== */
+  .footer {
+    text-align: center;
+    padding: 48px 0 0;
+    border-top: 1px solid var(--border);
+    margin-top: 48px;
+    animation: fadeIn 1s ease both;
+  }
+
+  .footer-motto {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 4px;
+    margin-bottom: 12px;
+  }
+
+  .footer-motto span {
+    color: var(--beni);
+  }
+
+  .footer-sub {
+    font-size: 12px;
+    color: var(--ink-light);
+    letter-spacing: 2px;
+    opacity: 0.7;
+  }
+
+  /* ========== ANIMATIONS ========== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 560px) {
+    .intro-grid { grid-template-columns: 1fr; gap: 10px; }
+    .packing-cols { grid-template-columns: 1fr; }
+    .mini-grid { grid-template-columns: 1fr; }
+    .timeline::before { left: 48px; }
+    .tl-time { width: 48px; }
+    .sauna-type .badge-temp { display: none; }
+  }
+
+  /* Special card styles */
+  .star-card {
+    position: relative;
+  }
+
+  .star-card .tl-card {
+    background: linear-gradient(135deg, #fff 60%, #FFF5F3);
+    border-color: rgba(192, 74, 58, 0.3);
+  }
+
+  .star-badge {
+    display: inline-block;
+    background: var(--beni);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-left: 8px;
+    vertical-align: middle;
+    position: relative;
+    top: -2px;
+  }
+
+  .water-counter {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .water-drop {
+    background: rgba(58, 107, 138, 0.1);
+    color: var(--bath);
+    border: 1px solid rgba(58, 107, 138, 0.2);
+    border-radius: 12px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .highlight-pink {
+    background: linear-gradient(135deg, #FFF0F3, #FFE8EE);
+    border-color: rgba(192, 74, 58, 0.3);
+  }
+
+  .note-line {
+    font-size: 11.5px;
+    color: var(--ink-light);
+    opacity: 0.75;
+    font-style: italic;
+    margin-top: 4px;
+  }
 </style>
 </head>
 <body>
+<div class="wrapper">
 
-<div id="cur"></div>
-<div id="cur-ring"></div>
-<div id="progress"></div>
+  <!-- HEADER -->
+  <div class="header">
+    <p class="header-deco">完全攻略ガイド · 2026年4月26日（日）</p>
+    <h1 class="header-title">両国湯屋<br><span>江戸遊</span></h1>
+    <p class="header-subtitle">中学3年 2〜3人旅のしおり</p>
+    <div class="header-date-badge">🗓 2026.04.26 SUN &nbsp;|&nbsp; 10:00 → 20:00</div>
+    <div class="header-rule"></div>
+  </div>
 
-<canvas id="star-canvas"></canvas>
-<canvas id="steam-canvas"></canvas>
+  <!-- INTRO CARD -->
+  <div class="intro-card">
+    <h3>▸ 今日の攻略データ</h3>
+    <div class="intro-grid">
+      <div class="intro-item">
+        <span class="val">10h</span>
+        <div class="label">滞在時間</div>
+      </div>
+      <div class="intro-item">
+        <span class="val">2〜3人</span>
+        <div class="label">メンバー</div>
+      </div>
+      <div class="intro-item">
+        <span class="val">全員</span>
+        <div class="label">乾燥肌対策あり</div>
+      </div>
+    </div>
+  </div>
 
-<!-- Floating kanji -->
-<div class="float-kanji">
-  <span class="fk-char" data-sec="0">静</span>
-  <span class="fk-char" data-sec="1">質</span>
-  <span class="fk-char" data-sec="2">岩</span>
-  <span class="fk-char" data-sec="3">湯</span>
-  <span class="fk-char" data-sec="4">整</span>
+  <!-- DRY SKIN NOTICE -->
+  <div class="dryskin-banner">
+    <div class="dryskin-icon">🌿</div>
+    <div class="dryskin-content">
+      <h4>乾燥肌チームへの全体方針</h4>
+      <p>温浴施設は乾燥肌にとって諸刃の剣。<strong>洗いすぎず・保湿を絶やさず・水素水で体の内側から整える</strong>の3原則で最高の肌コンディションを保とう。江戸遊のパウダールームには化粧水・乳液が無料で置いてある。絶対に使うこと！</p>
+      <div class="dryskin-tags">
+        <span class="dryskin-tag">アミノ酸系ソープで優しく洗う</span>
+        <span class="dryskin-tag">炭酸泉で肌バリア強化</span>
+        <span class="dryskin-tag">5分以内に保湿</span>
+        <span class="dryskin-tag">水素水飲み放題（5F）活用</span>
+        <span class="dryskin-tag">女子限定：アロマスチームサウナ最強</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOOR MAP -->
+  <div class="floor-map">
+    <div class="floor-map-header">▸ フロアガイド（5階建て）</div>
+    <ul class="floor-list">
+      <li class="floor-item">
+        <div class="floor-num" style="background:#F0E8D8;color:var(--gold);">1F</div>
+        <div>
+          <div class="floor-name">受付・フロント・グッズ売り場</div>
+          <div class="floor-sub">サウナキャップ、ヴィヒタ等販売あり</div>
+        </div>
+      </li>
+      <li class="floor-item">
+        <div class="floor-num" style="background:#E0EBF5;color:var(--bath);">2F</div>
+        <div>
+          <div class="floor-name">男性専用浴場・湯WORK（元サウナリノベ）</div>
+          <div class="floor-sub">フィンランドサウナ・中温ボナサウナ・炭酸泉・水風呂・露天</div>
+        </div>
+      </li>
+      <li class="floor-item">
+        <div class="floor-num" style="background:#EDF5E0;color:var(--rock);">3F</div>
+        <div>
+          <div class="floor-name">お休み処・北斎レストラン</div>
+          <div class="floor-sub">漫画・ハンモック・世界のミネラルウォーターカウンター。飲食11:30〜22:00</div>
+        </div>
+      </li>
+      <li class="floor-item">
+        <div class="floor-num" style="background:#F5E0E8;color:var(--beni);">4F</div>
+        <div>
+          <div class="floor-name">女性専用浴場・湯WORK</div>
+          <div class="floor-sub">アロマスチームサウナ・泥パック足湯・ハンモック・充電スポットあり</div>
+        </div>
+      </li>
+      <li class="floor-item">
+        <div class="floor-num" style="background:#E8E0F5;color:var(--edo-purple);">5F</div>
+        <div>
+          <div class="floor-name">岩盤浴（白珪房・月光房）・お休み処</div>
+          <div class="floor-sub">水素水飲み放題あり！混んでる場合は待ちが出ることも</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- TIMELINE LABEL -->
+  <div class="section-label">
+    <span>T I M E L I N E</span>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="timeline">
+
+    <!-- 10:00 入館 -->
+    <div class="tl-item cat-checkin">
+      <div class="tl-time"><span class="hour">10</span><span class="min">:00</span></div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header">
+          <div class="tl-title"><span class="emoji">🚪</span>入館！開店ダッシュ</div>
+          <div class="cat-badge">入館</div>
+        </div>
+        <div class="tl-body">
+          10時ジャストにフロントへ。<strong>日曜は午後から混雑</strong>するので一番乗りが正解。館内着・タオルセット・岩盤浴着を受け取ったら、まず5Fへ上がって<strong>岩盤浴エリアの混み具合を確認</strong>しておくと良い。
+          <div class="tip-box">
+            <span class="tip-label">フロントで確認すること</span>
+            岩盤浴ラドン岩盤浴「風」の当日料金・混雑状況をチェック。1Fグッズ売り場でサウナキャップを買うのもあり（乾燥と髪の傷みを防げる）。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10:15 下茹で -->
+    <div class="tl-item cat-bath">
+      <div class="tl-time"><span class="hour">10</span><span class="min">:15</span></div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header">
+          <div class="tl-title"><span class="emoji">🛁</span>大浴場・下茹でフェーズ</div>
+          <div class="cat-badge">入浴</div>
+        </div>
+        <div class="tl-body">
+          まず体を洗う。<strong>ゴシゴシ厳禁。</strong>アミノ酸系ボディーソープで包み込むように。洗い終わったら<strong>どくだみ湯（42℃）</strong>で5分温まり、その後<strong>高濃度炭酸泉で15〜20分</strong>じっくり。シュワシュワが毛穴に浸透して、肌のバリア機能がみるみる整う。
+          <div class="mini-grid">
+            <div class="mini-cell"><strong>炭酸泉</strong>血行促進・保湿・美肌。乾燥肌に最適。長めに浸かるほど良い</div>
+            <div class="mini-cell"><strong>順番</strong>かけ湯→どくだみ湯→炭酸泉→水分補給→5Fへ</div>
+          </div>
+          <div class="skin-tip">石鹸の洗い残しは乾燥の元。しっかりすすいでから浴槽へ。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11:00 岩盤浴前半 -->
+    <div class="tl-item cat-rock">
+      <div class="tl-time"><span class="hour">11</span><span class="min">:00</span></div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header">
+          <div class="tl-title"><span class="emoji">🪨</span>岩盤浴【前半2セット】</div>
+          <div class="cat-badge">岩盤浴</div>
+        </div>
+        <div class="tl-body">
+          岩盤浴は11:00スタート。<strong>白珪房（明るめ・二重扉）15〜20分 → 涼み処で10分クールダウン → 月光房（暗め・やや低温）15分</strong>。大浴場でしっかり下茹でしてあるので、汗が出るスピードが段違い。
+          <div class="water-counter">
+            <div class="water-drop">💧 水素水1杯（入室前）</div>
+            <div class="water-drop">💧 水素水1杯（セット間）</div>
+            <div class="water-drop">💧 水素水1杯（終了後）</div>
+          </div>
+          <div class="tip-box">
+            <span class="tip-label">水素水の飲み方のコツ</span>
+            一気に飲まず、少量ずつこまめに。5Fの水素水は飲み放題。ポカリよりも先にここでしっかり補給しよう。
+          </div>
+          <div class="skin-tip">岩盤浴は高湿度で蒸されるため乾燥しにくい。むしろデトックス効果でくすみが取れる。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12:15 ランチ -->
+    <div class="tl-item cat-food">
+      <div class="tl-time"><span class="hour">12</span><span class="min">:15</span></div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header">
+          <div class="tl-title"><span class="emoji">🍜</span>3F 北斎でランチ</div>
+          <div class="cat-badge">食事</div>
+        </div>
+        <div class="tl-body">
+          レストランは<strong>11:30オープン</strong>。岩盤浴の後、館内着のまま3Fへ。岩盤浴でしっかり汗をかいた後だから何を食べても美味い。とはいえ<strong>夜のサ飯本番に向けて腹7分目まで</strong>に抑えるのが鉄則。<br><br>
+          <strong>おすすめ：</strong>二八蕎麦、うどん、軽めの定食。消化の良いものを選ぼう。
+          <p class="note-line">※満腹でサウナに入ると気分が悪くなる場合があります</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13:15 お昼寝 -->
+    <div class="tl-item cat-rest">
+      <div class="tl-time"><span class="hour">13</span><span class="min">:15</span></div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header">
+          <div class="tl-title"><span class="emoji">😴</span>湯WORK＆お休み処でお昼寝</div>
+          <div class="cat-badge">休憩</div>
+        </div>
+        <div class="tl-body">
+          食後の「消化タイム」。<strong>元浴室をリノベした「湯WORK」</strong>が江戸遊最大の推しポイント。男性は2F・女性は4Fにあり、元サウナ室や湯船の中でゴロゴロできる唯一無二の非日常空間。<br><br>
+          漫画を読みながらうたた寝でもOK。<strong>約90分、全集中で何もしない。</strong>
+          <div class="tip-box">
+            <span class="tip-label">女性限定の神コンテンツ</span>
+            4Fにはハンモック・充電スポット・泥パック足湯エリアがあり、ここだけで何時間でも過ごせる。女子は4Fを堪能しながら昼寝しよう。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 14:45 岩盤浴後半 -->
+    <div class="tl-item cat-rock">
+      <div class="tl-time"><span class="hour">14</span><span class="min">:45</span></div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header">
+          <div class="tl-title"><span class="emoji">🪨</span>岩盤浴【後半2セット】</div>
+          <div class="cat-badge">岩盤浴</div>
+        </div>
+        <div class="tl-body">
+          昼寝で体がリセットされた後の岩盤浴は段違いの心地よさ。午前中より<strong>体が深くほぐれているため、汗の量が段違い</strong>に増える。白珪房・月光房を各15〜20分×2セット。<br><br>
+          サウナの前に体を十分温めておくことが「ととのい」の深さを決める。
+          <div class="water-counter">
+            <div class="water-drop">💧 水素水 こまめに補給</div>
+            <div class="water-drop">🟡 ポカリ 1本目もここで</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 16:00 サウナ -->
+    <div class="tl-item cat-sauna star-card">
+      <div class="tl-time"><span class="hour">16</span><span class="min">:00</span></div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header">
+          <div class="tl-title"><span class="emoji">🔥</span>サウナタイム！<span class="star-badge">メイン</span></div>
+          <div class="cat-badge">サウナ</div>
+        </div>
+        <div class="tl-body">
+          ここが本番。岩盤浴で体を芯まで温めた状態でサウナに入ると<strong>別次元の「ととのい」</strong>が待っている。
+          <div class="tip-box">
+            <span class="tip-label">オートロウリュ時間</span>
+            フィンランドサウナのオートロウリュは<strong>毎時15分・45分頃</strong>が目安。16:15・16:45・17:15などを狙って入室しよう！
+          </div>
+          <div class="mini-grid" style="margin-top:12px;">
+            <div class="mini-cell"><strong>推奨セット数</strong>3セット（約90分）</div>
+            <div class="mini-cell"><strong>基本の流れ</strong>フィンランドサウナ8分 → 水風呂30秒 → 外気浴10分</div>
+            <div class="mini-cell"><strong>男女共通</strong>フィンランドサウナ90度・中温ボナサウナ75度</div>
+            <div class="mini-cell"><strong>女子限定！</strong>アロマスチームサウナ45度を1セット挟む</div>
+          </div>
+          <div class="skin-tip">水風呂は30秒〜1分で上がること。長すぎると乾燥肌には負担大。外気浴のととのいチェアで回復！</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 17:30 保湿ケア -->
+    <div class="tl-item cat-care">
+      <div class="tl-time"><span class="hour">17</span><span class="min">:30</span></div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header">
+          <div class="tl-title"><span class="emoji">✨</span>お風呂上がり・念入り保湿ケア</div>
+          <div class="cat-badge">スキンケア</div>
+        </div>
+        <div class="tl-body">
+          サウナ後は皮膚が開いていて最も保湿が浸透しやすい黄金タイム。<strong>お風呂を上がったら5分以内にパウダールームへ！</strong><br><br>
+          パウダールームの無料アメニティ（化粧水・乳液）を<strong>全身にしっかり叩き込む。</strong> 顔・首・腕・ひじ・ひざを重点的に。リファドライヤーで髪をゆっくり乾かせばツヤ髪も完成。
+          <div class="skin-tip">化粧水を塗った後、乳液またはクリームで必ず蓋をすること。蓋をしないと逆に乾燥する。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 18:00 サ飯 -->
+    <div class="tl-item cat-food star-card">
+      <div class="tl-time"><span class="hour">18</span><span class="min">:00</span></div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header">
+          <div class="tl-title"><span class="emoji">🍛</span>3F 北斎で夜ごはん（サ飯）<span class="star-badge">ご褒美</span></div>
+          <div class="cat-badge">食事</div>
+        </div>
+        <div class="tl-body">
+          これが今日のクライマックス。<strong>サウナで研ぎ澄まされた味覚は日常比500%。</strong>何を食べても信じられないくらいうまい。<br><br>
+          <strong>定番サ飯：</strong>オロポ（オロナミンC＋ポカリ混合）、カレー、唐揚げ定食、ガッツリ系の丼。体が欲するものを全力でいけ。ここでケチるのはもったいない。
+          <div class="tip-box">
+            <span class="tip-label">TIPS</span>
+            「国技館カレー」や「相撲部屋ちゃんこ」系メニューも要チェック。両国ならではの名物を味わえる。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 19:15 チルタイム -->
+    <div class="tl-item cat-rest">
+      <div class="tl-time"><span class="hour">19</span><span class="min">:15</span></div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header">
+          <div class="tl-title"><span class="emoji">🌙</span>お休み処でチルタイム</div>
+          <div class="cat-badge">休憩</div>
+        </div>
+        <div class="tl-body">
+          食後すぐに帰らず、ソファでぼーっとする時間をちゃんと取ること。今日一日の全てを振り返りながら、仲間とだらだら話す時間が最高に気持ちいい。3Fのミネラルウォーターカウンターで好みの水をもう1杯。
+        </div>
+      </div>
+    </div>
+
+    <!-- 19:45 退館 -->
+    <div class="tl-item cat-end">
+      <div class="tl-time"><span class="hour">19</span><span class="min">:45</span></div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header">
+          <div class="tl-title"><span class="emoji">💫</span>精算・退館</div>
+          <div class="cat-badge">退館</div>
+        </div>
+        <div class="tl-body">
+          1Fフロントで精算。クレジット・交通系IC・電子マネーが使える。退館前に水かポカリを1本飲み干してから出発。忘れ物チェックも忘れずに。
+        </div>
+      </div>
+    </div>
+
+    <!-- 20:00 帰宅 -->
+    <div class="tl-item cat-end">
+      <div class="tl-time"><span class="hour">20</span><span class="min">:00</span></div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header">
+          <div class="tl-title"><span class="emoji">🗼</span>退館・帰宅</div>
+          <div class="cat-badge">完了</div>
+        </div>
+        <div class="tl-body">
+          スカイツリーのライトアップを見上げながら帰宅。心地よい重力を感じながら、あとは布団にダイブするだけ。<strong>今夜の睡眠は人生最高クラスになる。</strong>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /timeline -->
+
+  <!-- SAUNA GUIDE -->
+  <div class="sauna-guide">
+    <h3>▸ サウナ完全ガイド（江戸遊版）</h3>
+    <div class="sauna-types">
+      <div class="sauna-type">
+        <div class="icon">🇫🇮</div>
+        <div>
+          <div class="name">フィンランドサウナ</div>
+          <div class="desc">オートロウリュ搭載。日替わりアロマオイルの香りが最高。<strong>毎時15分・45分頃</strong>がロウリュタイム。男女ともにメインサウナ。テレビあり。</div>
+        </div>
+        <div class="badge-temp">90°C</div>
+      </div>
+      <div class="sauna-type">
+        <div class="icon">🌡</div>
+        <div>
+          <div class="name">中温ボナサウナ</div>
+          <div class="desc">初心者にも優しい温度設定。遠赤外線で体の芯からじっくり温まる。テレビでヒーリング映像が流れ、ゆったりした気分で入れる。</div>
+        </div>
+        <div class="badge-temp">75°C</div>
+      </div>
+      <div class="sauna-type">
+        <div class="icon">🌸</div>
+        <div>
+          <div class="name">アロマスチームサウナ（女性限定）</div>
+          <div class="desc">低温高湿度で<strong>乾燥肌に最強！</strong> 月替わりアロマオイルで肌と心が潤う。「ロゼのような香り」デザインでインスタ映えも抜群。</div>
+        </div>
+        <div class="badge-temp">45°C</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIGHLIGHT BLOCK -->
+  <div class="highlight-block">
+    <h3>▸ 乾燥肌チームの勝利の鉄則5か条</h3>
+    <ul>
+      <li><strong>洗いすぎない：</strong>ボディーソープは泡立てて優しく。肌を擦るのは厳禁。</li>
+      <li><strong>炭酸泉を制する：</strong>高濃度炭酸泉に15分以上浸かることで肌のバリア機能が上がる。</li>
+      <li><strong>水風呂は短め：</strong>30秒〜1分でOK。長すぎると乾燥が進む。</li>
+      <li><strong>上がったら5分以内：</strong>パウダールームの無料化粧水・乳液を全身に塗る。これだけで翌日の肌が全然違う。</li>
+      <li><strong>内側から潤す：</strong>5Fの水素水を飲み放題で活用。外から塗るだけでは足りない。</li>
+    </ul>
+  </div>
+
+  <!-- PACKING LIST -->
+  <div class="packing">
+    <div class="packing-header">▸ 持ち物チェックリスト</div>
+    <div class="packing-body">
+      <div class="packing-cols">
+        <div class="packing-group">
+          <h4>必須アイテム</h4>
+          <ul class="packing-list">
+            <li>現金 or カード（日曜休日料金）</li>
+            <li>交通系ICカード（入館・精算で使用可）</li>
+            <li>ポカリスウェット（1〜2本）</li>
+            <li>スマホ・イヤホン（休憩用）</li>
+          </ul>
+        </div>
+        <div class="packing-group">
+          <h4>乾燥肌おすすめ持参品</h4>
+          <ul class="packing-list">
+            <li>好みの保湿クリーム・ボディオイル</li>
+            <li>サウナキャップ（1Fで購入も可）</li>
+            <li>リップクリーム</li>
+            <li>推しのシャンプー（こだわりがある場合）</li>
+          </ul>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--cream-dark);">
+        <p style="font-size:12px;color:var(--ink-light);">
+          💡 タオル・館内着・岩盤浴着はすべて入館料に含まれる。持参不要。シャンプー・コンディショナー・ボディーソープ・化粧水・乳液も浴室・パウダールームに無料で完備。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-motto">最高の一日を、<span>江戸</span>で。</div>
+    <p class="footer-sub">両国湯屋江戸遊 · 営業 10:00 〜 翌8:30 · 年中無休</p>
+    <p style="font-size:11px;color:var(--ink-light);margin-top:8px;opacity:0.5;">墨田区横網1丁目3-20 · 都営大江戸線 両国駅 A3出口すぐ</p>
+  </div>
+
 </div>
-
-<!-- Progress -->
-
-<!-- NAV -->
-<nav id="nav">
-  <div class="nav-logo">Ganjoku</div>
-  <div class="nav-links">
-    <a href="#science">サイエンス</a>
-    <a href="#stones">鉱石</a>
-    <a href="#facilities">施設</a>
-    <a href="#protocol">作法</a>
-    <a href="#compare">比較</a>
-  </div>
-</nav>
-
-<!-- ═══════════ HERO ═══════════ -->
-<section class="hero" id="hero">
-  <div class="hero-gradient"></div>
-  <div class="hero-lines">
-    <div class="hline"></div><div class="hline"></div>
-    <div class="hline"></div><div class="hline"></div>
-  </div>
-
-  <div class="hero-eyebrow">Curated Onsen Intelligence · 首都圏版 · 2024</div>
-
-  <h1 class="hero-main">
-    <span id="hero-chars"></span>
-    <span class="hero-jp">岩盤浴　玄人案内</span>
-  </h1>
-
-  <div class="hero-tagline">
-    首都圏五大聖地 &nbsp;·&nbsp; 平日14:30 &nbsp;·&nbsp; ¥4,000以内 &nbsp;·&nbsp; 静寂特化
-  </div>
-
-  <div class="hero-temps">
-    <div class="hero-temp-item">
-      <span class="hero-temp-num">40°</span>
-      <span class="hero-temp-lbl">岩盤浴室温</span>
-    </div>
-    <div class="hero-temp-sep"></div>
-    <div class="hero-temp-item">
-      <span class="hero-temp-num">3cm</span>
-      <span class="hero-temp-lbl">遠赤外線浸透</span>
-    </div>
-    <div class="hero-temp-sep"></div>
-    <div class="hero-temp-item">
-      <span class="hero-temp-num">α波</span>
-      <span class="hero-temp-lbl">脳波状態</span>
-    </div>
-    <div class="hero-temp-sep"></div>
-    <div class="hero-temp-item">
-      <span class="hero-temp-num">×5</span>
-      <span class="hero-temp-lbl">成長ホルモン増加</span>
-    </div>
-  </div>
-
-  <div class="scroll-hint">
-    <span>SCROLL</span>
-    <div class="scroll-worm"></div>
-  </div>
-</section>
-
-<!-- MARQUEE -->
-<div class="marquee-wrap" style="z-index:3;position:relative">
-  <div class="marquee-track" id="mtrack"></div>
-</div>
-
-<!-- ═══════════ STATS STRIP ═══════════ -->
-<div class="stats-strip r">
-  <div class="stat-block">
-    <span class="stat-num" data-count="5" data-suffix="施設">0</span>
-    <div class="stat-desc">精選された<br>玄人向け聖地</div>
-  </div>
-  <div class="stat-block">
-    <span class="stat-num" data-count="4" data-suffix="〜14μm">0</span>
-    <div class="stat-desc">遠赤外線<br>最適吸収波長帯</div>
-  </div>
-  <div class="stat-block">
-    <span class="stat-num" data-count="500" data-suffix="%">0</span>
-    <div class="stat-desc">成長ホルモン<br>分泌増加率（最大）</div>
-  </div>
-  <div class="stat-block">
-    <span class="stat-num" data-count="3000" data-suffix="/cc">0</span>
-    <div class="stat-desc">芙蓉石<br>マイナスイオン数</div>
-  </div>
-  <div class="stat-block">
-    <span class="stat-num" data-count="70" data-suffix="種">0</span>
-    <div class="stat-desc">麦飯石から<br>溶出するミネラル</div>
-  </div>
-</div>
-
-<!-- ═══════════ SCIENCE INTRO ═══════════ -->
-<section class="sci-intro" id="science">
-  <div class="sci-sticky">
-    <div class="sec-label r">01 — 遠赤外線の科学</div>
-    <h2 class="sec-head sci-head r r2">なぜ岩盤浴は<br><em>次元が違う</em><br>のか</h2>
-
-    <p class="sci-para r r3">
-      岩盤浴が「ただの蒸し暑い部屋」と根本的に異なる理由は、<strong style="color:var(--amber)">遠赤外線</strong>の物理的作用にある。波長4〜14μmの電磁波は人体細胞の水分子と<strong style="color:var(--amber)">「共鳴吸収」</strong>を起こし、皮膚表面ではなく体の深部3〜4cmを内側から加温する。
-    </p>
-    <p class="sci-para r r3">
-      高温サウナが皮膚を外部から焼く「対流熱」であるのに対し、岩盤浴は細胞レベルの「振動熱」を生成する。この根本的な違いが、汗の質・ホルモン応答・自律神経への作用すべてを変える。
-    </p>
-
-    <div class="sci-highlight r r4">
-      <p>電子レンジが食品の水分子をマイクロ波で振動させる原理に類似している。ただし岩盤浴の遠赤外線（〜10μm）は人体に安全な波長帯であり、マイクロ波とはまったく異なる。<strong>共鳴吸収</strong>によって熱が内側から発生するため、皮膚へのダメージなく深部を温められる。</p>
-    </div>
-
-    <!-- Animated wave -->
-    <div class="wave-chart r r5">
-      <svg viewBox="0 0 400 80" xmlns="http://www.w3.org/2000/svg" id="wave-svg">
-        <defs>
-          <linearGradient id="wg" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#c8601a" stop-opacity="0"/>
-            <stop offset="30%" stop-color="#c8601a"/>
-            <stop offset="70%" stop-color="#d4a853"/>
-            <stop offset="100%" stop-color="#d4a853" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-        <text x="10" y="75" font-family="Space Mono" font-size="7" fill="rgba(154,146,136,.5)" letter-spacing="2">4μm</text>
-        <text x="185" y="75" font-family="Space Mono" font-size="7" fill="rgba(212,168,83,.8)" letter-spacing="2">9μm (最適)</text>
-        <text x="350" y="75" font-family="Space Mono" font-size="7" fill="rgba(154,146,136,.5)" letter-spacing="2">14μm</text>
-        <line x1="0" y1="60" x2="400" y2="60" stroke="rgba(212,168,83,.1)" stroke-width="1"/>
-        <path id="wave-path" d="" stroke="url(#wg)" stroke-width="2" fill="none"/>
-      </svg>
-    </div>
-  </div>
-
-  <div>
-    <div class="sci-cards r">
-      <div class="sci-card">
-        <div class="sci-card-num">α</div>
-        <div class="sci-card-key">ALPHA WAVE INDUCTION</div>
-        <div class="sci-card-val">副交感神経優位で脳のα波が増加。創造性・集中力・直感力が高まる「ゾーン」状態へ移行する。受験期特有の過緊張（β波過剰）を自然にリセットできる唯一無二の手段。入浴後30〜90分この状態が持続する。</div>
-        <div class="sci-card-pill">記憶定着率との相関：有意差あり</div>
-      </div>
-      <div class="sci-card">
-        <div class="sci-card-num">HSP</div>
-        <div class="sci-card-key">HEAT SHOCK PROTEIN</div>
-        <div class="sci-card-val">42°C以上の熱刺激で「ヒートショックプロテイン70（HSP70）」が産生される。損傷したタンパク質を修復する分子シャペロンで、免疫力・筋肉回復・抗酸化に直結。入浴2〜3日後にピーク産生量に達する。週2回の習慣化が最効率。</div>
-        <div class="sci-card-pill">産生ピーク：入浴48〜72時間後</div>
-      </div>
-      <div class="sci-card">
-        <div class="sci-card-num">NO</div>
-        <div class="sci-card-key">NITRIC OXIDE</div>
-        <div class="sci-card-val">遠赤外線は血管内皮細胞の一酸化窒素（NO）産生を促進し、血管を拡張させる。全身の毛細血管が開通し、末端まで血流が届く。冷え性・肩こり・頭痛の根本原因である血流不足を解消。炭酸泉との併用でさらに相乗効果。</div>
-        <div class="sci-card-pill">末梢血流速度：+25〜40%</div>
-      </div>
-      <div class="sci-card">
-        <div class="sci-card-num">GH</div>
-        <div class="sci-card-key">GROWTH HORMONE</div>
-        <div class="sci-card-val">温熱刺激は成長ホルモン（GH）の分泌を最大5倍に増加させる。骨の成長・筋肉合成・脂肪分解に加え、コルチゾール（ストレスホルモン）と拮抗する。中3という成長のピーク期に最大限に活用すべき生理的反応。</div>
-        <div class="sci-card-pill">中学生の分泌量：大人の3倍ベース</div>
-      </div>
-      <div class="sci-card">
-        <div class="sci-card-num">Mel</div>
-        <div class="sci-card-key">MELATONIN CYCLE</div>
-        <div class="sci-card-val">入浴後に深部体温が急速に低下することで、メラトニン分泌のタイミングと重なり入眠が促進される。18:30退館・22:00就寝のスケジュールで体温低下が睡眠移行と完璧に一致する。深睡眠（ノンレム3〜4段階）が増加し、記憶の定着と成長ホルモン追加分泌が起こる。</div>
-        <div class="sci-card-pill">入眠時間短縮：平均−10分</div>
-      </div>
-      <div class="sci-card">
-        <div class="sci-card-num">5-HT</div>
-        <div class="sci-card-key">SEROTONIN BOOST</div>
-        <div class="sci-card-val">マイナスイオン（特に芙蓉石が大量発生）はセロトニンの分泌を促し、幸福感・情緒の安定・うつ予防に作用する。受験期に低下しやすいセロトニンを自然な方法で補充できる。1回の岩盤浴後の「なぜか前向きになれる感覚」の正体がこれ。</div>
-        <div class="sci-card-pill">マイナスイオン：3000個/cc（芙蓉石）</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════ HORMONE DIAGRAM ═══════════ -->
-<section class="hormone-section">
-  <div class="sec-label r">02 — ホルモン応答</div>
-  <h2 class="sec-head r r2" style="font-size:clamp(2.5rem,5vw,4rem)">岩盤浴が<em>ホルモン系</em>に<br>引き起こすこと</h2>
-
-  <div class="hormone-grid">
-    <div class="hormone-card r">
-      <div class="deep-card-line"></div>
-      <span class="h-icon">🔬</span>
-      <div class="h-name">成長ホルモン</div>
-      <div class="h-eng">GROWTH HORMONE (GH)</div>
-      <div class="h-desc">岩盤浴中の体温上昇が視床下部を刺激し、下垂体前葉からGHが分泌される。GHは骨端軟骨の成長を促し、筋タンパク質の合成を増加させ、脂肪を分解してエネルギー源にする。中3の成長期に最大限に活用すべき。</div>
-      <div class="h-arrow">
-        <span class="h-arrow-label">分泌増加</span>
-        <div class="h-bar-wrap"><div class="h-bar" data-w="83"></div></div>
-        <span class="h-val">最大×5</span>
-      </div>
-    </div>
-    <div class="hormone-card r r2">
-      <div class="deep-card-line"></div>
-      <span class="h-icon">🧘</span>
-      <div class="h-name">コルチゾール</div>
-      <div class="h-eng">CORTISOL (STRESS HORMONE)</div>
-      <div class="h-desc">受験勉強で過剰分泌されたコルチゾールは、免疫抑制・海馬縮小・記憶力低下を引き起こす。岩盤浴による副交感神経優位化は、コルチゾールの血中濃度を有意に低下させる。「なぜかリラックスできる」の正体。</div>
-      <div class="h-arrow">
-        <span class="h-arrow-label">低下効果</span>
-        <div class="h-bar-wrap"><div class="h-bar" data-w="70"></div></div>
-        <span class="h-val">−25%</span>
-      </div>
-    </div>
-    <div class="hormone-card r r3">
-      <div class="deep-card-line"></div>
-      <span class="h-icon">😊</span>
-      <div class="h-name">セロトニン</div>
-      <div class="h-eng">SEROTONIN (HAPPINESS)</div>
-      <div class="h-desc">マイナスイオン・遠赤外線・温熱の三重刺激が腸管（第二の脳）のセロトニン産生を促す。体内セロトニンの90%は腸で産生されるため、腸を温める岩盤浴は抗うつ効果として機能する。不安・焦燥感の軽減に。</div>
-      <div class="h-arrow">
-        <span class="h-arrow-label">産生促進</span>
-        <div class="h-bar-wrap"><div class="h-bar" data-w="75"></div></div>
-        <span class="h-val">有意増加</span>
-      </div>
-    </div>
-    <div class="hormone-card r r4">
-      <div class="deep-card-line"></div>
-      <span class="h-icon">💤</span>
-      <div class="h-name">メラトニン</div>
-      <div class="h-eng">MELATONIN (SLEEP)</div>
-      <div class="h-desc">岩盤浴後の深部体温低下がメラトニン分泌のトリガーとなる。深部体温が1°C低下するごとに眠気が誘発される。18:30退館→22:00就寝のスケジュールで体温低下が睡眠タイミングと完璧に合致する。睡眠品質の向上は翌日の学習効率を直接改善する。</div>
-      <div class="h-arrow">
-        <span class="h-arrow-label">入眠改善</span>
-        <div class="h-bar-wrap"><div class="h-bar" data-w="65"></div></div>
-        <span class="h-val">−10分</span>
-      </div>
-    </div>
-    <div class="hormone-card r r5">
-      <div class="deep-card-line"></div>
-      <span class="h-icon">🔥</span>
-      <div class="h-name">エンドルフィン</div>
-      <div class="h-eng">ENDORPHIN (EUPHORIA)</div>
-      <div class="h-desc">温熱による心地よい刺激は脳内でβ-エンドルフィンを分泌させる。モルヒネの6.5倍の鎮痛・快楽効果を持つ内因性オピオイドで、いわゆる「整う」感覚の神経化学的正体の一つ。入浴直後の幸福感はこのホルモンが担う。</div>
-      <div class="h-arrow">
-        <span class="h-arrow-label">快楽物質</span>
-        <div class="h-bar-wrap"><div class="h-bar" data-w="88"></div></div>
-        <span class="h-val">×6.5強度</span>
-      </div>
-    </div>
-    <div class="hormone-card r">
-      <div class="deep-card-line"></div>
-      <span class="h-icon">⚡</span>
-      <div class="h-name">ノルアドレナリン</div>
-      <div class="h-eng">NORADRENALINE</div>
-      <div class="h-desc">クールダウン・冷水浴（水風呂）時に分泌されるノルアドレナリンは、集中力・記憶力・判断力を劇的に高める。岩盤浴→クールダウンのサイクルを繰り返すことで、勉強前の最良の脳状態を作れる。午後の学習効率向上に活用可。</div>
-      <div class="h-arrow">
-        <span class="h-arrow-label">集中力向上</span>
-        <div class="h-bar-wrap"><div class="h-bar" data-w="78"></div></div>
-        <span class="h-val">有意増加</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════ STONES ═══════════ -->
-<section class="stones-sec" id="stones">
-  <div class="stones-header r">
-    <div>
-      <div class="sec-label">03 — 鉱石の物理・化学</div>
-      <h2 class="sec-head" style="font-size:clamp(2.5rem,5vw,4rem)">使われている石の<br><em>正体</em></h2>
-    </div>
-    <p style="font-size:.85rem;line-height:2;color:var(--fog);max-width:320px">玄人は施設名で選ばない。石の種類で選ぶ。鉱石の産地・成分・波長特性を理解することが真の玄人への第一歩である。</p>
-  </div>
-
-  <div class="stone-list">
-    <!-- 01 -->
-    <div class="stone-item r">
-      <div class="s-idx">01</div>
-      <div class="s-info">
-        <div class="s-name">遼寧石</div>
-        <div class="s-kanji">りょうねいせき</div>
-        <div class="s-origin">LIAONING · CHINA · 江戸遊採用</div>
-      </div>
-      <div class="s-detail">有機ゲルマニウム（Ge）を豊富に含む玄武岩系鉱石。Geは半導体特性を持ち、体内電子の流れを整え細胞の酸素供給を促進する。抗酸化作用・デトックス効果が高く、代謝の活発な中学生世代に最も恩恵が大きい。江戸遊「白珪房」で使用。遠赤外線放射率は8〜14μm帯で88%超。</div>
-      <div class="s-meters">
-        <div class="s-meter-row"><div class="s-meter-key">遠赤外線</div><div class="s-meter-track"><div class="s-meter-fill" data-w="88"></div></div><div class="s-meter-val">88%</div></div>
-        <div class="s-meter-row"><div class="s-meter-key">Ge含有量</div><div class="s-meter-track"><div class="s-meter-fill" data-w="92"></div></div><div class="s-meter-val">最高</div></div>
-        <div class="s-meter-row"><div class="s-meter-key">デトックス</div><div class="s-meter-track"><div class="s-meter-fill" data-w="85"></div></div><div class="s-meter-val">高</div></div>
-        <div class="s-meter-row"><div class="s-meter-key">蓄熱性</div><div class="s-meter-track"><div class="s-meter-fill" data-w="80"></div></div><div class="s-meter-val">高</div></div>
-      </div>
-    </div>
-    <!-- 02 -->
-    <div class="stone-item r r2">
-      <div class="s-idx">02</div>
-      <div class="s-info">
-        <div class="s-name">天受石</div>
-        <div class="s-kanji">てんじゅせき</div>
-        <div class="s-origin">WORAKSAN · KOREA · さやの湯採用</div>
-      </div>
-      <div class="s-detail">韓国・月岳山（ウォラクサン）産の希少変成岩。70種以上のミネラルを含み、遠赤外線放射率は国内流通鉱石の中でも最高クラス。9μm帯の放射が特に強く、人体の水分子共鳴吸収波長と完璧に一致する。内臓まで届く熱で冷え性・関節痛に強い効果を発揮。</div>
-      <div class="s-meters">
-        <div class="s-meter-row"><div class="s-meter-key">遠赤外線</div><div class="s-meter-track"><div class="s-meter-fill" data-w="96"></div></div><div class="s-meter-val">96%</div></div>
-        <div class="s-meter-row"><div class="s-meter-key">ミネラル種</div><div class="s-meter-track"><div class="s-meter-fill" data-w="95"></div></div><div class="s-meter-val">70種+</div></div>
-        <div class="s-meter-row"><div class="s-meter-key">浸透深度</div><div class="s-meter-track"><div class="s-meter-fill" data-w="98"></div></div><div class="s-meter-val">4cm</div></div>
-        <div class="s-meter-row"><div class="s-meter-key">希少性</div><div class="s-meter-track"><div class="s-meter-fill" data-w="90"></div></div><div class="s-meter-val">高</div></div>
-      </div>
-    </div>
-    <!-- 03 -->
-    <div class="stone-item r r3">
-      <div class="s-idx">03</div>
-      <div class="s-info">
-        <div class="s-name">芙蓉石</div>
-        <div class="s-kanji">ふようせき</div>
-        <div class="s-origin">CHANGBAI · CHINA · 複数施設採用</div>
-      </div>
-      <div class="s-detail">長白山（白頭山）の火山活動で生成した火成岩。ゲルマニウムに加えマイナスイオン発生量が1cc当たり3,000個と突出して多い。マイナスイオンはセロトニン系に直接作用し、ストレス緩和・抗うつ・腸内環境改善に効果的とされる。自律神経へのアプローチ最強格の石。</div>
-      <div class="s-meters">
-        <div class="s-meter-row"><div class="s-meter-key">マイナスイオン</div><div class="s-meter-track"><div class="s-meter-fill" data-w="98"></div></div><div class="s-meter-val">3000/cc</div></div>
-        <div class="s-meter-row"><div class="s-meter-key">自律神経</div><div class="s-meter-track"><div class="s-meter-fill" data-w="92"></div></div><div class="s-meter-val">最高</div></div>
-        <div class="s-meter-row"><div class="s-meter-key">Ge含有</div><div class="s-meter-track"><div class="s-meter-fill" data-w="78"></div></div><div class="s-meter-val">中高</div></div>
-        <div class="s-meter-row"><div class="s-meter-key">産生安定性</div><div class="s-meter-track"><div class="s-meter-fill" data-w="85"></div></div><div class="s-meter-val">高</div></div>
-      </div>
-    </div>
-    <!-- 04 -->
-    <div class="stone-item r r4">
-      <div class="s-idx">04</div>
-      <div class="s-info">
-        <div class="s-name">薬宝玉石</div>
-        <div class="s-kanji">やくほうぎょくせき</div>
-        <div class="s-origin">KUNLUN · CHINA · さやの湯秋岩盤</div>
-      </div>
-      <div class="s-detail">崑崙山脈産のネフライト（軟玉）系鉱石。最大の特徴は「身体に寄り添う熱」。熱伝導率が他の石と異なり、体温と融合するような感覚で体を包む。古来から漢方医学で「気の流れを整える」とされてきた鉱物で、精神的安定効果が高い。さやの湯の秋岩盤（中温）で使用。</div>
-      <div class="s-meters">
-        <div class="s-meter-row"><div class="s-meter-key">触感品質</div><div class="s-meter-track"><div class="s-meter-fill" data-w="99"></div></div><div class="s-meter-val">最高</div></div>
-        <div class="s-meter-row"><div class="s-meter-key">希少性</div><div class="s-meter-track"><div class="s-meter-fill" data-w="95"></div></div><div class="s-meter-val">最高</div></div>
-        <div class="s-meter-row"><div class="s-meter-key">精神安定</div><div class="s-meter-track"><div class="s-meter-fill" data-w="90"></div></div><div class="s-meter-val">高</div></div>
-        <div class="s-meter-row"><div class="s-meter-key">蓄熱均一性</div><div class="s-meter-track"><div class="s-meter-fill" data-w="88"></div></div><div class="s-meter-val">優秀</div></div>
-      </div>
-    </div>
-    <!-- 05 -->
-    <div class="stone-item r r5">
-      <div class="s-idx">05</div>
-      <div class="s-info">
-        <div class="s-name">ピンク麦飯石</div>
-        <div class="s-kanji">むぎめしいし</div>
-        <div class="s-origin">GIFU · JAPAN · 多施設標準</div>
-      </div>
-      <div class="s-detail">岐阜県産の安山岩系鉱石。多孔質構造（顕微鏡レベルで無数の小孔）が吸着能力を生み、水に浸すと70種以上のミネラルを溶出する。岩盤浴での汗をリアルタイムで吸着・消臭するため衛生環境が最も良好に保たれる。美肌・消臭・ミネラル補給の三役をこなすコスパ最強の実用石。</div>
-      <div class="s-meters">
-        <div class="s-meter-row"><div class="s-meter-key">吸着力</div><div class="s-meter-track"><div class="s-meter-fill" data-w="90"></div></div><div class="s-meter-val">最高</div></div>
-        <div class="s-meter-row"><div class="s-meter-key">ミネラル種</div><div class="s-meter-track"><div class="s-meter-fill" data-w="72"></div></div><div class="s-meter-val">70種</div></div>
-        <div class="s-meter-row"><div class="s-meter-key">美肌効果</div><div class="s-meter-track"><div class="s-meter-fill" data-w="80"></div></div><div class="s-meter-val">高</div></div>
-        <div class="s-meter-row"><div class="s-meter-key">汎用性</div><div class="s-meter-track"><div class="s-meter-fill" data-w="95"></div></div><div class="s-meter-val">最高</div></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════ FACILITIES ═══════════ -->
-<section class="fac-sec" id="facilities">
-  <div class="fac-intro r">
-    <div>
-      <div class="sec-label">04 — 施設案内</div>
-      <h2 class="sec-head" style="font-size:clamp(2.5rem,5vw,4rem)">玄人が選ぶ<br><em>五つの聖地</em></h2>
-    </div>
-    <p class="fac-intro-desc">中学3年生・平日14:30・予算¥4,000という条件を厳格に適用し、「静寂」と「石の質」と「中学生の権利」を最大化する首都圏五施設を精選した。スパジャポ的喧騒とは次元が違う体験がある。</p>
-  </div>
-
-  <!-- Featured: 江戸遊 -->
-  <div class="fac-featured r">
-    <div class="fac-rank-bg">1</div>
-    <div class="fac-featured-left">
-      <div class="fac-badge"><span class="dot"></span> 🥇 RANK 01 · EDITOR'S ULTIMATE PICK <span class="dot"></span></div>
-      <h3 class="fac-name">Ryogoku<br>Edoyu</h3>
-      <div class="fac-name-jp">両国湯屋 江戸遊 ── 墨田区・両国駅徒歩数分</div>
-      <div class="fac-tags">
-        <span class="tag">中学生未満完全入館不可</span>
-        <span class="tag">遼寧石採用</span>
-        <span class="tag">仕切り付き個別ベッド</span>
-        <span class="tag">コワーキング「湯WORK」</span>
-        <span class="tag">門限23:00</span>
-        <span class="tag">月光房・白珪房</span>
-      </div>
-      <p class="fac-text">
-        「中学生未満お断り」という鉄壁のポリシーが、他では絶対に得られない静寂の品質保証となっている。平日14:30のメイン客層はIT系ビジネスパーソンと読書愛好家のみ。岩盤浴室「白珪房」の個別ベッドは仕切り板で区切られ、隣の人の気配を感じない完全プライベート空間。「月光房」は照明・音楽・温度が自律神経の調整に特化して設計されている。
-        <br><br>
-        遼寧石の有機ゲルマニウムが代謝の活発な中3の体を深部から加温する。コワーキングスペース「湯WORK」を使えば、入浴前後に勉強できる唯一の施設でもある。門限23:00は都内中学生が利用できる施設の中で最長クラス。
-      </p>
-      <div class="price-block">
-        <div class="price-lbl">中高生・平日全込料金</div>
-        <div class="price-num">2,270<span>円（税込）</span></div>
-        <div class="price-note">バスタオル・タオル・館内着・岩盤浴セット全込。予算¥4,000に対し¥1,730の余剰。</div>
-      </div>
-    </div>
-    <div class="fac-featured-right">
-      <ul class="fac-highlights">
-        <li>中学生未満の完全排除により、岩盤浴室内での騒音リスクがゼロに近い</li>
-        <li>遼寧石の有機GeはHSP産生を助け、代謝が活発な中3世代に最適な石選び</li>
-        <li>白珪房の仕切り付きベッドは「隣の人のため息も聞こえない」レベルの静寂設計</li>
-        <li>月光房は音環境・光環境・温度環境すべてが自律神経調整に特化されている</li>
-        <li>コワーキング湯WORKで岩盤浴前後の勉強が可能（充電・WiFi完備）</li>
-        <li>両国駅徒歩数分。JR総武線・都営大江戸線の2路線からアクセス</li>
-        <li>門限23:00は都内中学生利用可能施設中最長クラス</li>
-        <li>食事処で江戸文化に触れながらの甘味（余剰¥1,730で余裕）</li>
-      </ul>
-      <div class="score-rows">
-        <div class="score-row"><span class="score-key">静寂スコア</span><div class="score-track"><div class="score-fill" data-w="98"></div></div><span class="score-num">9.8</span></div>
-        <div class="score-row"><span class="score-key">コスパ</span><div class="score-track"><div class="score-fill" data-w="95"></div></div><span class="score-num">9.5</span></div>
-        <div class="score-row"><span class="score-key">石の品質</span><div class="score-track"><div class="score-fill" data-w="88"></div></div><span class="score-num">8.8</span></div>
-        <div class="score-row"><span class="score-key">空間設計</span><div class="score-track"><div class="score-fill" data-w="92"></div></div><span class="score-num">9.2</span></div>
-        <div class="score-row"><span class="score-key">アクセス</span><div class="score-track"><div class="score-fill" data-w="90"></div></div><span class="score-num">9.0</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Sub grid -->
-  <div class="fac-grid">
-    <!-- 有明 -->
-    <div class="fac-card r">
-      <div class="fac-card-rank">2</div>
-      <div class="fac-badge" style="font-size:.5rem">🥈 RANK 02 · MODERN LUXURY</div>
-      <h3 class="fac-name" style="font-size:1.8rem">泉天空の湯<br>有明ガーデン</h3>
-      <div class="fac-name-jp">江東区・2020年開業</div>
-      <div class="fac-tags">
-        <span class="tag">4種岩盤浴室</span><span class="tag">アウフグース</span>
-        <span class="tag">ReFaドライヤー</span><span class="tag">クールダウン室</span>
-      </div>
-      <p class="fac-text">2020年開業の都市型最新スパ。ホテルグレードの清潔感と最新温浴理論が融合。岩盤浴4種＋クールダウン室で正しいサイクル入浴が完結する。「黄金（アロマスチーム）」でのアウフグースは週数回実施。女性専用ラウンジのReFaドライヤー・化粧水は都内最高峰クラス。平日14:30は「独占できるゴールデンタイム」。</p>
-      <div class="price-block">
-        <div class="price-lbl">平日（入館＋岩盤浴）</div>
-        <div class="price-num">2,800<span>円</span></div>
-        <div class="price-note">余剰¥1,200。館内ドリンク＋軽食は十分。</div>
-      </div>
-      <div class="score-rows">
-        <div class="score-row"><span class="score-key">スタイリッシュ</span><div class="score-track"><div class="score-fill" data-w="97"></div></div><span class="score-num">9.7</span></div>
-        <div class="score-row"><span class="score-key">アメニティ</span><div class="score-track"><div class="score-fill" data-w="96"></div></div><span class="score-num">9.6</span></div>
-      </div>
-    </div>
-
-    <!-- さやの湯 -->
-    <div class="fac-card r r2">
-      <div class="fac-card-rank">3</div>
-      <div class="fac-badge" style="font-size:.5rem">🥉 RANK 03 · SOUL & STONE</div>
-      <h3 class="fac-name" style="font-size:1.8rem">前野原温泉<br>さやの湯処</h3>
-      <div class="fac-name-jp">板橋区・四季の岩盤処</div>
-      <div class="fac-tags">
-        <span class="tag">天受石採用</span><span class="tag">薬宝玉石</span>
-        <span class="tag">四季テーマ4室</span><span class="tag">枯山水庭園</span>
-      </div>
-      <p class="fac-text">本物志向の玄人の聖地。春（苔庭休憩）・夏（天受石高温）・秋（薬宝玉石中温）と四季をテーマにした4岩盤室で、入浴体験が芸術になる。枯山水を眺めながら食べる柿天舎の十割蕎麦は感動の域。天受石（9μm帯最強）の遠赤外線効果は群を抜く。中学生以上限定エリアが静寂を保証。</p>
-      <div class="price-block">
-        <div class="price-lbl">平日（全込）</div>
-        <div class="price-num">約2,560<span>円</span></div>
-        <div class="price-note">余剰約¥1,440。十割蕎麦を食べても余る。</div>
-      </div>
-      <div class="score-rows">
-        <div class="score-row"><span class="score-key">情緒・美意識</span><div class="score-track"><div class="score-fill" data-w="99"></div></div><span class="score-num">9.9</span></div>
-        <div class="score-row"><span class="score-key">石の希少性</span><div class="score-track"><div class="score-fill" data-w="96"></div></div><span class="score-num">9.6</span></div>
-      </div>
-    </div>
-
-    <!-- なごみ -->
-    <div class="fac-card r r3">
-      <div class="fac-card-rank">4</div>
-      <div class="fac-badge" style="font-size:.5rem">RANK 04 · SENSORY EXTREME</div>
-      <h3 class="fac-name" style="font-size:1.8rem">なごみの湯<br>荻窪</h3>
-      <div class="fac-name-jp">杉並区・荻窪駅徒歩1分</div>
-      <div class="fac-tags">
-        <span class="tag">胎内浴「紅宮」</span><span class="tag">ドライストーンサウナ黒龍</span>
-        <span class="tag">ロウリュウ</span><span class="tag">荻窪1分</span>
-      </div>
-      <p class="fac-text">「胎内浴 紅宮」は都内で他に存在しない唯一無二の空間。音・光・温度・揺れを制御し、母親の胎内感覚を科学的に再現する。受験ストレス最大期の中3にとって究極のメンタルリセット。「黒龍」のロウリュウは都内最強クラスの熱風量で、ガチ玄人体験ができる。荻窪駅1分という利便性はすべての施設の中で最高。</p>
-      <div class="price-block">
-        <div class="price-lbl">平日（LINE会員割引）</div>
-        <div class="price-num">約2,000〜<span>円</span></div>
-        <div class="price-note">LINE登録で200〜400円引。アクセス含めコスパ最高。</div>
-      </div>
-      <div class="score-rows">
-        <div class="score-row"><span class="score-key">演出・ユニーク</span><div class="score-track"><div class="score-fill" data-w="100"></div></div><span class="score-num">10.0</span></div>
-        <div class="score-row"><span class="score-key">メンタルケア</span><div class="score-track"><div class="score-fill" data-w="95"></div></div><span class="score-num">9.5</span></div>
-      </div>
-    </div>
-
-    <!-- 平和島 -->
-    <div class="fac-card r r4">
-      <div class="fac-card-rank">5</div>
-      <div class="fac-badge" style="font-size:.5rem">RANK 05 · CHILL & READ</div>
-      <h3 class="fac-name" style="font-size:1.8rem">天然温泉<br>平和島</h3>
-      <div class="fac-name-jp">大田区・学生割引あり</div>
-      <div class="fac-tags">
-        <span class="tag">学生入館¥2,100</span><span class="tag">二段式岩盤浴</span>
-        <span class="tag">1万冊コミック持込可</span><span class="tag">広大な施設</span>
-      </div>
-      <p class="fac-text">「岩盤浴しながら漫画を読む」という文化的行為を完全に許容する唯一の施設。1万冊のコミックを岩盤浴室内に持ち込んで発汗しながら読書するという最高の時間を提供する。二段式構造で上段（高温）・下段（低温）を使い分けた上級サイクル入浴も可能。広大な施設で人が分散するため平日は混雑知らず。</p>
-      <div class="price-block">
-        <div class="price-lbl">学生・平日料金</div>
-        <div class="price-num">2,800<span>円</span></div>
-        <div class="price-note">学生入館¥2,100＋岩盤浴¥700。余剰¥1,200。</div>
-      </div>
-      <div class="score-rows">
-        <div class="score-row"><span class="score-key">読書コスパ</span><div class="score-track"><div class="score-fill" data-w="100"></div></div><span class="score-num">10.0</span></div>
-        <div class="score-row"><span class="score-key">空間の広さ</span><div class="score-track"><div class="score-fill" data-w="92"></div></div><span class="score-num">9.2</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════ SWEAT SCIENCE ═══════════ -->
-<section class="sweat-sec">
-  <div class="sec-label r">05 — 汗の科学</div>
-  <h2 class="sec-head r r2" style="font-size:clamp(2.5rem,5vw,4rem)">サウナと岩盤浴<br><em>汗の質が根本的に違う</em></h2>
-
-  <div class="sweat-compare">
-    <div class="sweat-col r">
-      <div class="sweat-col-head">サウナ</div>
-      <div class="sweat-col-sub">HIGH TEMP · DRY HEAT · 80〜100°C</div>
-      <div style="font-size:.82rem;line-height:2;color:var(--fog);margin-bottom:1.5rem">
-        高温乾燥熱が皮膚表面を「外から焼く」対流熱。体温調節のためのエクリン腺が主に働き、塩分・水分が多い汗が大量に出る。短時間で激しい発汗が起こるが、皮脂腺はあまり関与しない。心臓への負荷が高く、高血圧・心疾患リスクがある場合は注意が必要。
-      </div>
-      <div class="sweat-attr">
-        <div class="sweat-attr-row">
-          <span class="sweat-attr-icon">🌡️</span>
-          <div><div class="sweat-attr-key">熱の種類</div><div class="sweat-attr-val">対流熱・高温乾燥（80〜100°C）。皮膚を外側から加温。</div></div>
-        </div>
-        <div class="sweat-attr-row">
-          <span class="sweat-attr-icon">💧</span>
-          <div><div class="sweat-attr-key">汗腺の種類</div><div class="sweat-attr-val">主にエクリン腺（体温調節汗）。塩分・水分が多い。</div></div>
-        </div>
-        <div class="sweat-attr-row">
-          <span class="sweat-attr-icon">❤️</span>
-          <div><div class="sweat-attr-key">心臓負荷</div><div class="sweat-attr-val">高い。脈拍が急上昇し、心拍出量が増加する。</div></div>
-        </div>
-        <div class="sweat-attr-row">
-          <span class="sweat-attr-icon">⏱️</span>
-          <div><div class="sweat-attr-key">推奨入浴時間</div><div class="sweat-attr-val">5〜12分。長時間は危険。インターバル必須。</div></div>
-        </div>
-        <div class="sweat-attr-row">
-          <span class="sweat-attr-icon">✨</span>
-          <div><div class="sweat-attr-key">美容効果</div><div class="sweat-attr-val">中程度。皮脂腺への直接アプローチは弱い。</div></div>
-        </div>
-      </div>
-    </div>
-    <div class="sweat-col ganban r r2">
-      <div class="sweat-col-head" style="color:var(--gold)">岩盤浴</div>
-      <div class="sweat-col-sub">INFRARED · DEEP HEAT · 40〜55°C</div>
-      <div style="font-size:.82rem;line-height:2;color:var(--fog);margin-bottom:1.5rem">
-        遠赤外線が体の内側3〜4cmを共鳴加温する「振動熱」。皮脂腺（アポクリン腺）も積極的に開き、老廃物・脂溶性毒素を含むサラサラした汗が出る。体温上昇はゆるやかで心臓への負荷が低く、長時間の利用が安全。ホルモン応答が豊富でデトックス効果が高い。
-      </div>
-      <div class="sweat-attr">
-        <div class="sweat-attr-row">
-          <span class="sweat-attr-icon">☀️</span>
-          <div><div class="sweat-attr-key">熱の種類</div><div class="sweat-attr-val">遠赤外線（振動熱）。体内3〜4cmを内側から加温。</div></div>
-        </div>
-        <div class="sweat-attr-row">
-          <span class="sweat-attr-icon">💎</span>
-          <div><div class="sweat-attr-key">汗腺の種類</div><div class="sweat-attr-val">エクリン腺＋アポクリン腺（皮脂腺）両方。毒素排出型の汗。</div></div>
-        </div>
-        <div class="sweat-attr-row">
-          <span class="sweat-attr-icon">💚</span>
-          <div><div class="sweat-attr-key">心臓負荷</div><div class="sweat-attr-val">低い。ゆるやかな体温上昇で脈拍変動が少ない。</div></div>
-        </div>
-        <div class="sweat-attr-row">
-          <span class="sweat-attr-icon">⏱️</span>
-          <div><div class="sweat-attr-key">推奨入浴時間</div><div class="sweat-attr-val">15〜20分×2〜3サイクル。合計90分前後が理想。</div></div>
-        </div>
-        <div class="sweat-attr-row">
-          <span class="sweat-attr-icon">🌟</span>
-          <div><div class="sweat-attr-key">美容効果</div><div class="sweat-attr-val">最高。皮脂腺を直接開かせ、毛穴の奥の汚れを排出。</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════ PROTOCOL ═══════════ -->
-<section class="proto-sec" id="protocol">
-  <div class="sec-label r">06 — 入浴作法</div>
-  <h2 class="sec-head r r2" style="font-size:clamp(2.5rem,5vw,4rem)">14:30スタート<br><em>玄人の黄金プロトコル</em></h2>
-  <p class="r r3" style="font-size:.85rem;color:var(--fog);margin-top:1rem;line-height:2">平日の午後14:30を選択することは「岩盤浴のブルーオーシャン戦略」。清掃完了・客層最良・混雑最低の三拍子が揃う黄金の時間帯。</p>
-
-  <div class="proto-inner">
-    <div class="proto-line-wrap">
-      <div class="proto-spine"></div>
-
-      <div class="tl-row r">
-        <div class="tl-time">14:30</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-body">
-          <div class="tl-title">入館・デジタルデトックス開始</div>
-          <div class="tl-desc">午後の清掃が完了した最も清潔な時間帯。ロッカー確保後、スマートフォンは完全にロッカーへ。通知・SNSを断ち切る行為そのものが、自律神経の「切り替えスイッチ」になる。</div>
-          <div class="tl-science">スマホの青色光（ブルーライト）は交感神経を刺激しコルチゾールを上昇させる。電源を切るだけで副交感神経への移行が<strong>3〜5分早まる</strong>。</div>
-        </div>
-      </div>
-
-      <div class="tl-row r r2">
-        <div class="tl-time">14:45</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-body">
-          <div class="tl-title">下湯 ── 38〜40°Cで毛穴を解放</div>
-          <div class="tl-desc">岩盤浴前に温泉（または湯船）に5〜10分浸かる。「ぬるめ」が鉄則。熱いお湯は皮膚表面の毛穴を閉じてしまう逆効果になる。</div>
-          <div class="tl-science">38〜40°Cの温水は皮膚の皮脂腺口を弛緩させ、岩盤浴開始から発汗するまでの<strong>立ち上がり時間を15分→7分に短縮</strong>する。プロが「下湯」と呼ぶ準備儀式。</div>
-          <div class="tl-tip-tag">水分：500mlの常温水を事前に補給済みであること</div>
-        </div>
-      </div>
-
-      <div class="tl-row r r3">
-        <div class="tl-time">15:15</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-body">
-          <div class="tl-title">第1サイクル ── 低温室・副交感神経の起動</div>
-          <div class="tl-desc">まず低温室（40〜45°C）を選ぶ。仰向けで寝て「4-7-8呼吸法」を実践。4秒吸って、7秒止めて、8秒で吐く。これを4回繰り返すと副交感神経が優位になる。会話は一切しない。</div>
-          <div class="tl-science">仙骨（骨盤後面の大きな骨）の上に重点を置いて横になると、<strong>自律神経の幹が集中する仙骨神経叢</strong>が直接温まり、全身の自律神経バランスが整う。腰が浮く人は膝を立てて。</div>
-          <div class="tl-tip-tag">目安：汗が額・鼻の頭に出始めたら順調</div>
-        </div>
-      </div>
-
-      <div class="tl-row r r4">
-        <div class="tl-time">15:40</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-body">
-          <div class="tl-title">第1クールダウン ── 汗を拭かずに10分</div>
-          <div class="tl-desc">室温の休憩スペースで水平に寝転ぶ。汗を拭かないことが最重要ポイント。この間も遠赤外線効果（石からの放射熱の余韻）が続く。常温水200mlを補給。</div>
-          <div class="tl-science">汗が蒸発するときの<strong>気化熱（1gあたり約580cal）</strong>で体が自然に冷却される。タオルで拭き取ると気化熱が失われ、クールダウン効率が30〜40%低下する。</div>
-        </div>
-      </div>
-
-      <div class="tl-row r r5">
-        <div class="tl-time">16:00</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-body">
-          <div class="tl-title">第2サイクル ── 中高温・デトックス大発汗</div>
-          <div class="tl-desc">石の種類を変えて中高温室へ。うつ伏せ10分→仰向け5分と姿勢を交互に。アウフグース・ロウリュウがあればこのタイミングで受ける。</div>
-          <div class="tl-science">うつ伏せでは<strong>腹部の内臓（肝臓・腸）が直接温まり</strong>、腸内細菌叢の活性化・消化酵素の分泌促進が起こる。仰向けに切り替えると、背骨の椎間板が温まり柔軟性が回復する。交互にすることで効果が倍増。</div>
-          <div class="tl-tip-tag">HSP産生のピーク刺激：42°C以上で15分以上が条件</div>
-        </div>
-      </div>
-
-      <div class="tl-row r">
-        <div class="tl-time">17:00</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-body">
-          <div class="tl-title">α波ゾーン ── 静寂の中で「整う」</div>
-          <div class="tl-desc">静寂なリラックスエリアで20〜30分の完全休息。目を閉じて、思考が自然に流れるままにする。この時間に脳内でエンドルフィンとセロトニンが同時に分泌され、「整った」状態が完成する。</div>
-          <div class="tl-science">脳波測定研究では岩盤浴後のこの休憩中に<strong>α波が最大40%増加</strong>することが確認されている。α波は創造性・記憶定着・問題解決力と強い相関があり、翌日の勉強効率を直接改善する。</div>
-        </div>
-      </div>
-
-      <div class="tl-row r r2">
-        <div class="tl-time">17:30</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-body">
-          <div class="tl-title">炭酸泉 ── 最終仕上げと血管拡張</div>
-          <div class="tl-desc">CO₂濃度1000ppm以上の炭酸泉に10分浸かる。毛細血管が拡張し、岩盤浴で排出された代謝産物（乳酸・老廃物）が一掃される。</div>
-          <div class="tl-science">炭酸ガス（CO₂）は皮膚から吸収され、血管を拡張させる<strong>血管拡張物質（プロスタグランジン）の産生を促進</strong>する。炭酸泉後は肌がツルツルし、体が軽くなる感覚がある。これが「仕上がった」状態。</div>
-          <div class="tl-tip-tag">推奨：高品質なアメニティで頭皮・肌を整えてから退館</div>
-        </div>
-      </div>
-
-      <div class="tl-row r r3">
-        <div class="tl-time">18:30</div>
-        <div class="tl-node"><div class="tl-dot"></div></div>
-        <div class="tl-body">
-          <div class="tl-title">退館 ── 完璧に整った状態で</div>
-          <div class="tl-desc">門限（20:00〜23:00）に対して十分な余裕を持って退館。フワフワとした「整い感」が今日の投資の証明。帰宅後は軽い食事と水分補給を行い、22:00には就寝する。</div>
-          <div class="tl-science">退館後2〜3時間で深部体温が最低点に達し、<strong>メラトニンの分泌と重なって自然な眠気</strong>が訪れる。18:30退館→22:00就寝のリズムが生理的に最適なタイミング。翌朝の覚醒感と記憶定着率が向上する。</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════ DEEP SCIENCE ═══════════ -->
-<section class="deep-sci" id="deepsci">
-  <div class="sec-label r">07 — 深掘りサイエンス</div>
-  <h2 class="sec-head r r2" style="font-size:clamp(2.5rem,5vw,4rem)">岩盤浴が<em>脳と体</em>の<br>何を変えるのか</h2>
-
-  <div class="deep-grid">
-    <div class="deep-card r">
-      <div class="deep-card-line"></div>
-      <span class="deep-icon">🧠</span>
-      <div class="deep-title">自律神経の<br>スイッチング機構</div>
-      <div class="deep-body">岩盤浴の温熱刺激は視床下部の体温調節中枢を経由して自律神経に作用する。最初の5分で交感神経が軽く活性化し覚醒状態を作り、その後じわじわと副交感神経が優位になる。この緩やかな移行がサウナ（急激な交感神経刺激）との本質的な差であり、持続的なリラクゼーションをもたらす。</div>
-      <div class="deep-data">
-        <div class="deep-data-row"><span class="deep-data-key">副交感優位継続時間</span><span class="deep-data-val">30〜90分</span></div>
-        <div class="deep-data-row"><span class="deep-data-key">HRV（心拍変動）改善</span><span class="deep-data-val">+15%</span></div>
-        <div class="deep-data-row"><span class="deep-data-key">コルチゾール低下率</span><span class="deep-data-val">約−25%</span></div>
-      </div>
-    </div>
-
-    <div class="deep-card r r2">
-      <div class="deep-card-line"></div>
-      <span class="deep-icon">🔬</span>
-      <div class="deep-title">遠赤外線の<br>物理学と生体作用</div>
-      <div class="deep-body">遠赤外線（波長4〜1000μm）は電磁波の一種。鉱石を電気加熱すると4〜14μm帯の遠赤外線が放射される。人体細胞の70〜80%は水分子で構成され、水分子は6〜14μm帯で「共鳴吸収」が起こる。この共鳴が細胞内水分子を直接振動させ、内側から熱を発生させる。皮膚ではなく細胞が発熱する仕組み。</div>
-      <div class="deep-data">
-        <div class="deep-data-row"><span class="deep-data-key">最適吸収波長</span><span class="deep-data-val">6〜14μm</span></div>
-        <div class="deep-data-row"><span class="deep-data-key">体内浸透深度</span><span class="deep-data-val">3〜4cm</span></div>
-        <div class="deep-data-row"><span class="deep-data-key">放射率（天受石）</span><span class="deep-data-val">96%超</span></div>
-      </div>
-    </div>
-
-    <div class="deep-card r r3">
-      <div class="deep-card-line"></div>
-      <span class="deep-icon">💧</span>
-      <div class="deep-title">汗の2種類と<br>デトックスの化学</div>
-      <div class="deep-body">エクリン腺（体温調節）とアポクリン腺（ストレス汗・皮脂腺）の2種が岩盤浴で同時に開く。脂溶性毒素（農薬・重金属・PCB）はエクリン汗には含まれず、アポクリン・皮脂腺汗にのみ排出される。通常の運動汗より岩盤浴の汗が「デトックスに優れる」科学的根拠がここにある。</div>
-      <div class="deep-data">
-        <div class="deep-data-row"><span class="deep-data-key">重金属検出</span><span class="deep-data-val">有意差あり</span></div>
-        <div class="deep-data-row"><span class="deep-data-key">発汗量（90分）</span><span class="deep-data-val">約800〜1200ml</span></div>
-        <div class="deep-data-row"><span class="deep-data-key">皮脂排出</span><span class="deep-data-val">毛穴詰まり解消</span></div>
-      </div>
-    </div>
-
-    <div class="deep-card r r4">
-      <div class="deep-card-line"></div>
-      <span class="deep-icon">🦴</span>
-      <div class="deep-title">中学3年生と<br>成長ホルモンの黄金期</div>
-      <div class="deep-body">中3（14〜15歳）はGH分泌の生涯ピーク期。大人の3倍の基礎分泌量に加え、岩盤浴の温熱刺激で最大5倍の追加分泌が起こる。GHは骨端軟骨への成長刺激・筋タンパク合成・脂肪分解・免疫機能強化に直結。週2回の岩盤浴習慣が成長期の最大化戦略として理にかなっている。</div>
-      <div class="deep-data">
-        <div class="deep-data-row"><span class="deep-data-key">中3の基礎GH分泌</span><span class="deep-data-val">大人の×3</span></div>
-        <div class="deep-data-row"><span class="deep-data-key">温熱による追加分泌</span><span class="deep-data-val">最大×5</span></div>
-        <div class="deep-data-row"><span class="deep-data-key">最適頻度</span><span class="deep-data-val">週2回</span></div>
-      </div>
-    </div>
-
-    <div class="deep-card r r5">
-      <div class="deep-card-line"></div>
-      <span class="deep-icon">🌡️</span>
-      <div class="deep-title">体温のリズムと<br>睡眠サイクルの連動</div>
-      <div class="deep-body">人体の深部体温は24時間周期（サーカディアンリズム）で変動する。夕方〜夜に体温が低下するタイミングでメラトニンが分泌され眠気が来る。岩盤浴後は深部体温が一時上昇後、急速に低下する「体温の落差」が大きくなり、この生理的スイッチが増幅される。18:30退館で体温低下が22:00の就寝と完璧に同期する。</div>
-      <div class="deep-data">
-        <div class="deep-data-row"><span class="deep-data-key">体温低下のタイミング</span><span class="deep-data-val">退館後2〜3時間</span></div>
-        <div class="deep-data-row"><span class="deep-data-key">深睡眠（ノンレム3〜4）</span><span class="deep-data-val">有意に増加</span></div>
-        <div class="deep-data-row"><span class="deep-data-key">翌朝の覚醒感</span><span class="deep-data-val">主観的改善 多数</span></div>
-      </div>
-    </div>
-
-    <div class="deep-card r">
-      <div class="deep-card-line"></div>
-      <span class="deep-icon">⚗️</span>
-      <div class="deep-title">ゲルマニウムの<br>半導体生体作用</div>
-      <div class="deep-body">有機ゲルマニウム（Ge-132）は体内で電子の授受に関与し、細胞の酸素運搬効率を高める。酸素飽和度の向上は疲労回復・免疫活性化・抗酸化に直結する。遼寧石・芙蓉石に多く含まれるゲルマニウムは、岩盤浴中に微量が経皮吸収されると考えられており、江戸遊・有明など採用施設での遠赤外線効果に付加価値を与えている。</div>
-      <div class="deep-data">
-        <div class="deep-data-row"><span class="deep-data-key">Ge含有量（遼寧石）</span><span class="deep-data-val">最高クラス</span></div>
-        <div class="deep-data-row"><span class="deep-data-key">細胞酸素供給</span><span class="deep-data-val">改善効果あり</span></div>
-        <div class="deep-data-row"><span class="deep-data-key">抗酸化作用</span><span class="deep-data-val">有機Ge特有</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════ COMPARISON ═══════════ -->
-<section class="comp-sec" id="compare">
-  <div class="sec-label r">08 — 比較分析</div>
-  <h2 class="sec-head r r2" style="font-size:clamp(2.5rem,5vw,4rem)">一覧で見る<br><em>玄人の選択肢</em></h2>
-
-  <table class="comp-table r">
-    <thead>
-      <tr>
-        <th>施設名</th>
-        <th>料金（中学生）</th>
-        <th>静寂性</th>
-        <th>採用石</th>
-        <th>岩盤浴室数</th>
-        <th>門限</th>
-        <th>特記</th>
-        <th>総合</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="name-c">両国湯屋 江戸遊 <span class="rec-badge">推奨1</span></td>
-        <td class="price-c">¥2,270</td>
-        <td><span class="dot-y">●</span> 最高</td>
-        <td>遼寧石</td>
-        <td>3室以上</td>
-        <td>23:00</td>
-        <td>中学生未満完全排除・コワーキング</td>
-        <td style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold)">9.8</td>
-      </tr>
-      <tr>
-        <td class="name-c">泉天空の湯 有明 <span class="rec-badge">推奨2</span></td>
-        <td class="price-c">¥2,800</td>
-        <td><span class="dot-y">●</span> 高</td>
-        <td>多種</td>
-        <td>4室＋CR</td>
-        <td>22:00</td>
-        <td>アウフグース・ReFa</td>
-        <td style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold)">9.3</td>
-      </tr>
-      <tr>
-        <td class="name-c">前野原温泉 さやの湯</td>
-        <td class="price-c">¥2,560</td>
-        <td><span class="dot-y">●</span> 高</td>
-        <td>天受石・薬宝玉</td>
-        <td>4室（四季）</td>
-        <td>20:00</td>
-        <td>枯山水・十割蕎麦</td>
-        <td style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold)">9.5</td>
-      </tr>
-      <tr>
-        <td class="name-c">なごみの湯 荻窪</td>
-        <td class="price-c">¥2,000〜</td>
-        <td><span class="dot-p">●</span> 中高</td>
-        <td>多種</td>
-        <td>複数</td>
-        <td>23:00頃</td>
-        <td>胎内浴・ロウリュウ・駅1分</td>
-        <td style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold)">9.1</td>
-      </tr>
-      <tr>
-        <td class="name-c">天然温泉 平和島</td>
-        <td class="price-c">¥2,800</td>
-        <td><span class="dot-y">●</span> 高</td>
-        <td>標準</td>
-        <td>二段式</td>
-        <td>22:00</td>
-        <td>1万冊コミック持込可</td>
-        <td style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold)">8.9</td>
-      </tr>
-      <tr class="comp-dim">
-        <td class="name-c"><s>スパ ラクーア</s> <span class="exc-badge">除外</span></td>
-        <td>—</td>
-        <td><span class="dot-n">●</span> 低〜中</td>
-        <td>複数</td>
-        <td>複数</td>
-        <td>15:00最終入館</td>
-        <td>❌ 滞在3.5hで正サイクル不可</td>
-        <td style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--muted)">—</td>
-      </tr>
-      <tr class="comp-dim">
-        <td class="name-c"><s>タイムズスパ レスタ</s> <span class="exc-badge">除外</span></td>
-        <td>—</td>
-        <td><span class="dot-y">●</span> 最高</td>
-        <td>最高</td>
-        <td>複数</td>
-        <td>—</td>
-        <td>❌ 18歳以上のみ・入館不可</td>
-        <td style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--muted)">—</td>
-      </tr>
-      <tr class="comp-dim">
-        <td class="name-c"><s>東京豊洲 万葉倶楽部</s> <span class="exc-badge">除外</span></td>
-        <td>¥5000〜</td>
-        <td><span class="dot-p">●</span> 中</td>
-        <td>複数</td>
-        <td>複数</td>
-        <td>—</td>
-        <td>❌ 予算超過（¥5,000〜¥6,000）</td>
-        <td style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--muted)">—</td>
-      </tr>
-    </tbody>
-  </table>
-</section>
-
-<!-- ═══════════ GLOSSARY ═══════════ -->
-<section class="gloss-sec">
-  <div class="sec-label r">09 — 玄人用語集</div>
-  <h2 class="sec-head r r2" style="font-size:clamp(2rem,4vw,3.5rem)">知っておくべき<em>専門用語</em></h2>
-
-  <div class="gloss-grid">
-    <div class="gloss-card r">
-      <div class="gloss-term">遠赤外線</div>
-      <div class="gloss-read">INFRARED RADIATION</div>
-      <div class="gloss-def">波長4〜1000μmの電磁波。鉱石を加熱することで放射される。人体の水分子と共鳴吸収を起こし、体の内側3〜4cmを加温する。「外から焼く」対流熱と根本的に異なる。</div>
-    </div>
-    <div class="gloss-card r r2">
-      <div class="gloss-term">HSP</div>
-      <div class="gloss-read">HEAT SHOCK PROTEIN 70</div>
-      <div class="gloss-def">42°C以上の熱刺激で産生されるタンパク質。損傷したタンパク質を修復する分子シャペロン。入浴後48〜72時間後にピーク量に達する。免疫力・筋肉回復・抗酸化の三役。</div>
-    </div>
-    <div class="gloss-card r r3">
-      <div class="gloss-term">アウフグース</div>
-      <div class="gloss-read">AUFGUSS (GERMAN)</div>
-      <div class="gloss-def">ドイツ語で「注ぎかけ」の意。熱した石にアロマ水を注ぎ、大きなタオルを振って熱風を送るパフォーマンス型サービス。岩盤浴の黄金（アロマスチーム）室などで実施。</div>
-    </div>
-    <div class="gloss-card r r4">
-      <div class="gloss-term">ロウリュウ</div>
-      <div class="gloss-read">LÖYLY (FINNISH)</div>
-      <div class="gloss-def">フィンランド語で「サウナの蒸気」の意。熱した石にアロマ水を注いで蒸気を発生させる行為。なごみの湯「黒龍」のロウリュウサービスは都内最強クラスの熱風量。</div>
-    </div>
-    <div class="gloss-card r r5">
-      <div class="gloss-term">自律神経</div>
-      <div class="gloss-read">AUTONOMIC NERVOUS SYSTEM</div>
-      <div class="gloss-def">意識でコントロールできない神経系。交感神経（戦う・逃げる）と副交感神経（休む・消化）の2系統。岩盤浴は副交感神経を優位にし「休息と修復」モードに切り替える。</div>
-    </div>
-    <div class="gloss-card r">
-      <div class="gloss-term">ゲルマニウム</div>
-      <div class="gloss-read">GERMANIUM (Ge)</div>
-      <div class="gloss-def">半導体特性を持つ元素（原子番号32）。遼寧石・芙蓉石に豊富。体内電子の流れを整え細胞の酸素供給を促進する。有機Ge（Ge-132）は抗酸化・デトックス作用がある。</div>
-    </div>
-    <div class="gloss-card r r2">
-      <div class="gloss-term">コルチゾール</div>
-      <div class="gloss-read">CORTISOL</div>
-      <div class="gloss-def">副腎皮質から分泌されるストレスホルモン。受験勉強で過剰分泌されると免疫低下・記憶力低下・睡眠障害を引き起こす。岩盤浴後の副交感神経優位化で血中濃度が約25%低下する。</div>
-    </div>
-    <div class="gloss-card r r3">
-      <div class="gloss-term">エクリン腺</div>
-      <div class="gloss-read">ECCRINE GLAND</div>
-      <div class="gloss-def">全身に分布する汗腺。体温調節のための汗を分泌。水分・塩分が多く、脂溶性毒素の排出は少ない。高温サウナで主に働く汗腺。岩盤浴ではアポクリン腺（皮脂腺）も同時に活性化する点が重要。</div>
-    </div>
-    <div class="gloss-card r r4">
-      <div class="gloss-term">炭酸泉</div>
-      <div class="gloss-read">CARBONATED HOT SPRING</div>
-      <div class="gloss-def">CO₂を1000ppm以上含む温泉。CO₂が皮膚から吸収されると一酸化窒素（NO）産生を促し血管を拡張する。岩盤浴の仕上げに最適。血流改善・乳酸除去・美肌効果をもたらし「整い」を完成させる。</div>
-    </div>
-    <div class="gloss-card r r5">
-      <div class="gloss-term">下湯</div>
-      <div class="gloss-read">SHITAYU / PRE-BATH</div>
-      <div class="gloss-def">岩盤浴前に行う温湯での準備入浴。38〜40°Cのぬるめのお湯に5〜10分浸かり皮脂腺口を弛緩させる。岩盤浴開始から発汗が始まるまでの時間を15分→7分に短縮する玄人の必須作法。</div>
-    </div>
-    <div class="gloss-card r">
-      <div class="gloss-term">仙骨</div>
-      <div class="gloss-read">SACRUM</div>
-      <div class="gloss-def">骨盤後面の大きな骨。脊椎の末端。自律神経の幹が集中する「仙骨神経叢」がある。岩盤浴で仙骨を重点的に温めると全身の自律神経バランスが整う。仰向けで寝る際の最重要ポイント。</div>
-    </div>
-    <div class="gloss-card r r2">
-      <div class="gloss-term">整う</div>
-      <div class="gloss-read">TOTONOU</div>
-      <div class="gloss-def">温熱刺激後の休憩中に訪れる特有の感覚。神経科学的にはエンドルフィン・セロトニン・ノルアドレナリンの同時分泌と、α波増加による状態。「フワフワして思考が澄み渡る感覚」として体験される。</div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════ EXCLUDE ═══════════ -->
-<section class="exc-sec">
-  <div class="sec-label r">10 — リスク管理</div>
-  <h2 class="sec-head r r2" style="font-size:clamp(2rem,4vw,3.5rem)">回避すべき施設と<em>その理由</em></h2>
-  <div class="exc-row r">
-    <div class="exc-name">スパ ラクーア</div>
-    <div class="exc-reason">18歳未満の最終入館は15:00。14:30入館でも滞在できるのは3.5時間のみ。正しい2〜3サイクルの岩盤浴プロトコルを実施するには絶対的に時間が足りない。土日祝だけでなく平日もイベント時は混雑し静寂が保たれない。</div>
-    <span class="exc-badge">TIME · NOISE</span>
-  </div>
-  <div class="exc-row r r2">
-    <div class="exc-name">タイムズスパ レスタ（池袋）</div>
-    <div class="exc-reason">品質・静寂性・石の質ともに都内最高クラスだが「18歳以上限定」。中学3年生は入館そのものが不可能。将来の目標施設として取っておくべき。18歳になったら最初に行く施設候補ナンバーワン。</div>
-    <span class="exc-badge">AGE LIMIT: 18+</span>
-  </div>
-  <div class="exc-row r r3">
-    <div class="exc-name">東京豊洲 万葉倶楽部</div>
-    <div class="exc-reason">2024年開業の話題の新施設だが入館＋岩盤浴で¥5,000〜6,000前後。予算¥4,000を明確に超過する。平日割引を使用しても超過の可能性が高い。</div>
-    <span class="exc-badge">OVER BUDGET</span>
-  </div>
-  <div class="exc-row r r4">
-    <div class="exc-name">スパジャポ系（スパメッツァ等）</div>
-    <div class="exc-reason">家族連れ・若年グループを主要ターゲットとした動線設計のため、反響音の制御が構造的に困難。岩盤浴室内でも「隣のグループの声」が聞こえるリスクが高い。玄人の静寂要求には設計思想レベルで合わない。</div>
-    <span class="exc-badge">NOISE · DESIGN</span>
-  </div>
-</section>
-
-<!-- ═══════════ FOOTER ═══════════ -->
-<footer>
-  <div class="footer-top">
-    <div>
-      <div class="footer-brand">
-        Ganjoku
-        <span>CURATED ONSEN INTELLIGENCE</span>
-      </div>
-    </div>
-    <div class="footer-links">
-      <a href="#science">01 サイエンス</a>
-      <a href="#stones">03 鉱石分析</a>
-      <a href="#facilities">04 施設案内</a>
-      <a href="#protocol">06 入浴作法</a>
-      <a href="#compare">08 比較表</a>
-    </div>
-    <div class="footer-note">本ガイドに記載の料金・年齢制限・営業時間は予告なく変更されます。来館前に各施設の公式サイトで最新情報を必ずご確認ください。未成年者の深夜滞在については東京都青少年の健全な育成に関する条例に従って行動してください。</div>
-  </div>
-  <div class="footer-bottom">
-    <div class="footer-copy">© GANJOKU GUIDE · FOR CONNOISSEURS OF SILENCE</div>
-    <div class="footer-copy">中学3年生の、中学3年生による、中学3年生のための岩盤浴案内</div>
-  </div>
-</footer>
-
-<!-- ═══════════ JS ═══════════ -->
-<script>
-// ── Cursor
-const cur = document.getElementById('cur');
-const curRing = document.getElementById('cur-ring');
-let mx=window.innerWidth/2, my=window.innerHeight/2, rx=mx, ry=my;
-
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  cur.style.left = mx+'px'; cur.style.top = my+'px';
-});
-(function animRing(){
-  rx += (mx-rx)*.1; ry += (my-ry)*.1;
-  curRing.style.left = rx+'px'; curRing.style.top = ry+'px';
-  requestAnimationFrame(animRing);
-})();
-
-// ── Hero char animation
-const heroWord = 'GANJOKU';
-const heroEl = document.getElementById('hero-chars');
-heroWord.split('').forEach((c,i) => {
-  const s = document.createElement('span');
-  s.className = 'char' + (i===3?' italic':'');
-  s.textContent = c;
-  s.style.animationDelay = `${0.5 + i*0.07}s`;
-  heroEl.appendChild(s);
-});
-
-// ── Marquee
-const items = [
-  '遠赤外線','岩盤浴','整う','静寂','遼寧石','天受石','芙蓉石','自律神経',
-  'HSP70','成長ホルモン','デトックス','α波','副交感神経','コルチゾール低下',
-  'さやの湯処','江戸遊','有明ガーデン','なごみの湯','平和島','玄人',
-];
-const mtrack = document.getElementById('mtrack');
-const full = [...items,...items,...items,...items];
-full.forEach(t => {
-  const span = document.createElement('span');
-  span.className = 'marquee-item';
-  span.innerHTML = t + '<span class="marquee-dot">·</span>';
-  mtrack.appendChild(span);
-});
-
-// ── Progress bar
-const prog = document.getElementById('progress');
-window.addEventListener('scroll', () => {
-  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
-  prog.style.width = pct + '%';
-});
-
-// ── Nav scroll
-const nav = document.getElementById('nav');
-window.addEventListener('scroll', () => {
-  nav.classList.toggle('scrolled', window.scrollY > 60);
-});
-
-// ── Floating kanji
-const fkChars = document.querySelectorAll('.fk-char');
-const sections = ['hero','science','stones','facilities','protocol'];
-window.addEventListener('scroll', () => {
-  const mid = window.scrollY + window.innerHeight/2;
-  sections.forEach((id,i) => {
-    const el = document.getElementById(id);
-    if(!el) return;
-    const top = el.offsetTop, bot = top + el.offsetHeight;
-    fkChars[i]?.classList.toggle('active', mid >= top && mid <= bot);
-  });
-});
-
-// ── Star canvas
-const starCanvas = document.getElementById('star-canvas');
-const sctx = starCanvas.getContext('2d');
-starCanvas.width = window.innerWidth;
-starCanvas.height = window.innerHeight;
-
-const stars = Array.from({length:120}, () => ({
-  x: Math.random()*starCanvas.width,
-  y: Math.random()*starCanvas.height,
-  r: Math.random()*.8+.2,
-  alpha: Math.random()*.4+.05,
-  speed: Math.random()*.003+.001,
-  phase: Math.random()*Math.PI*2,
-}));
-
-(function animStars(){
-  sctx.clearRect(0,0,starCanvas.width,starCanvas.height);
-  const t = Date.now()*.001;
-  stars.forEach(s => {
-    const a = s.alpha * (0.5 + 0.5*Math.sin(t*s.speed*100 + s.phase));
-    sctx.beginPath();
-    sctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
-    sctx.fillStyle = `rgba(212,168,83,${a})`;
-    sctx.fill();
-  });
-  requestAnimationFrame(animStars);
-})();
-
-// ── Steam canvas
-const steamCanvas = document.getElementById('steam-canvas');
-const pctx = steamCanvas.getContext('2d');
-steamCanvas.width = window.innerWidth;
-steamCanvas.height = window.innerHeight;
-
-const pars = Array.from({length:50}, () => ({
-  x: Math.random()*steamCanvas.width,
-  y: steamCanvas.height + Math.random()*300,
-  vx: (Math.random()-.5)*.3,
-  vy: -(Math.random()*.5+.15),
-  r: Math.random()*80+30,
-  life: Math.random(),
-  speed: Math.random()*.004+.002,
-}));
-
-(function animSteam(){
-  pctx.clearRect(0,0,steamCanvas.width,steamCanvas.height);
-  pars.forEach(p => {
-    p.x += p.vx; p.y += p.vy; p.life += p.speed;
-    if(p.y < -150 || p.life > 1){
-      p.y = steamCanvas.height + 50;
-      p.x = Math.random()*steamCanvas.width;
-      p.life = 0;
-    }
-    const a = .06 * Math.sin(p.life * Math.PI);
-    const g = pctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
-    g.addColorStop(0, `rgba(240,232,216,${a})`);
-    g.addColorStop(1, 'rgba(240,232,216,0)');
-    pctx.fillStyle = g;
-    pctx.beginPath();
-    pctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    pctx.fill();
-  });
-  requestAnimationFrame(animSteam);
-})();
-
-window.addEventListener('resize', () => {
-  starCanvas.width = steamCanvas.width = window.innerWidth;
-  starCanvas.height = steamCanvas.height = window.innerHeight;
-});
-
-// ── Wave SVG
-(function drawWave(){
-  const path = document.getElementById('wave-path');
-  if(!path) return;
-  let t = 0;
-  function frame(){
-    const pts = [];
-    for(let x=0;x<=400;x+=4){
-      const norm = x/400;
-      // bell curve centered at 0.55 (9μm zone)
-      const bell = Math.exp(-Math.pow((norm-.55)/.18,2)) * 48;
-      const wave = Math.sin(x*.08 + t) * 4;
-      const y = 55 - bell + wave;
-      pts.push(`${x},${y}`);
-    }
-    path.setAttribute('d', `M ${pts.join(' L ')}`);
-    t += .04;
-    requestAnimationFrame(frame);
-  }
-  frame();
-})();
-
-// ── Intersection Observer: reveal
-const ro = new IntersectionObserver(entries => {
-  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('on'); });
-}, {threshold:.07});
-document.querySelectorAll('.r').forEach(el => ro.observe(el));
-
-// ── Meters & score fills
-const barObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if(!e.isIntersecting) return;
-    e.target.querySelectorAll('.s-meter-fill, .score-fill, .h-bar').forEach((bar,i) => {
-      const w = bar.dataset.w || bar.style.width;
-      bar.style.width = '0';
-      setTimeout(() => { bar.style.width = (w.includes('%') ? w : w+'%'); }, i*120+100);
-    });
-    barObs.unobserve(e.target);
-  });
-}, {threshold:.2});
-document.querySelectorAll('.stone-item,.fac-featured,.fac-card,.hormone-card').forEach(el => barObs.observe(el));
-
-// ── Counter animation
-const countEls = document.querySelectorAll('[data-count]');
-const countObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if(!e.isIntersecting) return;
-    const el = e.target;
-    const target = +el.dataset.count;
-    const suffix = el.dataset.suffix || '';
-    const dur = 1800;
-    const start = performance.now();
-    (function tick(now){
-      const pct = Math.min((now-start)/dur, 1);
-      const ease = 1 - Math.pow(1-pct, 3);
-      el.textContent = Math.round(ease * target) + suffix;
-      if(pct < 1) requestAnimationFrame(tick);
-    })(start);
-    countObs.unobserve(el);
-  });
-}, {threshold:.5});
-countEls.forEach(el => countObs.observe(el));
-
-// ── Deep card line hover (also triggered by scroll)
-const deepCardObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if(e.isIntersecting){
-      e.target.querySelector('.deep-card-line,.h-bar')?.style && (e.target.querySelector('.deep-card-line').style.transform = 'scaleX(1)');
-    }
-  });
-},{threshold:.4});
-document.querySelectorAll('.deep-card').forEach(el => deepCardObs.observe(el));
-
-// ── Heat points stagger
-const heatObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if(!e.isIntersecting) return;
-    e.target.querySelectorAll('.heat-point').forEach((p,i) => {
-      setTimeout(() => p.classList.add('on'), i*180);
-    });
-    heatObs.unobserve(e.target);
-  });
-}, {threshold:.2});
-document.querySelectorAll('.heat-grid').forEach(el => heatObs.observe(el));
-</script>
 </body>
 </html>
