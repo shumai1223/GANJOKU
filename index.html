@@ -298,20 +298,15 @@
 
         // 衝突エフェクト生成
         function spawnCollisionFX(midX, midY, c1, c2, force) {
-            const cnt = Math.min(12, Math.floor(force * 1.5));
-            // コアスパーク
+            const cnt = Math.min(4, Math.floor(force * 0.5) + 1);
             for (let k = 0; k < cnt; k++) {
                 const angle = Math.random() * Math.PI * 2;
-                const spd = Math.random() * force * 0.9 + 1;
-                particles.push(new Particle(midX, midY, '#ffffff', Math.cos(angle)*spd, Math.sin(angle)*spd, 18, 'spark'));
-                particles.push(new Particle(midX, midY, c1, Math.cos(angle+0.3)*spd*0.7, Math.sin(angle+0.3)*spd*0.7, 28, 'dot'));
-                particles.push(new Particle(midX, midY, c2, Math.cos(angle-0.3)*spd*0.7, Math.sin(angle-0.3)*spd*0.7, 28, 'dot'));
+                const spd = Math.random() * force * 0.7 + 1;
+                const col = k % 2 === 0 ? c1 : c2;
+                particles.push(new Particle(midX, midY, col, Math.cos(angle)*spd, Math.sin(angle)*spd, 20, 'dot'));
             }
-            // 衝撃波リング
-            particles.push(new Particle(midX, midY, '#ffffff', 0, 0, 22, 'ring'));
-            if (force > 6) {
-                particles.push(new Particle(midX, midY, c1, 0, 0, 18, 'shockwave'));
-            }
+            // 衝撃波リングは1つだけ
+            particles.push(new Particle(midX, midY, '#ffffff', 0, 0, 16, 'ring'));
         }
 
         // 死亡エフェクト生成
@@ -597,7 +592,7 @@
             easy:   { reactionDelay: 22, aimTol: 0.50, randomness: 0.60, lookahead: 4,  panicEdge: 0.93, aggrEdge: 0.68 },
             normal: { reactionDelay: 10, aimTol: 0.28, randomness: 0.28, lookahead: 16, panicEdge: 0.90, aggrEdge: 0.62 },
             hard:   { reactionDelay: 3,  aimTol: 0.13, randomness: 0.08, lookahead: 30, panicEdge: 0.87, aggrEdge: 0.56 },
-            max:    { reactionDelay: 0,  aimTol: 0.032, randomness: 0.00, lookahead: 80, panicEdge: 0.78, aggrEdge: 0.40 },
+            max:    { reactionDelay: 0,  aimTol: 0.032, randomness: 0.04, lookahead: 80, panicEdge: 0.78, aggrEdge: 0.40 },
         };
 
         const aiState = {};
@@ -900,7 +895,7 @@
             const selfFt = aiDifficulty === 'max' ? predictPos(ai, params.lookahead / 3, true) : ai;
             const angleToTarget = Math.atan2(ft.y - selfFt.y, ft.x - selfFt.x);
             const aimDiff = Math.abs(normalizeAngle(ai.angle - angleToTarget));
-            const noise = (Math.random() < params.randomness) ? Math.random() * 0.6 : 0;
+            const noise = (Math.random() < params.randomness) ? Math.random() * (aiDifficulty === 'max' ? 0.08 : 0.6) : 0;
             const effectiveAim = aimDiff + noise;
 
             const distToTarget = Math.hypot(target.x - ai.x, target.y - ai.y);
@@ -1195,9 +1190,11 @@
                 if (p.isDashing || spd > 4) {
                     ctx.beginPath();
                     ctx.arc(0, 0, p.radius + 5, 0, Math.PI * 2);
-                    const glowAlpha = Math.min(0.4, (spd / 20) + (p.isDashing ? 0.2 : 0));
-                    ctx.fillStyle = p.color.replace(')', `, ${glowAlpha})`).replace('rgb', 'rgba');
+                    const glowAlpha = Math.min(0.35, (spd / 20) + (p.isDashing ? 0.18 : 0));
+                    ctx.globalAlpha = glowAlpha;
+                    ctx.fillStyle = p.color;
                     ctx.fill();
+                    ctx.globalAlpha = 1.0;
                 }
                 
                 // 本体
