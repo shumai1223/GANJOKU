@@ -94,7 +94,7 @@
             <!-- タブ切り替え -->
             <div class="w-full flex gap-2 mb-4 bg-slate-800/60 rounded-xl p-1">
                 <button id="tab-multi" onclick="switchTab('multi')" class="flex-1 py-2 rounded-lg text-sm font-bold transition-all bg-white/10 text-white">👥 マルチ</button>
-                <button id="tab-vs" onclick="switchTab('vs')" class="flex-1 py-2 rounded-lg text-sm font-bold transition-all text-slate-400"> vs AI</button>
+                <button id="tab-vs" onclick="switchTab('vs')" class="flex-1 py-2 rounded-lg text-sm font-bold transition-all text-slate-400">🤖 vs AI</button>
             </div>
 
             <!-- マルチプレイパネル -->
@@ -131,14 +131,14 @@
                         <span class="font-bold text-xl block group-hover:text-cyan-400 transition-colors">1 vs AI</span>
                         <span class="text-xs text-slate-500">あなた(Q) vs AI</span>
                     </div>
-                    <span class="text-2xl"> </span>
+                    <span class="text-2xl">🥊</span>
                 </button>
                 <button onclick="startGame(3, [1,2])" class="group py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-fuchsia-400/50 transition-all flex justify-between items-center cursor-pointer">
                     <div>
                         <span class="font-bold text-xl block group-hover:text-fuchsia-400 transition-colors">1P vs 2 AI</span>
                         <span class="text-xs text-slate-500">あなた(Q) vs AI×2</span>
                     </div>
-                    <span class="text-2xl"> </span>
+                    <span class="text-2xl">🔥</span>
                 </button>
                 <button onclick="startGame(4, [1,2,3])" class="group py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-red-400/50 transition-all flex justify-between items-center cursor-pointer">
                     <div>
@@ -184,6 +184,377 @@
     </div>
 
     <script>
+        // ============================================================
+        // NEON BUMP Sound Engine — Web Audio API / 完全ローカル
+        // ============================================================
+        const SFX = (() => {
+            let ctx = null;
+            let masterGain = null;
+            let bgmNodes = {};   // BGMノード群
+            let bgmPlaying = false;
+
+            function getCtx() {
+                if (!ctx) {
+                    ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    masterGain = ctx.createGain();
+                    masterGain.gain.value = 0.7;
+                    masterGain.connect(ctx.destination);
+                }
+                if (ctx.state === 'suspended') ctx.resume();
+                return ctx;
+            }
+
+            // 汎用バスを作って返す (gain → master)
+            function bus(gainVal = 1.0) {
+                const g = getCtx().createGain();
+                g.gain.value = gainVal;
+                g.connect(masterGain);
+                return g;
+            }
+
+            // ノイズバッファ生成
+            function makeNoise(seconds = 0.5) {
+                const ac = getCtx();
+                const buf = ac.createBuffer(1, ac.sampleRate * seconds, ac.sampleRate);
+                const d = buf.getChannelData(0);
+                for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+                return buf;
+            }
+
+            // ──────────────────────────────────────────
+            // BGM: 8bitテクノ風ループ
+            // ──────────────────────────────────────────
+            function startBGM() {
+                if (bgmPlaying) return;
+                bgmPlaying = true;
+                const ac = getCtx();
+                const bgmGain = ac.createGain();
+                bgmGain.gain.value = 0.18;
+                bgmGain.connect(masterGain);
+                bgmNodes.gain = bgmGain;
+
+                // BPM 140, 1小節 = 60/140*4 ≈ 1.714s
+                const BPM = 140;
+                const beat = 60 / BPM;
+                const bar = beat * 4;
+
+                // ベースライン音程 (A2〜A3 pentatonic)
+                const bassNotes = [110, 110, 138.6, 165, 138.6, 110, 82.4, 110];
+                // リードメロ音程
+                const leadNotes = [440, 550, 660, 550, 440, 330, 440, 0, 660, 0, 550, 440, 330, 440, 550, 0];
+
+                let startTime = ac.currentTime + 0.05;
+                const scheduleBar = () => {
+                    if (!bgmPlaying) return;
+                    const t0 = startTime;
+
+                    // ── キック（4つ打ち）
+                    for (let i = 0; i < 4; i++) {
+                        const t = t0 + i * beat;
+                        const osc = ac.createOscillator();
+                        const g   = ac.createGain();
+                        osc.connect(g); g.connect(bgmGain);
+                        osc.frequency.setValueAtTime(160, t);
+                        osc.frequency.exponentialRampToValueAtTime(40, t + 0.18);
+                        g.gain.setValueAtTime(1.2, t);
+                        g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+                        osc.start(t); osc.stop(t + 0.23);
+                    }
+
+                    // ── スネア（2・4拍）
+                    for (let i = 1; i < 4; i += 2) {
+                        const t = t0 + i * beat;
+                        const nSrc = ac.createBufferSource();
+                        nSrc.buffer = makeNoise(0.15);
+                        const filt = ac.createBiquadFilter();
+                        filt.type = 'bandpass'; filt.frequency.value = 2200; filt.Q.value = 0.8;
+                        const g = ac.createGain();
+                        nSrc.connect(filt); filt.connect(g); g.connect(bgmGain);
+                        g.gain.setValueAtTime(0.7, t);
+                        g.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
+                        nSrc.start(t); nSrc.stop(t + 0.14);
+                    }
+
+                    // ── ハイハット（8分）
+                    for (let i = 0; i < 8; i++) {
+                        const t = t0 + i * beat * 0.5;
+                        const nSrc = ac.createBufferSource();
+                        nSrc.buffer = makeNoise(0.05);
+                        const filt = ac.createBiquadFilter();
+                        filt.type = 'highpass'; filt.frequency.value = 8000;
+                        const g = ac.createGain();
+                        nSrc.connect(filt); filt.connect(g); g.connect(bgmGain);
+                        g.gain.setValueAtTime(i % 2 === 0 ? 0.28 : 0.14, t);
+                        g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+                        nSrc.start(t); nSrc.stop(t + 0.045);
+                    }
+
+                    // ── ベースライン（8音）
+                    for (let i = 0; i < 8; i++) {
+                        const t = t0 + i * beat * 0.5;
+                        const freq = bassNotes[i];
+                        const osc = ac.createOscillator();
+                        const g   = ac.createGain();
+                        osc.type = 'sawtooth';
+                        const filt = ac.createBiquadFilter();
+                        filt.type = 'lowpass'; filt.frequency.value = 600;
+                        osc.connect(filt); filt.connect(g); g.connect(bgmGain);
+                        osc.frequency.value = freq;
+                        g.gain.setValueAtTime(0.6, t);
+                        g.gain.exponentialRampToValueAtTime(0.001, t + beat * 0.45);
+                        osc.start(t); osc.stop(t + beat * 0.46);
+                    }
+
+                    // ── リードシンセ（16音）
+                    for (let i = 0; i < 16; i++) {
+                        const freq = leadNotes[i];
+                        if (freq === 0) continue;
+                        const t = t0 + i * beat * 0.25;
+                        const osc = ac.createOscillator();
+                        const g   = ac.createGain();
+                        osc.type = 'square';
+                        osc.connect(g); g.connect(bgmGain);
+                        osc.frequency.value = freq;
+                        g.gain.setValueAtTime(0.22, t);
+                        g.gain.exponentialRampToValueAtTime(0.001, t + beat * 0.22);
+                        osc.start(t); osc.stop(t + beat * 0.23);
+                    }
+
+                    startTime += bar;
+                    bgmNodes.timer = setTimeout(scheduleBar, (bar - 0.1) * 1000);
+                };
+                scheduleBar();
+            }
+
+            function stopBGM() {
+                bgmPlaying = false;
+                clearTimeout(bgmNodes.timer);
+                if (bgmNodes.gain) {
+                    bgmNodes.gain.gain.setTargetAtTime(0, getCtx().currentTime, 0.1);
+                }
+            }
+
+            // ──────────────────────────────────────────
+            // SFX: 衝突
+            // impulse = 衝突の強さ (3〜15程度)
+            // ──────────────────────────────────────────
+            function collision(impulse) {
+                const ac = getCtx();
+                const g = bus(Math.min(1.0, impulse / 10));
+                const now = ac.currentTime;
+
+                // 低音パンチ
+                const sub = ac.createOscillator();
+                const subG = ac.createGain();
+                sub.connect(subG); subG.connect(g);
+                sub.frequency.setValueAtTime(180, now);
+                sub.frequency.exponentialRampToValueAtTime(60, now + 0.08);
+                subG.gain.setValueAtTime(1.0, now);
+                subG.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                sub.start(now); sub.stop(now + 0.13);
+
+                // メタリックノイズ
+                const ns = ac.createBufferSource();
+                ns.buffer = makeNoise(0.1);
+                const filt = ac.createBiquadFilter();
+                filt.type = 'bandpass'; filt.frequency.value = 1200 + impulse * 80; filt.Q.value = 2;
+                const nsG = ac.createGain();
+                ns.connect(filt); filt.connect(nsG); nsG.connect(g);
+                nsG.gain.setValueAtTime(0.6, now);
+                nsG.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                ns.start(now); ns.stop(now + 0.09);
+
+                // 高音スパーク（強衝突時のみ）
+                if (impulse > 8) {
+                    const sp = ac.createOscillator();
+                    const spG = ac.createGain();
+                    sp.type = 'sawtooth';
+                    sp.connect(spG); spG.connect(g);
+                    sp.frequency.setValueAtTime(800, now);
+                    sp.frequency.exponentialRampToValueAtTime(200, now + 0.06);
+                    spG.gain.setValueAtTime(0.4, now);
+                    spG.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+                    sp.start(now); sp.stop(now + 0.08);
+                }
+            }
+
+            // ──────────────────────────────────────────
+            // SFX: ダッシュ開始
+            // ──────────────────────────────────────────
+            function dashStart() {
+                const ac = getCtx();
+                const g = bus(0.18);
+                const now = ac.currentTime;
+                const osc = ac.createOscillator();
+                const og = ac.createGain();
+                osc.type = 'sawtooth';
+                osc.connect(og); og.connect(g);
+                osc.frequency.setValueAtTime(120, now);
+                osc.frequency.exponentialRampToValueAtTime(280, now + 0.07);
+                og.gain.setValueAtTime(0.6, now);
+                og.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+                osc.start(now); osc.stop(now + 0.1);
+            }
+
+            // ──────────────────────────────────────────
+            // SFX: 死亡（リングアウト）
+            // ──────────────────────────────────────────
+            function death() {
+                const ac = getCtx();
+                const g = bus(0.9);
+                const now = ac.currentTime;
+
+                // 爆発低音
+                const sub = ac.createOscillator();
+                const subG = ac.createGain();
+                sub.connect(subG); subG.connect(g);
+                sub.frequency.setValueAtTime(120, now);
+                sub.frequency.exponentialRampToValueAtTime(25, now + 0.5);
+                subG.gain.setValueAtTime(1.2, now);
+                subG.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+                sub.start(now); sub.stop(now + 0.56);
+
+                // ホワイトノイズ爆発
+                const ns = ac.createBufferSource();
+                ns.buffer = makeNoise(0.6);
+                const filt = ac.createBiquadFilter();
+                filt.type = 'lowpass'; filt.frequency.value = 3000;
+                const nsG = ac.createGain();
+                ns.connect(filt); filt.connect(nsG); nsG.connect(g);
+                nsG.gain.setValueAtTime(1.0, now);
+                nsG.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                ns.start(now); ns.stop(now + 0.55);
+
+                // 悲鳴的な下降音
+                const cry = ac.createOscillator();
+                const cryG = ac.createGain();
+                cry.type = 'sawtooth';
+                cry.connect(cryG); cryG.connect(g);
+                cry.frequency.setValueAtTime(600, now + 0.05);
+                cry.frequency.exponentialRampToValueAtTime(80, now + 0.55);
+                cryG.gain.setValueAtTime(0.5, now + 0.05);
+                cryG.gain.exponentialRampToValueAtTime(0.001, now + 0.58);
+                cry.start(now + 0.05); cry.stop(now + 0.59);
+            }
+
+            // ──────────────────────────────────────────
+            // SFX: ラウンド開始 "GO!"
+            // ──────────────────────────────────────────
+            function go() {
+                const ac = getCtx();
+                const g = bus(0.8);
+                const now = ac.currentTime;
+                // 上昇ファンファーレ
+                const freqs = [330, 440, 550, 660, 880];
+                freqs.forEach((f, i) => {
+                    const osc = ac.createOscillator();
+                    const og = ac.createGain();
+                    osc.type = 'square';
+                    osc.connect(og); og.connect(g);
+                    osc.frequency.value = f;
+                    const t = now + i * 0.055;
+                    og.gain.setValueAtTime(0, t);
+                    og.gain.linearRampToValueAtTime(0.5, t + 0.03);
+                    og.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+                    osc.start(t); osc.stop(t + 0.19);
+                });
+            }
+
+            // ──────────────────────────────────────────
+            // SFX: ラウンド勝利
+            // ──────────────────────────────────────────
+            function roundWin() {
+                const ac = getCtx();
+                const g = bus(0.75);
+                const now = ac.currentTime;
+                const melody = [523, 659, 784, 1047, 784, 1047];
+                const times  = [0, 0.12, 0.24, 0.38, 0.52, 0.62];
+                melody.forEach((f, i) => {
+                    const osc = ac.createOscillator();
+                    const og = ac.createGain();
+                    osc.type = 'square';
+                    osc.connect(og); og.connect(g);
+                    osc.frequency.value = f;
+                    const t = now + times[i];
+                    og.gain.setValueAtTime(0.45, t);
+                    og.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+                    osc.start(t); osc.stop(t + 0.15);
+                });
+            }
+
+            // ──────────────────────────────────────────
+            // SFX: 最終勝利 (チャンピオン)
+            // ──────────────────────────────────────────
+            function champion() {
+                const ac = getCtx();
+                const g = bus(0.8);
+                const now = ac.currentTime;
+                // 派手なアルペジオ + 和音
+                const phrase = [
+                    [262, 0.00], [330, 0.10], [392, 0.20], [523, 0.30],
+                    [659, 0.42], [784, 0.54], [1047,0.66], [1047,0.80],
+                ];
+                phrase.forEach(([f, dt]) => {
+                    const osc = ac.createOscillator();
+                    const og = ac.createGain();
+                    osc.type = i => i % 2 === 0 ? 'square' : 'sawtooth';
+                    osc.connect(og); og.connect(g);
+                    osc.frequency.value = f;
+                    const t = now + dt;
+                    og.gain.setValueAtTime(0.5, t);
+                    og.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+                    osc.start(t); osc.stop(t + 0.26);
+                });
+                // 締めのノイズ爆発
+                const ns = ac.createBufferSource();
+                ns.buffer = makeNoise(0.3);
+                const filt = ac.createBiquadFilter();
+                filt.type = 'bandpass'; filt.frequency.value = 1500; filt.Q.value = 1.5;
+                const nsG = ac.createGain();
+                ns.connect(filt); filt.connect(nsG); nsG.connect(g);
+                nsG.gain.setValueAtTime(0.8, now + 0.95);
+                nsG.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+                ns.start(now + 0.95); ns.stop(now + 1.21);
+            }
+
+            // ──────────────────────────────────────────
+            // SFX: カウントダウン "ROUND N"
+            // ──────────────────────────────────────────
+            function countBeep(pitch = 440) {
+                const ac = getCtx();
+                const g = bus(0.5);
+                const now = ac.currentTime;
+                const osc = ac.createOscillator();
+                const og = ac.createGain();
+                osc.type = 'sine';
+                osc.connect(og); og.connect(g);
+                osc.frequency.value = pitch;
+                og.gain.setValueAtTime(0.6, now);
+                og.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+                osc.start(now); osc.stop(now + 0.19);
+            }
+
+            // ──────────────────────────────────────────
+            // SFX: アリーナ縮小警告（危険帯になったとき）
+            // ──────────────────────────────────────────
+            function arenaWarning() {
+                const ac = getCtx();
+                const g = bus(0.35);
+                const now = ac.currentTime;
+                const osc = ac.createOscillator();
+                const og = ac.createGain();
+                osc.type = 'sawtooth';
+                osc.connect(og); og.connect(g);
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.linearRampToValueAtTime(180, now + 0.3);
+                og.gain.setValueAtTime(0.5, now);
+                og.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                osc.start(now); osc.stop(now + 0.36);
+            }
+
+            return { startBGM, stopBGM, collision, dashStart, death, go, roundWin, champion, countBeep, arenaWarning };
+        })();
+
         // --- 設定と状態 ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -335,6 +706,7 @@
             aiPlayers = new Set(aiIds);
             scores = [0, 0, 0, 0];
             roundNumber = 0;
+            SFX.startBGM();
             
             // UIの切り替え
             document.getElementById('menu').style.opacity = '0';
@@ -385,9 +757,11 @@
             }
 
             // カウントダウン演出
+            SFX.countBeep(330);
             showMessage(`ROUND ${roundNumber}`, 1500, '#ffffff');
             setTimeout(() => {
                 if (gameState !== 'game_over') {
+                    SFX.go();
                     showMessage('GO!', 1000, '#ff0055');
                     gameState = 'playing';
                 }
@@ -442,6 +816,7 @@
 
         function returnToMenu() {
             gameState = 'menu';
+            SFX.stopBGM();
             document.getElementById('score-board').style.opacity = '0';
             setTimeout(() => { document.getElementById('score-board').classList.add('hidden'); }, 500);
             document.getElementById('touch-controls').classList.add('hidden');
@@ -460,6 +835,7 @@
             const player = players.find(p => p.id === id);
             if (player && player.isAlive) {
                 player.isDashing = isPressed;
+                if (isPressed) SFX.dashStart();
                 
                 // UI Touch Zone highlight
                 const zone = document.getElementById(`zone-${id}`);
@@ -539,6 +915,7 @@
                         
                         screenShake = Math.max(screenShake, force * 1.8);
                         spawnCollisionFX(midX, midY, p1.color, p2.color, force);
+                        SFX.collision(force);
                     }
                 }
             }
@@ -1038,6 +1415,7 @@
             ai.isDashing = st.decision;
         }
 
+        let arenaWarnCooldown = 0;
         function update() {
             if (gameState === 'menu' || gameState === 'game_over') return;
 
@@ -1045,6 +1423,14 @@
             if (gameState === 'playing') {
                 arenaRadius -= 0.05;
                 if (arenaRadius < 50) arenaRadius = 50;
+                // 危険サイズになったら警告音（120px以下、120fに1回）
+                if (arenaRadius < 120 && arenaRadius > 50) {
+                    arenaWarnCooldown--;
+                    if (arenaWarnCooldown <= 0) {
+                        SFX.arenaWarning();
+                        arenaWarnCooldown = 120;
+                    }
+                }
             }
 
             // プレイヤーの更新
@@ -1094,6 +1480,7 @@
                             p.isAlive = false;
                             screenShake = 18;
                             spawnDeathFX(p.x, p.y, p.color);
+                            SFX.death();
                             // UIのハイライトを消す
                             document.getElementById(`zone-${p.id}`).classList.remove('active');
                         }
@@ -1115,6 +1502,7 @@
                         
                         if (scores[winner.id] >= targetScore) {
                             // 最終勝利
+                            SFX.champion();
                             setTimeout(() => {
                                 gameState = 'game_over';
                                 showMessage(`WINNER`, 0, winner.color);
@@ -1126,11 +1514,13 @@
                             }, 1000);
                         } else {
                             // ラウンド勝利
+                            SFX.roundWin();
                             showMessage(`ROUND WINNER!`, 2000, winner.color);
                             setTimeout(startRound, 2500);
                         }
                     } else {
                         // 引き分け（相打ち）
+                        SFX.countBeep(220);
                         showMessage(`DRAW!`, 2000, '#94a3b8');
                         setTimeout(startRound, 2500);
                     }
