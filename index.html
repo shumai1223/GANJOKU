@@ -94,7 +94,7 @@
             <!-- タブ切り替え -->
             <div class="w-full flex gap-2 mb-4 bg-slate-800/60 rounded-xl p-1">
                 <button id="tab-multi" onclick="switchTab('multi')" class="flex-1 py-2 rounded-lg text-sm font-bold transition-all bg-white/10 text-white">👥 マルチ</button>
-                <button id="tab-vs" onclick="switchTab('vs')" class="flex-1 py-2 rounded-lg text-sm font-bold transition-all text-slate-400">🤖 vs AI</button>
+                <button id="tab-vs" onclick="switchTab('vs')" class="flex-1 py-2 rounded-lg text-sm font-bold transition-all text-slate-400"> vs AI</button>
             </div>
 
             <!-- マルチプレイパネル -->
@@ -131,14 +131,14 @@
                         <span class="font-bold text-xl block group-hover:text-cyan-400 transition-colors">1 vs AI</span>
                         <span class="text-xs text-slate-500">あなた(Q) vs AI</span>
                     </div>
-                    <span class="text-2xl">🥊</span>
+                    <span class="text-2xl"> </span>
                 </button>
                 <button onclick="startGame(3, [1,2])" class="group py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-fuchsia-400/50 transition-all flex justify-between items-center cursor-pointer">
                     <div>
                         <span class="font-bold text-xl block group-hover:text-fuchsia-400 transition-colors">1P vs 2 AI</span>
                         <span class="text-xs text-slate-500">あなた(Q) vs AI×2</span>
                     </div>
-                    <span class="text-2xl">🔥</span>
+                    <span class="text-2xl"> </span>
                 </button>
                 <button onclick="startGame(4, [1,2,3])" class="group py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-red-400/50 transition-all flex justify-between items-center cursor-pointer">
                     <div>
@@ -235,89 +235,69 @@
         window.addEventListener('resize', resize);
         resize();
 
-        // --- パーティクルクラス (強化版) ---
+        // --- パーティクルクラス (軽量版) ---
+        // shadowBlur一切なし、型はdot/ringのみ、プール上限管理
+        const MAX_PARTICLES = 80;
         class Particle {
-            constructor(x, y, color, vx, vy, life = 30, type = 'dot') {
-                this.x = x;
-                this.y = y;
-                this.vx = vx;
-                this.vy = vy;
-                this.life = life;
-                this.maxLife = life;
-                this.color = color;
-                this.type = type; // 'dot' | 'spark' | 'ring' | 'shockwave'
-                this.size = type === 'spark' ? Math.random() * 2 + 0.5 : Math.random() * 4 + 2;
-                this.radius = 0; // for ring/shockwave
-                this.maxRadius = type === 'ring' ? 60 : type === 'shockwave' ? 120 : 0;
+            constructor(x, y, color, vx, vy, life = 20, type = 'dot') {
+                this.x = x; this.y = y;
+                this.vx = vx; this.vy = vy;
+                this.life = life; this.maxLife = life;
+                this.color = color; this.type = type;
+                this.size = Math.random() * 3 + 1.5;
+                this.maxRadius = type === 'ring' ? 55 : 0;
             }
             update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.vx *= 0.91;
-                this.vy *= 0.91;
+                this.x += this.vx; this.y += this.vy;
+                this.vx *= 0.90; this.vy *= 0.90;
                 this.life--;
-                if (this.type === 'ring' || this.type === 'shockwave') {
-                    this.radius = this.maxRadius * (1 - this.life / this.maxLife);
-                }
             }
             draw(ctx) {
                 if (this.life <= 0) return;
-                const alpha = Math.max(0, this.life / this.maxLife);
-                ctx.save();
-                ctx.globalAlpha = alpha;
-
-                if (this.type === 'ring' || this.type === 'shockwave') {
+                const t = this.life / this.maxLife;
+                ctx.globalAlpha = t;
+                if (this.type === 'ring') {
+                    const r = this.maxRadius * (1 - t);
+                    if (r < 1) return;
                     ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
                     ctx.strokeStyle = this.color;
-                    ctx.lineWidth = this.type === 'shockwave' ? 3 : 1.5;
-                    ctx.shadowBlur = this.type === 'shockwave' ? 20 : 10;
-                    ctx.shadowColor = this.color;
-                    ctx.stroke();
-                } else if (this.type === 'spark') {
-                    // スパーク: 線で描画
-                    ctx.strokeStyle = this.color;
-                    ctx.lineWidth = this.size * 0.6;
-                    ctx.shadowBlur = 8;
-                    ctx.shadowColor = this.color;
-                    ctx.beginPath();
-                    ctx.moveTo(this.x, this.y);
-                    ctx.lineTo(this.x - this.vx * 4, this.y - this.vy * 4);
+                    ctx.lineWidth = 1.5;
                     ctx.stroke();
                 } else {
-                    ctx.shadowBlur = 12;
-                    ctx.shadowColor = this.color;
                     ctx.fillStyle = this.color;
                     ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size * alpha, 0, Math.PI * 2);
+                    ctx.arc(this.x, this.y, this.size * t + 0.5, 0, Math.PI * 2);
                     ctx.fill();
                 }
-                ctx.restore();
+                ctx.globalAlpha = 1;
             }
         }
 
-        // 衝突エフェクト生成
+        function addParticle(p) {
+            if (particles.length < MAX_PARTICLES) particles.push(p);
+        }
+
+        // 衝突エフェクト: dot×3 + ring×1 のみ
         function spawnCollisionFX(midX, midY, c1, c2, force) {
-            const cnt = Math.min(4, Math.floor(force * 0.5) + 1);
-            for (let k = 0; k < cnt; k++) {
-                const angle = Math.random() * Math.PI * 2;
-                const spd = Math.random() * force * 0.7 + 1;
-                const col = k % 2 === 0 ? c1 : c2;
-                particles.push(new Particle(midX, midY, col, Math.cos(angle)*spd, Math.sin(angle)*spd, 20, 'dot'));
+            const spd = force * 0.6 + 1;
+            for (let k = 0; k < 3; k++) {
+                const a = Math.random() * Math.PI * 2;
+                addParticle(new Particle(midX, midY, k === 0 ? '#fff' : k === 1 ? c1 : c2,
+                    Math.cos(a)*spd*(0.5+Math.random()*0.5), Math.sin(a)*spd*(0.5+Math.random()*0.5), 16, 'dot'));
             }
-            // 衝撃波リングは1つだけ
-            particles.push(new Particle(midX, midY, '#ffffff', 0, 0, 16, 'ring'));
+            addParticle(new Particle(midX, midY, '#ffffff', 0, 0, 14, 'ring'));
         }
 
-        // 死亡エフェクト生成
+        // 死亡エフェクト: dot×16 + ring×1
         function spawnDeathFX(x, y, color) {
-            for (let i = 0; i < 50; i++) {
-                const angle = (i / 50) * Math.PI * 2;
-                const spd = Math.random() * 12 + 3;
-                particles.push(new Particle(x, y, color, Math.cos(angle)*spd, Math.sin(angle)*spd, 55, Math.random() < 0.4 ? 'spark' : 'dot'));
+            for (let i = 0; i < 16; i++) {
+                const a = (i / 16) * Math.PI * 2;
+                const spd = Math.random() * 8 + 2;
+                addParticle(new Particle(x, y, i % 2 === 0 ? color : '#fff',
+                    Math.cos(a)*spd, Math.sin(a)*spd, 40, 'dot'));
             }
-            particles.push(new Particle(x, y, color, 0, 0, 30, 'shockwave'));
-            particles.push(new Particle(x, y, '#ffffff', 0, 0, 20, 'ring'));
+            addParticle(new Particle(x, y, color, 0, 0, 22, 'ring'));
         }
 
         // --- ゲーム進行ロジック ---
@@ -596,14 +576,23 @@
         };
 
         const aiState = {};
+        const AI_STARTUP_FRAMES = 45; // 約0.75秒 (60fps想定)
+
         function initAiState(id) {
+            // 初期バースト長・位相をAIごとに完全独立で決める（同期防止）
+            const initOn  = 1 + Math.floor(Math.random() * 10);
+            const initOff = 3 + Math.floor(Math.random() * 16);
+            // タイマーの初期値をランダムな中間地点から開始（位相ズレ）
+            const initPhase = Math.floor(Math.random() * (initOn + initOff));
             aiState[id] = {
                 delayCounter: 0, decision: false, burstTimer: 0,
                 dodgeTimer: 0, dodgeDecision: false,
                 wasInDodge: false, postDodgeTimer: 0,
-                // v5追加: 早期警戒フラグ、前フレームの敵状態
                 earlyWarnTimer: 0, prevEnemyState: {},
                 repositionTimer: 0,
+                startupTimer: AI_STARTUP_FRAMES,
+                startupBurstLen:  initOn,
+                startupBurstTimer: initPhase, // ← ここが肝：全員バラバラの位相でスタート
             };
         }
 
@@ -775,6 +764,73 @@
                 dodgeTimer: 0, dodgeDecision: false, wasInDodge: false, postDodgeTimer: 0,
                 earlyWarnTimer: 0, prevEnemyState: {}, repositionTimer: 0,
             });
+
+            // ====================================================
+            // スタートアップ期間 (最初の約45f): ちょこちょこ動いてランダム攻撃
+            // ====================================================
+            if (st.startupTimer > 0) {
+                st.startupTimer--;
+
+                const cx_s = centerX, cy_s = centerY;
+                const myDist_s = Math.hypot(ai.x - cx_s, ai.y - cy_s);
+                const myEdge_s = myDist_s / arenaRadius;
+
+                // 外向き速度を計算
+                const odx_s = myDist_s > 0 ? (ai.x - cx_s) / myDist_s : 0;
+                const ody_s = myDist_s > 0 ? (ai.y - cy_s) / myDist_s : 0;
+                const outSpeed_s = ai.vx * odx_s + ai.vy * ody_s;
+
+                // 15フレーム先の予測位置でエッジ判定
+                const sf_s = predictPos(ai, 15, true);
+                const futureEdge_s = Math.hypot(sf_s.x - cx_s, sf_s.y - cy_s) / arenaRadius;
+
+                // 危険判定: 端に近い or 外向きに飛んでいる → 強制ダッシュOFF
+                const isDangerous = futureEdge_s > 0.80
+                    || (myEdge_s > 0.72 && outSpeed_s > 0.8)
+                    || myEdge_s > 0.88;
+
+                if (isDangerous) {
+                    // 危険時は問答無用でOFF（回転だけして自然に向きが変わるのを待つ）
+                    st.decision = false;
+                    ai.isDashing = false;
+                    // バーストタイマーもリセットして次の安全なタイミングで再開
+                    st.startupBurstTimer = 0;
+                    st.startupBurstLen = 0;
+                    return;
+                }
+
+                // バーストタイマーが切れたら次のバーストをランダムに決める
+                if (st.startupBurstTimer <= 0) {
+                    // ON幅・OFF幅ともに独立した広い乱数で決定
+                    const onLen  = 2 + Math.floor(Math.random() * 11);          // 2〜12f
+                    const offLen = 4 + Math.floor(Math.random() * 18)            // 4〜21f
+                                 + Math.floor(Math.random() * Math.random() * 10); // 右裾重め追加
+                    st.startupBurstLen   = onLen;
+                    st.startupBurstTimer = onLen + offLen;
+                }
+                st.startupBurstTimer--;
+
+                // 毎フレーム小確率で強制ON/OFF切り替え（位相をランダムに壊す）
+                const r = Math.random();
+                if (r < 0.04) {
+                    // 4%: 今のバーストを途中で打ち切り → すぐ新しい長さで再抽選
+                    const onLen  = 1 + Math.floor(Math.random() * 8);
+                    const offLen = 3 + Math.floor(Math.random() * 14);
+                    st.startupBurstLen   = onLen;
+                    st.startupBurstTimer = onLen + offLen;
+                } else if (r < 0.07) {
+                    // 3%: 今のフレームだけ強制OFF（ちらつき）
+                    st.decision = false;
+                    ai.isDashing = false;
+                    return;
+                }
+
+                // バースト長の残り時間中だけダッシュ
+                const isDashPhase = st.startupBurstTimer < st.startupBurstLen;
+                st.decision = isDashPhase;
+                ai.isDashing = isDashPhase;
+                return;
+            }
 
             // 反応遅延 (easy/normalのみ)
             st.delayCounter++;
@@ -1007,19 +1063,16 @@
                         p.vx += Math.cos(p.angle) * 0.7; // 加速
                         p.vy += Math.sin(p.angle) * 0.7;
                         
-                        // ダッシュトレイルパーティクル
-                        if (Math.random() > 0.3) {
-                            const trailX = p.x - Math.cos(p.angle) * p.radius;
-                            const trailY = p.y - Math.sin(p.angle) * p.radius;
+                        // ダッシュトレイル (50%間引き、軽量)
+                        if (Math.random() > 0.55) {
                             const spd = Math.hypot(p.vx, p.vy);
-                            particles.push(new Particle(
-                                trailX + (Math.random()-0.5)*6,
-                                trailY + (Math.random()-0.5)*6,
+                            addParticle(new Particle(
+                                p.x - Math.cos(p.angle) * p.radius + (Math.random()-0.5)*4,
+                                p.y - Math.sin(p.angle) * p.radius + (Math.random()-0.5)*4,
                                 p.color,
-                                -Math.cos(p.angle) * (1 + spd*0.15) + (Math.random()-0.5)*0.8,
-                                -Math.sin(p.angle) * (1 + spd*0.15) + (Math.random()-0.5)*0.8,
-                                12 + Math.floor(spd*1.2),
-                                Math.random() < 0.35 ? 'spark' : 'dot'
+                                -Math.cos(p.angle) * (0.8 + spd*0.1),
+                                -Math.sin(p.angle) * (0.8 + spd*0.1),
+                                10 + Math.floor(spd*0.8), 'dot'
                             ));
                         }
                     } else {
@@ -1181,9 +1234,8 @@
                 ctx.translate(p.x, p.y);
                 ctx.rotate(p.angle);
                 
-                // ネオン発光効果 (速度に応じて強さが変化)
-                const glowIntensity = p.isDashing ? Math.min(40, 20 + spd * 2) : Math.max(8, spd * 1.5);
-                ctx.shadowBlur = glowIntensity;
+                // ネオン発光効果 (軽量: shadowBlurを最小限に)
+                ctx.shadowBlur = p.isDashing ? 14 : 5;
                 ctx.shadowColor = p.color;
                 
                 // 外側グロー (アウタリング)
