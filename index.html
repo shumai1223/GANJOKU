@@ -1,1263 +1,1252 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>江戸遊 完全攻略しおり</title>
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --cream: #FAF7EF;
-    --cream-dark: #F0EBE0;
-    --ink: #1E1A15;
-    --ink-light: #4A4238;
-    --edo-purple: #5C4A7A;
-    --edo-purple-light: #8B7AAE;
-    --beni: #C04A3A;
-    --beni-light: #E8725F;
-    --gold: #B88B3A;
-    --gold-light: #D9AE5C;
-    --indigo: #2B4470;
-    --sage: #5C7B5A;
-    --bath: #3A6B8A;
-    --bath-light: #5A9BB5;
-    --food: #7A5C2A;
-    --food-light: #C08B45;
-    --rest: #5C4A7A;
-    --rock: #4A6B4A;
-    --sauna: #8A3A2A;
-    --border: #D4C8B4;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--cream);
-    color: var(--ink);
-    font-family: 'Noto Sans JP', sans-serif;
-    font-weight: 300;
-    line-height: 1.8;
-    min-height: 100vh;
-    position: relative;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: 
-      radial-gradient(circle at 15% 20%, rgba(92, 74, 122, 0.06) 0%, transparent 50%),
-      radial-gradient(circle at 85% 80%, rgba(192, 74, 58, 0.05) 0%, transparent 50%),
-      url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23B8A888' stroke-width='0.3' opacity='0.3'%3E%3Ccircle cx='40' cy='40' r='30'/%3E%3Ccircle cx='40' cy='40' r='20'/%3E%3C/g%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .wrapper {
-    position: relative;
-    z-index: 1;
-    max-width: 780px;
-    margin: 0 auto;
-    padding: 0 24px 80px;
-  }
-
-  /* ========== HEADER ========== */
-  .header {
-    text-align: center;
-    padding: 60px 0 48px;
-    position: relative;
-  }
-
-  .header-deco {
-    font-family: 'Shippori Mincho', serif;
-    color: var(--edo-purple-light);
-    font-size: 11px;
-    letter-spacing: 6px;
-    text-transform: uppercase;
-    opacity: 0.8;
-    margin-bottom: 20px;
-    animation: fadeIn 0.8s ease both;
-  }
-
-  .header-title {
-    font-family: 'Shippori Mincho', serif;
-    font-size: clamp(36px, 8vw, 56px);
-    font-weight: 700;
-    color: var(--ink);
-    line-height: 1.2;
-    letter-spacing: 0.04em;
-    animation: fadeUp 0.9s ease both 0.1s;
-  }
-
-  .header-title span {
-    color: var(--beni);
-    display: inline-block;
-  }
-
-  .header-subtitle {
-    margin-top: 12px;
-    font-size: 14px;
-    color: var(--ink-light);
-    letter-spacing: 4px;
-    animation: fadeIn 1s ease both 0.3s;
-  }
-
-  .header-date-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 24px;
-    background: var(--edo-purple);
-    color: #fff;
-    padding: 8px 24px;
-    border-radius: 2px;
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 2px;
-    animation: fadeIn 1s ease both 0.4s;
-  }
-
-  .header-rule {
-    margin: 32px auto 0;
-    width: 60px;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    animation: fadeIn 1.2s ease both 0.5s;
-  }
-
-  /* ========== INTRO CARD ========== */
-  .intro-card {
-    background: linear-gradient(135deg, var(--edo-purple) 0%, var(--indigo) 100%);
-    color: #fff;
-    border-radius: 4px;
-    padding: 28px 32px;
-    margin-bottom: 40px;
-    position: relative;
-    overflow: hidden;
-    animation: fadeUp 0.8s ease both 0.5s;
-  }
-
-  .intro-card::before {
-    content: '◎';
-    position: absolute;
-    right: -20px;
-    top: -20px;
-    font-size: 120px;
-    opacity: 0.06;
-    color: #fff;
-  }
-
-  .intro-card h3 {
-    font-family: 'Shippori Mincho', serif;
-    font-size: 13px;
-    letter-spacing: 4px;
-    margin-bottom: 14px;
-    opacity: 0.8;
-  }
-
-  .intro-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-
-  .intro-item {
-    text-align: center;
-  }
-
-  .intro-item .val {
-    font-family: 'Shippori Mincho', serif;
-    font-size: 22px;
-    font-weight: 700;
-    color: #FFD580;
-    display: block;
-  }
-
-  .intro-item .label {
-    font-size: 11px;
-    opacity: 0.75;
-    letter-spacing: 1px;
-    margin-top: 2px;
-  }
-
-  /* ========== DRY SKIN NOTICE ========== */
-  .dryskin-banner {
-    border: 1.5px solid var(--beni-light);
-    border-radius: 4px;
-    padding: 20px 24px;
-    margin-bottom: 40px;
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-    background: rgba(192, 74, 58, 0.04);
-    animation: fadeUp 0.8s ease both 0.6s;
-  }
-
-  .dryskin-icon {
-    font-size: 28px;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .dryskin-content h4 {
-    font-family: 'Shippori Mincho', serif;
-    font-size: 15px;
-    color: var(--beni);
-    font-weight: 600;
-    margin-bottom: 8px;
-    letter-spacing: 1px;
-  }
-
-  .dryskin-content p {
-    font-size: 12.5px;
-    color: var(--ink-light);
-    line-height: 1.9;
-  }
-
-  .dryskin-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 10px;
-  }
-
-  .dryskin-tag {
-    background: rgba(192, 74, 58, 0.1);
-    color: var(--beni);
-    border-radius: 2px;
-    padding: 3px 10px;
-    font-size: 11px;
-    font-weight: 500;
-  }
-
-  /* ========== SECTION LABEL ========== */
-  .section-label {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 40px 0 20px;
-    animation: fadeIn 0.8s ease both;
-  }
-
-  .section-label span {
-    font-family: 'Shippori Mincho', serif;
-    font-size: 13px;
-    letter-spacing: 5px;
-    color: var(--ink-light);
-    font-weight: 600;
-  }
-
-  .section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  /* ========== TIMELINE ========== */
-  .timeline {
-    position: relative;
-  }
-
-  .timeline::before {
-    content: '';
-    position: absolute;
-    left: 56px;
-    top: 0;
-    bottom: 0;
-    width: 1.5px;
-    background: linear-gradient(180deg, transparent, var(--border) 5%, var(--border) 95%, transparent);
-  }
-
-  .tl-item {
-    display: flex;
-    gap: 0;
-    margin-bottom: 20px;
-    opacity: 0;
-    animation: fadeUp 0.6s ease both;
-  }
-
-  .tl-item:nth-child(1)  { animation-delay: 0.1s; }
-  .tl-item:nth-child(2)  { animation-delay: 0.15s; }
-  .tl-item:nth-child(3)  { animation-delay: 0.2s; }
-  .tl-item:nth-child(4)  { animation-delay: 0.25s; }
-  .tl-item:nth-child(5)  { animation-delay: 0.3s; }
-  .tl-item:nth-child(6)  { animation-delay: 0.35s; }
-  .tl-item:nth-child(7)  { animation-delay: 0.4s; }
-  .tl-item:nth-child(8)  { animation-delay: 0.45s; }
-  .tl-item:nth-child(9)  { animation-delay: 0.5s; }
-  .tl-item:nth-child(10) { animation-delay: 0.55s; }
-  .tl-item:nth-child(11) { animation-delay: 0.6s; }
-  .tl-item:nth-child(12) { animation-delay: 0.65s; }
-  .tl-item:nth-child(13) { animation-delay: 0.7s; }
-
-  .tl-time {
-    width: 56px;
-    flex-shrink: 0;
-    padding-top: 18px;
-    text-align: right;
-    padding-right: 0;
-  }
-
-  .tl-time .hour {
-    font-family: 'Shippori Mincho', serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--ink);
-    display: block;
-    line-height: 1;
-  }
-
-  .tl-time .min {
-    font-size: 10px;
-    color: var(--ink-light);
-    opacity: 0.6;
-  }
-
-  .tl-dot-wrap {
-    width: 40px;
-    flex-shrink: 0;
-    display: flex;
-    justify-content: center;
-    padding-top: 22px;
-  }
-
-  .tl-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid var(--cream);
-    flex-shrink: 0;
-    position: relative;
-    z-index: 2;
-    box-shadow: 0 0 0 1px var(--border);
-  }
-
-  .tl-card {
-    flex: 1;
-    background: #fff;
-    border-radius: 4px;
-    padding: 18px 22px;
-    border: 1px solid var(--border);
-    position: relative;
-    overflow: hidden;
-    margin-left: 4px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .tl-card:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 24px rgba(0,0,0,0.07);
-  }
-
-  .tl-card::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-  }
-
-  /* Category colors */
-  .cat-checkin .tl-dot    { background: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
-  .cat-checkin .tl-card::before { background: var(--gold); }
-  .cat-checkin .cat-badge { background: rgba(184, 139, 58, 0.12); color: var(--gold); }
-
-  .cat-bath .tl-dot       { background: var(--bath); box-shadow: 0 0 0 1px var(--bath); }
-  .cat-bath .tl-card::before    { background: var(--bath); }
-  .cat-bath .cat-badge    { background: rgba(58, 107, 138, 0.12); color: var(--bath); }
-
-  .cat-rock .tl-dot       { background: var(--rock); box-shadow: 0 0 0 1px var(--rock); }
-  .cat-rock .tl-card::before    { background: var(--rock); }
-  .cat-rock .cat-badge    { background: rgba(74, 107, 74, 0.12); color: var(--rock); }
-
-  .cat-rest .tl-dot       { background: var(--rest); box-shadow: 0 0 0 1px var(--rest); }
-  .cat-rest .tl-card::before    { background: var(--rest); }
-  .cat-rest .cat-badge    { background: rgba(92, 74, 122, 0.12); color: var(--rest); }
-
-  .cat-food .tl-dot       { background: var(--food); box-shadow: 0 0 0 1px var(--food); }
-  .cat-food .tl-card::before    { background: var(--food); }
-  .cat-food .cat-badge    { background: rgba(122, 92, 42, 0.12); color: var(--food); }
-
-  .cat-sauna .tl-dot      { background: var(--sauna); box-shadow: 0 0 0 1px var(--sauna); }
-  .cat-sauna .tl-card::before   { background: var(--sauna); }
-  .cat-sauna .cat-badge   { background: rgba(138, 58, 42, 0.12); color: var(--sauna); }
-
-  .cat-care .tl-dot       { background: var(--sage); box-shadow: 0 0 0 1px var(--sage); }
-  .cat-care .tl-card::before    { background: var(--sage); }
-  .cat-care .cat-badge    { background: rgba(92, 123, 90, 0.12); color: var(--sage); }
-
-  .cat-end .tl-dot        { background: var(--beni); box-shadow: 0 0 0 1px var(--beni); }
-  .cat-end .tl-card::before     { background: var(--beni); }
-  .cat-end .cat-badge     { background: rgba(192, 74, 58, 0.12); color: var(--beni); }
-
-  .tl-card-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-
-  .tl-title {
-    font-family: 'Shippori Mincho', serif;
-    font-size: 17px;
-    font-weight: 700;
-    color: var(--ink);
-    letter-spacing: 0.02em;
-    line-height: 1.3;
-  }
-
-  .tl-title .emoji {
-    margin-right: 6px;
-  }
-
-  .cat-badge {
-    flex-shrink: 0;
-    padding: 3px 10px;
-    border-radius: 2px;
-    font-size: 10.5px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-    margin-top: 2px;
-  }
-
-  .tl-body {
-    font-size: 13px;
-    color: var(--ink-light);
-    line-height: 1.9;
-  }
-
-  .tl-body strong {
-    color: var(--ink);
-    font-weight: 500;
-  }
-
-  .tip-box {
-    margin-top: 12px;
-    background: var(--cream);
-    border-left: 2.5px solid var(--gold);
-    padding: 10px 14px;
-    border-radius: 0 3px 3px 0;
-    font-size: 12px;
-    color: var(--ink-light);
-    line-height: 1.8;
-  }
-
-  .tip-box .tip-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: var(--gold);
-    margin-bottom: 4px;
-    display: block;
-    text-transform: uppercase;
-  }
-
-  .skin-tip {
-    margin-top: 10px;
-    background: rgba(192, 74, 58, 0.04);
-    border: 1px dashed rgba(192, 74, 58, 0.3);
-    border-radius: 3px;
-    padding: 9px 13px;
-    font-size: 12px;
-    color: var(--beni);
-    line-height: 1.8;
-  }
-
-  .skin-tip::before {
-    content: '🌿 乾燥肌ケア ▸ ';
-    font-weight: 500;
-  }
-
-  .mini-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 10px;
-  }
-
-  .mini-cell {
-    background: var(--cream);
-    border-radius: 3px;
-    padding: 8px 12px;
-    font-size: 12px;
-    color: var(--ink-light);
-    line-height: 1.7;
-  }
-
-  .mini-cell strong {
-    display: block;
-    font-size: 10px;
-    letter-spacing: 1.5px;
-    font-weight: 700;
-    color: var(--ink);
-    margin-bottom: 2px;
-    text-transform: uppercase;
-  }
-
-  /* ========== HIGHLIGHT BLOCK ========== */
-  .highlight-block {
-    background: linear-gradient(135deg, #FFF8F0, #FFF2E8);
-    border: 1px solid var(--gold-light);
-    border-radius: 4px;
-    padding: 24px 28px;
-    margin: 32px 0;
-    position: relative;
-    overflow: hidden;
-    animation: fadeUp 0.8s ease both;
-  }
-
-  .highlight-block::after {
-    content: '★';
-    position: absolute;
-    right: 20px;
-    bottom: -10px;
-    font-size: 80px;
-    opacity: 0.06;
-    color: var(--gold);
-  }
-
-  .highlight-block h3 {
-    font-family: 'Shippori Mincho', serif;
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--gold);
-    letter-spacing: 2px;
-    margin-bottom: 14px;
-  }
-
-  .highlight-block ul {
-    list-style: none;
-    padding: 0;
-  }
-
-  .highlight-block li {
-    font-size: 13px;
-    color: var(--ink-light);
-    padding: 5px 0;
-    padding-left: 18px;
-    position: relative;
-    line-height: 1.7;
-  }
-
-  .highlight-block li::before {
-    content: '─';
-    position: absolute;
-    left: 0;
-    color: var(--gold);
-    font-weight: 700;
-  }
-
-  /* ========== SAUNA GUIDE ========== */
-  .sauna-guide {
-    background: linear-gradient(135deg, #FFF5F3, #FFF0ED);
-    border: 1px solid rgba(192, 74, 58, 0.25);
-    border-radius: 4px;
-    padding: 24px 28px;
-    margin: 32px 0;
-    animation: fadeUp 0.8s ease both;
-  }
-
-  .sauna-guide h3 {
-    font-family: 'Shippori Mincho', serif;
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--sauna);
-    letter-spacing: 2px;
-    margin-bottom: 16px;
-  }
-
-  .sauna-types {
-    display: grid;
-    gap: 10px;
-  }
-
-  .sauna-type {
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-    background: #fff;
-    border-radius: 3px;
-    padding: 12px 16px;
-    border: 1px solid rgba(192, 74, 58, 0.12);
-  }
-
-  .sauna-type .icon {
-    font-size: 22px;
-    flex-shrink: 0;
-  }
-
-  .sauna-type .name {
-    font-family: 'Shippori Mincho', serif;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--ink);
-    margin-bottom: 3px;
-  }
-
-  .sauna-type .desc {
-    font-size: 12px;
-    color: var(--ink-light);
-    line-height: 1.8;
-  }
-
-  .sauna-type .badge-temp {
-    margin-left: auto;
-    flex-shrink: 0;
-    background: var(--sauna);
-    color: #fff;
-    border-radius: 2px;
-    padding: 2px 10px;
-    font-size: 12px;
-    font-weight: 700;
-    align-self: flex-start;
-  }
-
-  /* ========== PACKING LIST ========== */
-  .packing {
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-    margin: 32px 0;
-    animation: fadeUp 0.8s ease both;
-  }
-
-  .packing-header {
-    background: var(--edo-purple);
-    color: #fff;
-    padding: 14px 22px;
-    font-family: 'Shippori Mincho', serif;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 3px;
-  }
-
-  .packing-body {
-    padding: 20px 22px;
-    background: #fff;
-  }
-
-  .packing-cols {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
-
-  .packing-group h4 {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: var(--edo-purple);
-    margin-bottom: 10px;
-    text-transform: uppercase;
-  }
-
-  .packing-list {
-    list-style: none;
-  }
-
-  .packing-list li {
-    font-size: 13px;
-    color: var(--ink-light);
-    padding: 4px 0;
-    padding-left: 18px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .packing-list li::before {
-    content: '□';
-    position: absolute;
-    left: 0;
-    color: var(--edo-purple);
-    font-size: 11px;
-  }
-
-  /* ========== FLOOR MAP ========== */
-  .floor-map {
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-    margin: 32px 0;
-    animation: fadeUp 0.8s ease both;
-  }
-
-  .floor-map-header {
-    background: var(--indigo);
-    color: #fff;
-    padding: 14px 22px;
-    font-family: 'Shippori Mincho', serif;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 3px;
-  }
-
-  .floor-list {
-    list-style: none;
-    padding: 0;
-  }
-
-  .floor-item {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 14px 22px;
-    border-bottom: 1px solid var(--cream-dark);
-    font-size: 13px;
-    transition: background 0.15s;
-  }
-
-  .floor-item:last-child { border-bottom: none; }
-  .floor-item:hover { background: var(--cream); }
-
-  .floor-num {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Shippori Mincho', serif;
-    font-size: 16px;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-
-  .floor-name {
-    font-weight: 500;
-    color: var(--ink);
-    flex: 1;
-  }
-
-  .floor-sub {
-    font-size: 12px;
-    color: var(--ink-light);
-  }
-
-  /* ========== FOOTER ========== */
-  .footer {
-    text-align: center;
-    padding: 48px 0 0;
-    border-top: 1px solid var(--border);
-    margin-top: 48px;
-    animation: fadeIn 1s ease both;
-  }
-
-  .footer-motto {
-    font-family: 'Shippori Mincho', serif;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--ink);
-    letter-spacing: 4px;
-    margin-bottom: 12px;
-  }
-
-  .footer-motto span {
-    color: var(--beni);
-  }
-
-  .footer-sub {
-    font-size: 12px;
-    color: var(--ink-light);
-    letter-spacing: 2px;
-    opacity: 0.7;
-  }
-
-  /* ========== ANIMATIONS ========== */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  /* ========== RESPONSIVE ========== */
-  @media (max-width: 560px) {
-    .intro-grid { grid-template-columns: 1fr; gap: 10px; }
-    .packing-cols { grid-template-columns: 1fr; }
-    .mini-grid { grid-template-columns: 1fr; }
-    .timeline::before { left: 48px; }
-    .tl-time { width: 48px; }
-    .sauna-type .badge-temp { display: none; }
-  }
-
-  /* Special card styles */
-  .star-card {
-    position: relative;
-  }
-
-  .star-card .tl-card {
-    background: linear-gradient(135deg, #fff 60%, #FFF5F3);
-    border-color: rgba(192, 74, 58, 0.3);
-  }
-
-  .star-badge {
-    display: inline-block;
-    background: var(--beni);
-    color: #fff;
-    font-size: 10px;
-    padding: 2px 8px;
-    border-radius: 2px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    margin-left: 8px;
-    vertical-align: middle;
-    position: relative;
-    top: -2px;
-  }
-
-  .water-counter {
-    display: flex;
-    gap: 6px;
-    margin-top: 10px;
-    flex-wrap: wrap;
-  }
-
-  .water-drop {
-    background: rgba(58, 107, 138, 0.1);
-    color: var(--bath);
-    border: 1px solid rgba(58, 107, 138, 0.2);
-    border-radius: 12px;
-    padding: 3px 10px;
-    font-size: 11px;
-    font-weight: 500;
-  }
-
-  .highlight-pink {
-    background: linear-gradient(135deg, #FFF0F3, #FFE8EE);
-    border-color: rgba(192, 74, 58, 0.3);
-  }
-
-  .note-line {
-    font-size: 11.5px;
-    color: var(--ink-light);
-    opacity: 0.75;
-    font-style: italic;
-    margin-top: 4px;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEON BUMP - Local Multiplayer Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #0f172a; /* Tailwind slate-900 */
+            touch-action: none; 
+            user-select: none; 
+            -webkit-user-select: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Glassmorphism for UI panels */
+        .glass { 
+            background: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Touch Zones for Mobile/Tablet */
+        .touch-zone { 
+            position: absolute; 
+            width: 50%; 
+            height: 50%; 
+            pointer-events: auto; 
+            display: flex; 
+            padding: 24px; 
+            opacity: 0.15; 
+            transition: all 0.2s ease-out; 
+            z-index: 10;
+        }
+        .touch-zone.active { 
+            opacity: 0.6; 
+        }
+        /* Positions & Gradients for zones */
+        #zone-0 { top: 0; left: 0; justify-content: flex-start; align-items: flex-start; color: #06b6d4; }
+        #zone-0.active { background: radial-gradient(circle at top left, rgba(6, 182, 212, 0.3) 0%, transparent 70%); }
+        
+        #zone-1 { top: 0; right: 0; justify-content: flex-end; align-items: flex-start; color: #d946ef; }
+        #zone-1.active { background: radial-gradient(circle at top right, rgba(217, 70, 239, 0.3) 0%, transparent 70%); }
+        
+        #zone-2 { bottom: 0; left: 0; justify-content: flex-start; align-items: flex-end; color: #eab308; }
+        #zone-2.active { background: radial-gradient(circle at bottom left, rgba(234, 179, 8, 0.3) 0%, transparent 70%); }
+        
+        #zone-3 { bottom: 0; right: 0; justify-content: flex-end; align-items: flex-end; color: #22c55e; }
+        #zone-3.active { background: radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.3) 0%, transparent 70%); }
+
+        .key-hint {
+            background: rgba(0,0,0,0.5);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 1.5rem;
+            border: 1px solid currentColor;
+            box-shadow: 0 0 10px currentColor;
+        }
+    </style>
 </head>
-<body>
-<div class="wrapper">
+<body class="text-white">
+    <!-- Game Canvas -->
+    <canvas id="gameCanvas" class="absolute inset-0 w-full h-full block"></canvas>
+    
+    <!-- UI Layer (pointer-events-none so it doesn't block touches on canvas) -->
+    <div id="ui-container" class="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-20">
+        
+        <!-- Main Menu -->
+        <div id="menu" class="glass p-8 md:p-10 rounded-3xl flex flex-col items-center pointer-events-auto transform transition-all duration-500" style="max-width: 440px; width: 92vw;">
+            <h1 class="text-6xl md:text-8xl font-black tracking-tighter mb-1 italic">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500" style="filter: drop-shadow(0 0 10px rgba(6,182,212,0.5));">NEON</span>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-500" style="filter: drop-shadow(0 0 10px rgba(217,70,239,0.5));">BUMP</span>
+            </h1>
+            <p class="text-slate-400 text-sm font-bold tracking-[0.2em] mb-4 uppercase text-center">1-Button Survival Arena</p>
 
-  <!-- HEADER -->
-  <div class="header">
-    <p class="header-deco">完全攻略ガイド · 2026年4月26日（日）</p>
-    <h1 class="header-title">両国湯屋<br><span>江戸遊</span></h1>
-    <p class="header-subtitle">中学3年 2〜3人旅のしおり</p>
-    <div class="header-date-badge">🗓 2026.04.26 SUN &nbsp;|&nbsp; 10:00 → 20:00</div>
-    <div class="header-rule"></div>
-  </div>
+            <!-- 先取設定 -->
+            <div class="w-full bg-slate-800/60 rounded-xl p-3 border border-slate-700/50 mb-4">
+                <p class="text-xs text-slate-400 font-bold tracking-wider mb-2 text-center">🏆 先取ポイント設定</p>
+                <div class="flex gap-1.5 justify-center">
+                    <button onclick="setTargetScore(1)" id="score-1" class="score-btn flex-1 py-2 rounded-lg text-sm font-bold border transition-all border-slate-600 text-slate-400">1本</button>
+                    <button onclick="setTargetScore(3)" id="score-3" class="score-btn flex-1 py-2 rounded-lg text-sm font-bold border transition-all border-slate-600 text-slate-400">3本</button>
+                    <button onclick="setTargetScore(5)" id="score-5" class="score-btn flex-1 py-2 rounded-lg text-sm font-bold border transition-all border-cyan-400/50 text-cyan-400 bg-cyan-400/10">5本</button>
+                    <button onclick="setTargetScore(7)" id="score-7" class="score-btn flex-1 py-2 rounded-lg text-sm font-bold border transition-all border-slate-600 text-slate-400">7本</button>
+                    <button onclick="setTargetScore(10)" id="score-10" class="score-btn flex-1 py-2 rounded-lg text-sm font-bold border transition-all border-slate-600 text-slate-400">10本</button>
+                </div>
+            </div>
 
-  <!-- INTRO CARD -->
-  <div class="intro-card">
-    <h3>▸ 今日の攻略データ</h3>
-    <div class="intro-grid">
-      <div class="intro-item">
-        <span class="val">10h</span>
-        <div class="label">滞在時間</div>
-      </div>
-      <div class="intro-item">
-        <span class="val">2〜3人</span>
-        <div class="label">メンバー</div>
-      </div>
-      <div class="intro-item">
-        <span class="val">全員</span>
-        <div class="label">乾燥肌対策あり</div>
-      </div>
-    </div>
-  </div>
+            <!-- タブ切り替え -->
+            <div class="w-full flex gap-2 mb-4 bg-slate-800/60 rounded-xl p-1">
+                <button id="tab-multi" onclick="switchTab('multi')" class="flex-1 py-2 rounded-lg text-sm font-bold transition-all bg-white/10 text-white">👥 マルチ</button>
+                <button id="tab-vs" onclick="switchTab('vs')" class="flex-1 py-2 rounded-lg text-sm font-bold transition-all text-slate-400">🤖 vs AI</button>
+            </div>
 
-  <!-- DRY SKIN NOTICE -->
-  <div class="dryskin-banner">
-    <div class="dryskin-icon">🌿</div>
-    <div class="dryskin-content">
-      <h4>乾燥肌チームへの全体方針</h4>
-      <p>温浴施設は乾燥肌にとって諸刃の剣。<strong>洗いすぎず・保湿を絶やさず・水素水で体の内側から整える</strong>の3原則で最高の肌コンディションを保とう。江戸遊のパウダールームには化粧水・乳液が無料で置いてある。絶対に使うこと！</p>
-      <div class="dryskin-tags">
-        <span class="dryskin-tag">アミノ酸系ソープで優しく洗う</span>
-        <span class="dryskin-tag">炭酸泉で肌バリア強化</span>
-        <span class="dryskin-tag">5分以内に保湿</span>
-        <span class="dryskin-tag">水素水飲み放題（5F）活用</span>
-        <span class="dryskin-tag">女子限定：アロマスチームサウナ最強</span>
-      </div>
-    </div>
-  </div>
+            <!-- マルチプレイパネル -->
+            <div id="panel-multi" class="w-full flex flex-col gap-2.5">
+                <button onclick="startGame(2, [])" class="group relative py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-400/50 transition-all flex justify-between items-center cursor-pointer">
+                    <span class="font-bold text-xl group-hover:text-cyan-400 transition-colors">2人プレイ</span>
+                    <span class="text-sm text-slate-500 group-hover:text-slate-300">Q / P</span>
+                </button>
+                <button onclick="startGame(3, [])" class="group relative py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-fuchsia-400/50 transition-all flex justify-between items-center cursor-pointer">
+                    <span class="font-bold text-xl group-hover:text-fuchsia-400 transition-colors">3人プレイ</span>
+                    <span class="text-sm text-slate-500 group-hover:text-slate-300">Q / P / Z</span>
+                </button>
+                <button onclick="startGame(4, [])" class="group relative py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-yellow-400/50 transition-all flex justify-between items-center cursor-pointer">
+                    <span class="font-bold text-xl group-hover:text-yellow-400 transition-colors">4人プレイ</span>
+                    <span class="text-sm text-slate-500 group-hover:text-slate-300">Q / P / Z / M</span>
+                </button>
+            </div>
 
-  <!-- FLOOR MAP -->
-  <div class="floor-map">
-    <div class="floor-map-header">▸ フロアガイド（5階建て）</div>
-    <ul class="floor-list">
-      <li class="floor-item">
-        <div class="floor-num" style="background:#F0E8D8;color:var(--gold);">1F</div>
-        <div>
-          <div class="floor-name">受付・フロント・グッズ売り場</div>
-          <div class="floor-sub">サウナキャップ、ヴィヒタ等販売あり</div>
+            <!-- vs AIパネル -->
+            <div id="panel-vs" class="w-full flex-col gap-2.5 hidden">
+                <!-- 難易度選択 -->
+                <div class="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
+                    <p class="text-xs text-slate-400 font-bold tracking-wider mb-2 text-center">AI 難易度</p>
+                    <div class="flex gap-1">
+                        <button onclick="setDifficulty('easy')" id="diff-easy" class="diff-btn flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all border-green-400/50 text-green-400 bg-green-400/10">かんたん</button>
+                        <button onclick="setDifficulty('normal')" id="diff-normal" class="diff-btn flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all border-slate-600 text-slate-400">ふつう</button>
+                        <button onclick="setDifficulty('hard')" id="diff-hard" class="diff-btn flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all border-slate-600 text-slate-400">むずかしい</button>
+                        <button onclick="setDifficulty('max')" id="diff-max" class="diff-btn flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all border-slate-600 text-slate-400">最強</button>
+                    </div>
+                </div>
+                <!-- モード選択 -->
+                <button onclick="startGame(2, [1])" class="group py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-400/50 transition-all flex justify-between items-center cursor-pointer">
+                    <div>
+                        <span class="font-bold text-xl block group-hover:text-cyan-400 transition-colors">1 vs AI</span>
+                        <span class="text-xs text-slate-500">あなた(Q) vs AI</span>
+                    </div>
+                    <span class="text-2xl">🥊</span>
+                </button>
+                <button onclick="startGame(3, [1,2])" class="group py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-fuchsia-400/50 transition-all flex justify-between items-center cursor-pointer">
+                    <div>
+                        <span class="font-bold text-xl block group-hover:text-fuchsia-400 transition-colors">1P vs 2 AI</span>
+                        <span class="text-xs text-slate-500">あなた(Q) vs AI×2</span>
+                    </div>
+                    <span class="text-2xl">🔥</span>
+                </button>
+                <button onclick="startGame(4, [1,2,3])" class="group py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-red-400/50 transition-all flex justify-between items-center cursor-pointer">
+                    <div>
+                        <span class="font-bold text-xl block group-hover:text-red-400 transition-colors">1P vs 3 AI</span>
+                        <span class="text-xs text-slate-500">あなた(Q) vs AI×3</span>
+                    </div>
+                    <span class="text-2xl">💀</span>
+                </button>
+                <button onclick="startGame(4, [0,1,2,3])" class="group py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-yellow-400/50 transition-all flex justify-between items-center cursor-pointer">
+                    <div>
+                        <span class="font-bold text-xl block group-hover:text-yellow-400 transition-colors">AI 同士の対戦を観る</span>
+                        <span class="text-xs text-slate-500">AI×4 バトルロイヤル</span>
+                    </div>
+                    <span class="text-2xl">👁️</span>
+                </button>
+            </div>
+            
+            <div class="mt-4 text-center bg-slate-800/50 p-3 rounded-lg border border-slate-700 w-full">
+                <p class="text-xs text-slate-300">
+                    <span class="text-white font-bold">ルール：</span>
+                    ボタンを<span class="text-cyan-400 font-bold">長押し</span>してダッシュ！相手を円の外に押し出せ！
+                </p>
+            </div>
         </div>
-      </li>
-      <li class="floor-item">
-        <div class="floor-num" style="background:#E0EBF5;color:var(--bath);">2F</div>
-        <div>
-          <div class="floor-name">男性専用浴場・湯WORK（元サウナリノベ）</div>
-          <div class="floor-sub">フィンランドサウナ・中温ボナサウナ・炭酸泉・水風呂・露天</div>
-        </div>
-      </li>
-      <li class="floor-item">
-        <div class="floor-num" style="background:#EDF5E0;color:var(--rock);">3F</div>
-        <div>
-          <div class="floor-name">お休み処・北斎レストラン</div>
-          <div class="floor-sub">漫画・ハンモック・世界のミネラルウォーターカウンター。飲食11:30〜22:00</div>
-        </div>
-      </li>
-      <li class="floor-item">
-        <div class="floor-num" style="background:#F5E0E8;color:var(--beni);">4F</div>
-        <div>
-          <div class="floor-name">女性専用浴場・湯WORK</div>
-          <div class="floor-sub">アロマスチームサウナ・泥パック足湯・ハンモック・充電スポットあり</div>
-        </div>
-      </li>
-      <li class="floor-item">
-        <div class="floor-num" style="background:#E8E0F5;color:var(--edo-purple);">5F</div>
-        <div>
-          <div class="floor-name">岩盤浴（白珪房・月光房）・お休み処</div>
-          <div class="floor-sub">水素水飲み放題あり！混んでる場合は待ちが出ることも</div>
-        </div>
-      </li>
-    </ul>
-  </div>
 
-  <!-- TIMELINE LABEL -->
-  <div class="section-label">
-    <span>T I M E L I N E</span>
-  </div>
-
-  <!-- TIMELINE -->
-  <div class="timeline">
-
-    <!-- 10:00 入館 -->
-    <div class="tl-item cat-checkin">
-      <div class="tl-time"><span class="hour">10</span><span class="min">:00</span></div>
-      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
-      <div class="tl-card">
-        <div class="tl-card-header">
-          <div class="tl-title"><span class="emoji">🚪</span>入館！開店ダッシュ</div>
-          <div class="cat-badge">入館</div>
+        <!-- Score Board -->
+        <div id="score-board" class="absolute top-6 w-full flex justify-center gap-6 md:gap-12 transition-opacity duration-500 opacity-0 hidden">
+            <!-- Dynamically generated -->
         </div>
-        <div class="tl-body">
-          10時ジャストにフロントへ。<strong>日曜は午後から混雑</strong>するので一番乗りが正解。館内着・タオルセット・岩盤浴着を受け取ったら、まず5Fへ上がって<strong>岩盤浴エリアの混み具合を確認</strong>しておくと良い。
-          <div class="tip-box">
-            <span class="tip-label">フロントで確認すること</span>
-            岩盤浴ラドン岩盤浴「風」の当日料金・混雑状況をチェック。1Fグッズ売り場でサウナキャップを買うのもあり（乾燥と髪の傷みを防げる）。
-          </div>
+
+        <!-- Central Message -->
+        <div id="message-overlay" class="absolute inset-0 flex items-center justify-center hidden pointer-events-none">
+            <h2 id="message-text" class="text-5xl md:text-8xl font-black uppercase italic tracking-widest text-center" style="transform: scale(0.5); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></h2>
         </div>
-      </div>
     </div>
 
-    <!-- 10:15 下茹で -->
-    <div class="tl-item cat-bath">
-      <div class="tl-time"><span class="hour">10</span><span class="min">:15</span></div>
-      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
-      <div class="tl-card">
-        <div class="tl-card-header">
-          <div class="tl-title"><span class="emoji">🛁</span>大浴場・下茹でフェーズ</div>
-          <div class="cat-badge">入浴</div>
-        </div>
-        <div class="tl-body">
-          まず体を洗う。<strong>ゴシゴシ厳禁。</strong>アミノ酸系ボディーソープで包み込むように。洗い終わったら<strong>どくだみ湯（42℃）</strong>で5分温まり、その後<strong>高濃度炭酸泉で15〜20分</strong>じっくり。シュワシュワが毛穴に浸透して、肌のバリア機能がみるみる整う。
-          <div class="mini-grid">
-            <div class="mini-cell"><strong>炭酸泉</strong>血行促進・保湿・美肌。乾燥肌に最適。長めに浸かるほど良い</div>
-            <div class="mini-cell"><strong>順番</strong>かけ湯→どくだみ湯→炭酸泉→水分補給→5Fへ</div>
-          </div>
-          <div class="skin-tip">石鹸の洗い残しは乾燥の元。しっかりすすいでから浴槽へ。</div>
-        </div>
-      </div>
+    <!-- Touch Controls (Behind UI but in front of canvas) -->
+    <div id="touch-controls" class="absolute inset-0 hidden z-10">
+        <div id="zone-0" class="touch-zone" data-player="0"><span class="key-hint">Q</span></div>
+        <div id="zone-1" class="touch-zone" data-player="1"><span class="key-hint">P</span></div>
+        <div id="zone-2" class="touch-zone hidden" data-player="2"><span class="key-hint">Z</span></div>
+        <div id="zone-3" class="touch-zone hidden" data-player="3"><span class="key-hint">M</span></div>
     </div>
 
-    <!-- 11:00 岩盤浴前半 -->
-    <div class="tl-item cat-rock">
-      <div class="tl-time"><span class="hour">11</span><span class="min">:00</span></div>
-      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
-      <div class="tl-card">
-        <div class="tl-card-header">
-          <div class="tl-title"><span class="emoji">🪨</span>岩盤浴【前半2セット】</div>
-          <div class="cat-badge">岩盤浴</div>
-        </div>
-        <div class="tl-body">
-          岩盤浴は11:00スタート。<strong>白珪房（明るめ・二重扉）15〜20分 → 涼み処で10分クールダウン → 月光房（暗め・やや低温）15分</strong>。大浴場でしっかり下茹でしてあるので、汗が出るスピードが段違い。
-          <div class="water-counter">
-            <div class="water-drop">💧 水素水1杯（入室前）</div>
-            <div class="water-drop">💧 水素水1杯（セット間）</div>
-            <div class="water-drop">💧 水素水1杯（終了後）</div>
-          </div>
-          <div class="tip-box">
-            <span class="tip-label">水素水の飲み方のコツ</span>
-            一気に飲まず、少量ずつこまめに。5Fの水素水は飲み放題。ポカリよりも先にここでしっかり補給しよう。
-          </div>
-          <div class="skin-tip">岩盤浴は高湿度で蒸されるため乾燥しにくい。むしろデトックス効果でくすみが取れる。</div>
-        </div>
-      </div>
-    </div>
+    <script>
+        // --- 設定と状態 ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const PLAYER_CONFIG = [
+            { color: '#06b6d4', name: 'P1 (CYAN)', key: 'q' },    // Cyan
+            { color: '#d946ef', name: 'P2 (PINK)', key: 'p' },    // Pink
+            { color: '#eab308', name: 'P3 (YELLOW)', key: 'z' },  // Yellow
+            { color: '#22c55e', name: 'P4 (GREEN)', key: 'm' }    // Green
+        ];
+        
+        // キーバインディングのマッピング
+        const KEY_MAP = {
+            'q': 0, 'Q': 0, 'ｑ': 0, 'Ｑ': 0,
+            'p': 1, 'P': 1, 'ｐ': 1, 'Ｐ': 1,
+            'z': 2, 'Z': 2, 'ｚ': 2, 'Ｚ': 2,
+            'm': 3, 'M': 3, 'ｍ': 3, 'Ｍ': 3
+        };
 
-    <!-- 12:15 ランチ -->
-    <div class="tl-item cat-food">
-      <div class="tl-time"><span class="hour">12</span><span class="min">:15</span></div>
-      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
-      <div class="tl-card">
-        <div class="tl-card-header">
-          <div class="tl-title"><span class="emoji">🍜</span>3F 北斎でランチ</div>
-          <div class="cat-badge">食事</div>
-        </div>
-        <div class="tl-body">
-          レストランは<strong>11:30オープン</strong>。岩盤浴の後、館内着のまま3Fへ。岩盤浴でしっかり汗をかいた後だから何を食べても美味い。とはいえ<strong>夜のサ飯本番に向けて腹7分目まで</strong>に抑えるのが鉄則。<br><br>
-          <strong>おすすめ：</strong>二八蕎麦、うどん、軽めの定食。消化の良いものを選ぼう。
-          <p class="note-line">※満腹でサウナに入ると気分が悪くなる場合があります</p>
-        </div>
-      </div>
-    </div>
+        let gameState = 'menu'; // menu, countdown, playing, round_end, game_over
+        let playerCount = 2;
+        let players = [];
+        let particles = [];
+        let scores = [0, 0, 0, 0];
+        let targetScore = 5; // 勝利に必要なラウンド数
+        let roundNumber = 0;
+        let aiPlayers = []; // AI制御するプレイヤーIDのセット
+        let aiDifficulty = 'hard'; // easy / normal / hard / max
+        
+        let arenaRadius = 0;
+        let centerX = 0;
+        let centerY = 0;
+        let screenShake = 0;
 
-    <!-- 13:15 お昼寝 -->
-    <div class="tl-item cat-rest">
-      <div class="tl-time"><span class="hour">13</span><span class="min">:15</span></div>
-      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
-      <div class="tl-card">
-        <div class="tl-card-header">
-          <div class="tl-title"><span class="emoji">😴</span>湯WORK＆お休み処でお昼寝</div>
-          <div class="cat-badge">休憩</div>
-        </div>
-        <div class="tl-body">
-          食後の「消化タイム」。<strong>元浴室をリノベした「湯WORK」</strong>が江戸遊最大の推しポイント。男性は2F・女性は4Fにあり、元サウナ室や湯船の中でゴロゴロできる唯一無二の非日常空間。<br><br>
-          漫画を読みながらうたた寝でもOK。<strong>約90分、全集中で何もしない。</strong>
-          <div class="tip-box">
-            <span class="tip-label">女性限定の神コンテンツ</span>
-            4Fにはハンモック・充電スポット・泥パック足湯エリアがあり、ここだけで何時間でも過ごせる。女子は4Fを堪能しながら昼寝しよう。
-          </div>
-        </div>
-      </div>
-    </div>
+        // タッチデバイス判定
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        if (isTouchDevice) {
+            // タッチデバイスならキー表示を隠す
+            document.querySelectorAll('.key-hint').forEach(el => el.style.display = 'none');
+        }
 
-    <!-- 14:45 岩盤浴後半 -->
-    <div class="tl-item cat-rock">
-      <div class="tl-time"><span class="hour">14</span><span class="min">:45</span></div>
-      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
-      <div class="tl-card">
-        <div class="tl-card-header">
-          <div class="tl-title"><span class="emoji">🪨</span>岩盤浴【後半2セット】</div>
-          <div class="cat-badge">岩盤浴</div>
-        </div>
-        <div class="tl-body">
-          昼寝で体がリセットされた後の岩盤浴は段違いの心地よさ。午前中より<strong>体が深くほぐれているため、汗の量が段違い</strong>に増える。白珪房・月光房を各15〜20分×2セット。<br><br>
-          サウナの前に体を十分温めておくことが「ととのい」の深さを決める。
-          <div class="water-counter">
-            <div class="water-drop">💧 水素水 こまめに補給</div>
-            <div class="water-drop">🟡 ポカリ 1本目もここで</div>
-          </div>
-        </div>
-      </div>
-    </div>
+        // --- 初期化・リサイズ ---
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            centerX = canvas.width / 2;
+            centerY = canvas.height / 2;
+        }
+        window.addEventListener('resize', resize);
+        resize();
 
-    <!-- 16:00 サウナ -->
-    <div class="tl-item cat-sauna star-card">
-      <div class="tl-time"><span class="hour">16</span><span class="min">:00</span></div>
-      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
-      <div class="tl-card">
-        <div class="tl-card-header">
-          <div class="tl-title"><span class="emoji">🔥</span>サウナタイム！<span class="star-badge">メイン</span></div>
-          <div class="cat-badge">サウナ</div>
-        </div>
-        <div class="tl-body">
-          ここが本番。岩盤浴で体を芯まで温めた状態でサウナに入ると<strong>別次元の「ととのい」</strong>が待っている。
-          <div class="tip-box">
-            <span class="tip-label">オートロウリュ時間</span>
-            フィンランドサウナのオートロウリュは<strong>毎時15分・45分頃</strong>が目安。16:15・16:45・17:15などを狙って入室しよう！
-          </div>
-          <div class="mini-grid" style="margin-top:12px;">
-            <div class="mini-cell"><strong>推奨セット数</strong>3セット（約90分）</div>
-            <div class="mini-cell"><strong>基本の流れ</strong>フィンランドサウナ8分 → 水風呂30秒 → 外気浴10分</div>
-            <div class="mini-cell"><strong>男女共通</strong>フィンランドサウナ90度・中温ボナサウナ75度</div>
-            <div class="mini-cell"><strong>女子限定！</strong>アロマスチームサウナ45度を1セット挟む</div>
-          </div>
-          <div class="skin-tip">水風呂は30秒〜1分で上がること。長すぎると乾燥肌には負担大。外気浴のととのいチェアで回復！</div>
-        </div>
-      </div>
-    </div>
+        // --- パーティクルクラス (強化版) ---
+        class Particle {
+            constructor(x, y, color, vx, vy, life = 30, type = 'dot') {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.life = life;
+                this.maxLife = life;
+                this.color = color;
+                this.type = type; // 'dot' | 'spark' | 'ring' | 'shockwave'
+                this.size = type === 'spark' ? Math.random() * 2 + 0.5 : Math.random() * 4 + 2;
+                this.radius = 0; // for ring/shockwave
+                this.maxRadius = type === 'ring' ? 60 : type === 'shockwave' ? 120 : 0;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vx *= 0.91;
+                this.vy *= 0.91;
+                this.life--;
+                if (this.type === 'ring' || this.type === 'shockwave') {
+                    this.radius = this.maxRadius * (1 - this.life / this.maxLife);
+                }
+            }
+            draw(ctx) {
+                if (this.life <= 0) return;
+                const alpha = Math.max(0, this.life / this.maxLife);
+                ctx.save();
+                ctx.globalAlpha = alpha;
 
-    <!-- 17:30 保湿ケア -->
-    <div class="tl-item cat-care">
-      <div class="tl-time"><span class="hour">17</span><span class="min">:30</span></div>
-      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
-      <div class="tl-card">
-        <div class="tl-card-header">
-          <div class="tl-title"><span class="emoji">✨</span>お風呂上がり・念入り保湿ケア</div>
-          <div class="cat-badge">スキンケア</div>
-        </div>
-        <div class="tl-body">
-          サウナ後は皮膚が開いていて最も保湿が浸透しやすい黄金タイム。<strong>お風呂を上がったら5分以内にパウダールームへ！</strong><br><br>
-          パウダールームの無料アメニティ（化粧水・乳液）を<strong>全身にしっかり叩き込む。</strong> 顔・首・腕・ひじ・ひざを重点的に。リファドライヤーで髪をゆっくり乾かせばツヤ髪も完成。
-          <div class="skin-tip">化粧水を塗った後、乳液またはクリームで必ず蓋をすること。蓋をしないと逆に乾燥する。</div>
-        </div>
-      </div>
-    </div>
+                if (this.type === 'ring' || this.type === 'shockwave') {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.strokeStyle = this.color;
+                    ctx.lineWidth = this.type === 'shockwave' ? 3 : 1.5;
+                    ctx.shadowBlur = this.type === 'shockwave' ? 20 : 10;
+                    ctx.shadowColor = this.color;
+                    ctx.stroke();
+                } else if (this.type === 'spark') {
+                    // スパーク: 線で描画
+                    ctx.strokeStyle = this.color;
+                    ctx.lineWidth = this.size * 0.6;
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = this.color;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x - this.vx * 4, this.y - this.vy * 4);
+                    ctx.stroke();
+                } else {
+                    ctx.shadowBlur = 12;
+                    ctx.shadowColor = this.color;
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size * alpha, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+        }
 
-    <!-- 18:00 サ飯 -->
-    <div class="tl-item cat-food star-card">
-      <div class="tl-time"><span class="hour">18</span><span class="min">:00</span></div>
-      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
-      <div class="tl-card">
-        <div class="tl-card-header">
-          <div class="tl-title"><span class="emoji">🍛</span>3F 北斎で夜ごはん（サ飯）<span class="star-badge">ご褒美</span></div>
-          <div class="cat-badge">食事</div>
-        </div>
-        <div class="tl-body">
-          これが今日のクライマックス。<strong>サウナで研ぎ澄まされた味覚は日常比500%。</strong>何を食べても信じられないくらいうまい。<br><br>
-          <strong>定番サ飯：</strong>オロポ（オロナミンC＋ポカリ混合）、カレー、唐揚げ定食、ガッツリ系の丼。体が欲するものを全力でいけ。ここでケチるのはもったいない。
-          <div class="tip-box">
-            <span class="tip-label">TIPS</span>
-            「国技館カレー」や「相撲部屋ちゃんこ」系メニューも要チェック。両国ならではの名物を味わえる。
-          </div>
-        </div>
-      </div>
-    </div>
+        // 衝突エフェクト生成
+        function spawnCollisionFX(midX, midY, c1, c2, force) {
+            const cnt = Math.min(12, Math.floor(force * 1.5));
+            // コアスパーク
+            for (let k = 0; k < cnt; k++) {
+                const angle = Math.random() * Math.PI * 2;
+                const spd = Math.random() * force * 0.9 + 1;
+                particles.push(new Particle(midX, midY, '#ffffff', Math.cos(angle)*spd, Math.sin(angle)*spd, 18, 'spark'));
+                particles.push(new Particle(midX, midY, c1, Math.cos(angle+0.3)*spd*0.7, Math.sin(angle+0.3)*spd*0.7, 28, 'dot'));
+                particles.push(new Particle(midX, midY, c2, Math.cos(angle-0.3)*spd*0.7, Math.sin(angle-0.3)*spd*0.7, 28, 'dot'));
+            }
+            // 衝撃波リング
+            particles.push(new Particle(midX, midY, '#ffffff', 0, 0, 22, 'ring'));
+            if (force > 6) {
+                particles.push(new Particle(midX, midY, c1, 0, 0, 18, 'shockwave'));
+            }
+        }
 
-    <!-- 19:15 チルタイム -->
-    <div class="tl-item cat-rest">
-      <div class="tl-time"><span class="hour">19</span><span class="min">:15</span></div>
-      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
-      <div class="tl-card">
-        <div class="tl-card-header">
-          <div class="tl-title"><span class="emoji">🌙</span>お休み処でチルタイム</div>
-          <div class="cat-badge">休憩</div>
-        </div>
-        <div class="tl-body">
-          食後すぐに帰らず、ソファでぼーっとする時間をちゃんと取ること。今日一日の全てを振り返りながら、仲間とだらだら話す時間が最高に気持ちいい。3Fのミネラルウォーターカウンターで好みの水をもう1杯。
-        </div>
-      </div>
-    </div>
+        // 死亡エフェクト生成
+        function spawnDeathFX(x, y, color) {
+            for (let i = 0; i < 50; i++) {
+                const angle = (i / 50) * Math.PI * 2;
+                const spd = Math.random() * 12 + 3;
+                particles.push(new Particle(x, y, color, Math.cos(angle)*spd, Math.sin(angle)*spd, 55, Math.random() < 0.4 ? 'spark' : 'dot'));
+            }
+            particles.push(new Particle(x, y, color, 0, 0, 30, 'shockwave'));
+            particles.push(new Particle(x, y, '#ffffff', 0, 0, 20, 'ring'));
+        }
 
-    <!-- 19:45 退館 -->
-    <div class="tl-item cat-end">
-      <div class="tl-time"><span class="hour">19</span><span class="min">:45</span></div>
-      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
-      <div class="tl-card">
-        <div class="tl-card-header">
-          <div class="tl-title"><span class="emoji">💫</span>精算・退館</div>
-          <div class="cat-badge">退館</div>
-        </div>
-        <div class="tl-body">
-          1Fフロントで精算。クレジット・交通系IC・電子マネーが使える。退館前に水かポカリを1本飲み干してから出発。忘れ物チェックも忘れずに。
-        </div>
-      </div>
-    </div>
+        // --- ゲーム進行ロジック ---
+        function switchTab(tab) {
+            const isVs = tab === 'vs';
+            document.getElementById('tab-multi').className = `flex-1 py-2 rounded-lg text-sm font-bold transition-all ${!isVs ? 'bg-white/10 text-white' : 'text-slate-400'}`;
+            document.getElementById('tab-vs').className = `flex-1 py-2 rounded-lg text-sm font-bold transition-all ${isVs ? 'bg-white/10 text-white' : 'text-slate-400'}`;
+            document.getElementById('panel-multi').classList.toggle('hidden', isVs);
+            document.getElementById('panel-vs').classList.toggle('hidden', !isVs);
+            if (isVs) document.getElementById('panel-vs').classList.remove('hidden');
+        }
 
-    <!-- 20:00 帰宅 -->
-    <div class="tl-item cat-end">
-      <div class="tl-time"><span class="hour">20</span><span class="min">:00</span></div>
-      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
-      <div class="tl-card">
-        <div class="tl-card-header">
-          <div class="tl-title"><span class="emoji">🗼</span>退館・帰宅</div>
-          <div class="cat-badge">完了</div>
-        </div>
-        <div class="tl-body">
-          スカイツリーのライトアップを見上げながら帰宅。心地よい重力を感じながら、あとは布団にダイブするだけ。<strong>今夜の睡眠は人生最高クラスになる。</strong>
-        </div>
-      </div>
-    </div>
+        function setTargetScore(n) {
+            targetScore = n;
+            document.querySelectorAll('.score-btn').forEach(btn => {
+                btn.className = 'score-btn flex-1 py-2 rounded-lg text-sm font-bold border transition-all border-slate-600 text-slate-400';
+            });
+            const el = document.getElementById(`score-${n}`);
+            if (el) el.className = 'score-btn flex-1 py-2 rounded-lg text-sm font-bold border transition-all border-cyan-400/50 text-cyan-400 bg-cyan-400/10';
+        }
 
-  </div><!-- /timeline -->
+        function setDifficulty(diff) {
+            aiDifficulty = diff;
+            document.querySelectorAll('.diff-btn').forEach(btn => {
+                btn.className = 'diff-btn flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all border-slate-600 text-slate-400';
+            });
+            const colors = { easy: 'green', normal: 'blue', hard: 'orange', max: 'red' };
+            const c = colors[diff];
+            const el = document.getElementById(`diff-${diff}`);
+            el.className = `diff-btn flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all border-${c}-400/50 text-${c}-400 bg-${c}-400/10`;
+        }
 
-  <!-- SAUNA GUIDE -->
-  <div class="sauna-guide">
-    <h3>▸ サウナ完全ガイド（江戸遊版）</h3>
-    <div class="sauna-types">
-      <div class="sauna-type">
-        <div class="icon">🇫🇮</div>
-        <div>
-          <div class="name">フィンランドサウナ</div>
-          <div class="desc">オートロウリュ搭載。日替わりアロマオイルの香りが最高。<strong>毎時15分・45分頃</strong>がロウリュタイム。男女ともにメインサウナ。テレビあり。</div>
-        </div>
-        <div class="badge-temp">90°C</div>
-      </div>
-      <div class="sauna-type">
-        <div class="icon">🌡</div>
-        <div>
-          <div class="name">中温ボナサウナ</div>
-          <div class="desc">初心者にも優しい温度設定。遠赤外線で体の芯からじっくり温まる。テレビでヒーリング映像が流れ、ゆったりした気分で入れる。</div>
-        </div>
-        <div class="badge-temp">75°C</div>
-      </div>
-      <div class="sauna-type">
-        <div class="icon">🌸</div>
-        <div>
-          <div class="name">アロマスチームサウナ（女性限定）</div>
-          <div class="desc">低温高湿度で<strong>乾燥肌に最強！</strong> 月替わりアロマオイルで肌と心が潤う。「ロゼのような香り」デザインでインスタ映えも抜群。</div>
-        </div>
-        <div class="badge-temp">45°C</div>
-      </div>
-    </div>
-  </div>
+        function startGame(num, aiIds) {
+            playerCount = num;
+            aiPlayers = new Set(aiIds);
+            scores = [0, 0, 0, 0];
+            roundNumber = 0;
+            
+            // UIの切り替え
+            document.getElementById('menu').style.opacity = '0';
+            document.getElementById('menu').style.pointerEvents = 'none';
+            setTimeout(() => { document.getElementById('menu').classList.add('hidden'); }, 500);
+            
+            document.getElementById('score-board').classList.remove('hidden');
+            setTimeout(() => { document.getElementById('score-board').style.opacity = '1'; }, 50);
+            
+            document.getElementById('touch-controls').classList.remove('hidden');
+            for(let i=0; i<4; i++) {
+                const zone = document.getElementById(`zone-${i}`);
+                if(i < playerCount) zone.classList.remove('hidden');
+                else zone.classList.add('hidden');
+            }
 
-  <!-- HIGHLIGHT BLOCK -->
-  <div class="highlight-block">
-    <h3>▸ 乾燥肌チームの勝利の鉄則5か条</h3>
-    <ul>
-      <li><strong>洗いすぎない：</strong>ボディーソープは泡立てて優しく。肌を擦るのは厳禁。</li>
-      <li><strong>炭酸泉を制する：</strong>高濃度炭酸泉に15分以上浸かることで肌のバリア機能が上がる。</li>
-      <li><strong>水風呂は短め：</strong>30秒〜1分でOK。長すぎると乾燥が進む。</li>
-      <li><strong>上がったら5分以内：</strong>パウダールームの無料化粧水・乳液を全身に塗る。これだけで翌日の肌が全然違う。</li>
-      <li><strong>内側から潤す：</strong>5Fの水素水を飲み放題で活用。外から塗るだけでは足りない。</li>
-    </ul>
-  </div>
+            updateScoreBoard();
+            startRound();
+        }
 
-  <!-- PACKING LIST -->
-  <div class="packing">
-    <div class="packing-header">▸ 持ち物チェックリスト</div>
-    <div class="packing-body">
-      <div class="packing-cols">
-        <div class="packing-group">
-          <h4>必須アイテム</h4>
-          <ul class="packing-list">
-            <li>現金 or カード（日曜休日料金）</li>
-            <li>交通系ICカード（入館・精算で使用可）</li>
-            <li>ポカリスウェット（1〜2本）</li>
-            <li>スマホ・イヤホン（休憩用）</li>
-          </ul>
-        </div>
-        <div class="packing-group">
-          <h4>乾燥肌おすすめ持参品</h4>
-          <ul class="packing-list">
-            <li>好みの保湿クリーム・ボディオイル</li>
-            <li>サウナキャップ（1Fで購入も可）</li>
-            <li>リップクリーム</li>
-            <li>推しのシャンプー（こだわりがある場合）</li>
-          </ul>
-        </div>
-      </div>
-      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--cream-dark);">
-        <p style="font-size:12px;color:var(--ink-light);">
-          💡 タオル・館内着・岩盤浴着はすべて入館料に含まれる。持参不要。シャンプー・コンディショナー・ボディーソープ・化粧水・乳液も浴室・パウダールームに無料で完備。
-        </p>
-      </div>
-    </div>
-  </div>
+        function startRound() {
+            roundNumber++;
+            gameState = 'countdown';
+            particles = [];
+            screenShake = 0;
+            
+            // アリーナ初期サイズ
+            arenaRadius = Math.min(canvas.width, canvas.height) * 0.42;
+            
+            // プレイヤーの配置
+            players = [];
+            const spawnRadius = arenaRadius * 0.6;
+            for (let i = 0; i < playerCount; i++) {
+                const angle = (Math.PI * 2 / playerCount) * i - Math.PI / 2;
+                players.push({
+                    id: i,
+                    x: centerX + Math.cos(angle) * spawnRadius,
+                    y: centerY + Math.sin(angle) * spawnRadius,
+                    vx: 0,
+                    vy: 0,
+                    radius: 18,
+                    color: PLAYER_CONFIG[i].color,
+                    angle: angle + Math.PI, // 中心を向く
+                    isDashing: false,
+                    isAlive: true
+                });
+                if (aiPlayers.has(i)) initAiState(i);
+            }
 
-  <!-- FOOTER -->
-  <div class="footer">
-    <div class="footer-motto">最高の一日を、<span>江戸</span>で。</div>
-    <p class="footer-sub">両国湯屋江戸遊 · 営業 10:00 〜 翌8:30 · 年中無休</p>
-    <p style="font-size:11px;color:var(--ink-light);margin-top:8px;opacity:0.5;">墨田区横網1丁目3-20 · 都営大江戸線 両国駅 A3出口すぐ</p>
-  </div>
+            // カウントダウン演出
+            showMessage(`ROUND ${roundNumber}`, 1500, '#ffffff');
+            setTimeout(() => {
+                if (gameState !== 'game_over') {
+                    showMessage('GO!', 1000, '#ff0055');
+                    gameState = 'playing';
+                }
+            }, 1800);
+        }
 
-</div>
+        function showMessage(text, duration, color) {
+            const overlay = document.getElementById('message-overlay');
+            const msgEl = document.getElementById('message-text');
+            
+            msgEl.textContent = text;
+            msgEl.style.color = color;
+            msgEl.style.textShadow = `0 0 20px ${color}, 0 0 40px ${color}`;
+            
+            overlay.classList.remove('hidden');
+            
+            // Force reflow
+            void msgEl.offsetWidth; 
+            
+            msgEl.style.transform = 'scale(1)';
+            msgEl.style.opacity = '1';
+
+            if (duration > 0) {
+                setTimeout(() => {
+                    msgEl.style.transform = 'scale(1.5)';
+                    msgEl.style.opacity = '0';
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                        msgEl.style.transform = 'scale(0.5)';
+                    }, 400);
+                }, duration);
+            }
+        }
+
+        function updateScoreBoard() {
+            const board = document.getElementById('score-board');
+            board.innerHTML = '';
+            for(let i=0; i<playerCount; i++) {
+                const div = document.createElement('div');
+                div.className = 'flex flex-col items-center bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50 backdrop-blur-sm';
+                div.innerHTML = `
+                    <span class="text-[10px] font-bold tracking-wider mb-1" style="color: ${PLAYER_CONFIG[i].color}">${PLAYER_CONFIG[i].name}${aiPlayers.has(i) ? ' <span style="background:rgba(255,255,255,0.15);padding:1px 5px;border-radius:4px;font-size:9px;">AI</span>' : ''}</span>
+                    <div class="flex gap-1">
+                        ${Array(targetScore).fill(0).map((_, idx) => 
+                            `<div class="w-3 h-3 rounded-full ${idx < scores[i] ? 'bg-current shadow-[0_0_8px_currentColor]' : 'bg-slate-700'}" style="color: ${PLAYER_CONFIG[i].color}"></div>`
+                        ).join('')}
+                    </div>
+                `;
+                board.appendChild(div);
+            }
+        }
+
+        function returnToMenu() {
+            gameState = 'menu';
+            document.getElementById('score-board').style.opacity = '0';
+            setTimeout(() => { document.getElementById('score-board').classList.add('hidden'); }, 500);
+            document.getElementById('touch-controls').classList.add('hidden');
+            
+            const menu = document.getElementById('menu');
+            menu.classList.remove('hidden');
+            setTimeout(() => { 
+                menu.style.opacity = '1'; 
+                menu.style.pointerEvents = 'auto';
+            }, 50);
+        }
+
+        // --- 入力処理 ---
+        function setPlayerInput(id, isPressed) {
+            if (gameState !== 'playing' && gameState !== 'countdown') return;
+            const player = players.find(p => p.id === id);
+            if (player && player.isAlive) {
+                player.isDashing = isPressed;
+                
+                // UI Touch Zone highlight
+                const zone = document.getElementById(`zone-${id}`);
+                if (isPressed) zone.classList.add('active');
+                else zone.classList.remove('active');
+            }
+        }
+
+        // キーボード
+        window.addEventListener('keydown', (e) => {
+            if (KEY_MAP[e.key] !== undefined) setPlayerInput(KEY_MAP[e.key], true);
+        });
+        window.addEventListener('keyup', (e) => {
+            if (KEY_MAP[e.key] !== undefined) setPlayerInput(KEY_MAP[e.key], false);
+        });
+
+        // タッチ
+        const zones = document.querySelectorAll('.touch-zone');
+        zones.forEach(zone => {
+            const id = parseInt(zone.dataset.player);
+            const handleTouch = (e, isPressed) => {
+                e.preventDefault();
+                setPlayerInput(id, isPressed);
+            };
+            zone.addEventListener('touchstart', (e) => handleTouch(e, true), {passive: false});
+            zone.addEventListener('touchend', (e) => handleTouch(e, false), {passive: false});
+            zone.addEventListener('touchcancel', (e) => handleTouch(e, false), {passive: false});
+        });
+
+        // --- 更新ロジック ---
+        function checkCollisions() {
+            for (let i = 0; i < players.length; i++) {
+                if (!players[i].isAlive) continue;
+                for (let j = i + 1; j < players.length; j++) {
+                    if (!players[j].isAlive) continue;
+                    
+                    const p1 = players[i];
+                    const p2 = players[j];
+                    const dx = p2.x - p1.x;
+                    const dy = p2.y - p1.y;
+                    const distance = Math.hypot(dx, dy);
+                    const minDist = p1.radius + p2.radius;
+
+                    if (distance < minDist) {
+                        // 重なりを解消
+                        const angle = Math.atan2(dy, dx);
+                        const overlap = minDist - distance;
+                        const nx = Math.cos(angle);
+                        const ny = Math.sin(angle);
+                        
+                        p1.x -= nx * overlap / 2;
+                        p1.y -= ny * overlap / 2;
+                        p2.x += nx * overlap / 2;
+                        p2.y += ny * overlap / 2;
+
+                        // 速度の反発（弾性衝突）
+                        const relativeVelocityX = p1.vx - p2.vx;
+                        const relativeVelocityY = p1.vy - p2.vy;
+                        const speed = relativeVelocityX * nx + relativeVelocityY * ny;
+                        
+                        if (speed < 0) continue; // すでに離れようとしている
+                        
+                        // 反発係数と基礎反発力を上げてノックバックを強化
+                        const restitution = 2.5; 
+                        const baseImpulse = 3.7; 
+                        const impulse = ((1 + restitution) * speed / 2) + baseImpulse;
+                        
+                        p1.vx -= impulse * nx;
+                        p1.vy -= impulse * ny;
+                        p2.vx += impulse * nx;
+                        p2.vy += impulse * ny;
+
+                        // エフェクト生成
+                        const midX = (p1.x + p2.x) / 2;
+                        const midY = (p1.y + p2.y) / 2;
+                        const force = Math.abs(impulse);
+                        
+                        screenShake = Math.max(screenShake, force * 1.8);
+                        spawnCollisionFX(midX, midY, p1.color, p2.color, force);
+                    }
+                }
+            }
+        }
+
+        // ============================================================
+        // 最強AI システム v5 — 理論値最強・全トッププレイヤーを超える
+        //
+        // 設計思想 (ゲームルールを完全理解した上での最適解):
+        //
+        // [物理モデル精密理解]
+        //  - ダッシュ中: angle += 0.02, vx += cos(angle)*0.7, 摩擦 *0.94
+        //  - 通常時: angle += 0.08 (高速回転)
+        //  - 衝突: impulse = (1+2.5)*speed/2 + 3.7 の弾性衝突
+        //  → AIはこの物理を完全に内部シミュレーションして動く
+        //
+        // [最強戦略の柱]
+        //  1. 遠距離突進検知: プレイヤーがダッシュを開始した瞬間に検知
+        //     (速度だけでなく「ダッシュ状態 + 向き」で早期警戒)
+        //  2. 精密垂直回避: 脅威方向の真垂直に向いていればダッシュ回避
+        //     センター側の垂直を選択し端落ちリスクを排除
+        //  3. 予測射撃: 相手の回転速度・速度を考慮した未来位置に正確に狙い
+        //  4. カウンター特化: 回避直後に敵が端に向いている「無防備な瞬間」を即攻撃
+        //  5. 戦略的ポジション: センターより常に内側 → 攻撃が必然的に外向き
+        //  6. 危機脱出: 端に向かっていたら即座に最短ルートで戻る
+        //  7. 多人数戦略: 最も端に近い敵を最優先、他の衝突を「漁夫の利」に使う
+        //  8. 遠距離でも突進してくる相手への早期検知 (dot閾値を下げ広角に対応)
+        // ============================================================
+
+        const AI_PARAMS = {
+            easy:   { reactionDelay: 22, aimTol: 0.50, randomness: 0.60, lookahead: 4,  panicEdge: 0.93, aggrEdge: 0.68 },
+            normal: { reactionDelay: 10, aimTol: 0.28, randomness: 0.28, lookahead: 16, panicEdge: 0.90, aggrEdge: 0.62 },
+            hard:   { reactionDelay: 3,  aimTol: 0.13, randomness: 0.08, lookahead: 30, panicEdge: 0.87, aggrEdge: 0.56 },
+            max:    { reactionDelay: 0,  aimTol: 0.032, randomness: 0.00, lookahead: 80, panicEdge: 0.78, aggrEdge: 0.40 },
+        };
+
+        const aiState = {};
+        function initAiState(id) {
+            aiState[id] = {
+                delayCounter: 0, decision: false, burstTimer: 0,
+                dodgeTimer: 0, dodgeDecision: false,
+                wasInDodge: false, postDodgeTimer: 0,
+                // v5追加: 早期警戒フラグ、前フレームの敵状態
+                earlyWarnTimer: 0, prevEnemyState: {},
+                repositionTimer: 0,
+            };
+        }
+
+        function normalizeAngle(a) {
+            while (a > Math.PI) a -= Math.PI * 2;
+            while (a < -Math.PI) a += Math.PI * 2;
+            return a;
+        }
+
+        /**
+         * 物理エンジンの挙動を完全再現した未来位置予測
+         * dashing=true の場合は回転0.02、それ以外は0.08で予測
+         */
+        function predictPos(p, frames, dashing = false) {
+            let x = p.x, y = p.y, vx = p.vx, vy = p.vy, angle = p.angle;
+            for (let f = 0; f < frames; f++) {
+                angle += dashing ? 0.02 : 0.08;
+                if (dashing) { vx += Math.cos(angle) * 0.7; vy += Math.sin(angle) * 0.7; }
+                vx *= 0.94; vy *= 0.94;
+                x += vx; y += vy;
+            }
+            return { x, y, vx, vy, angle };
+        }
+
+        /**
+         * ダッシュしてターゲットに当てた後の双方の運命をシミュレート
+         * より高精度: 衝突タイミングを精密計算
+         */
+        function simulateHit(ai, target, dashFrames) {
+            // AIがdashFramesダッシュした後の速度を計算
+            let avx = ai.vx, avy = ai.vy, aAngle = ai.angle;
+            for (let f = 0; f < dashFrames; f++) {
+                aAngle += 0.02;
+                avx += Math.cos(aAngle) * 0.7;
+                avy += Math.sin(aAngle) * 0.7;
+                avx *= 0.94; avy *= 0.94;
+            }
+            const dx = target.x - ai.x, dy = target.y - ai.y;
+            const dist = Math.hypot(dx, dy) || 1;
+            const nx = dx / dist, ny = dy / dist;
+            const relVx = avx - target.vx, relVy = avy - target.vy;
+            const speed = relVx * nx + relVy * ny;
+            const impulse = ((1 + 2.5) * Math.max(speed, 0) / 2) + 3.7;
+
+            const a_vx = avx - impulse * nx, a_vy = avy - impulse * ny;
+            const t_vx = target.vx + impulse * nx, t_vy = target.vy + impulse * ny;
+
+            // AIの軌跡シミュレーション (90フレーム追跡)
+            let ax = ai.x, ay = ai.y, avx2 = a_vx, avy2 = a_vy;
+            let selfDead = false;
+            for (let f = 0; f < 90; f++) {
+                avx2 *= 0.94; avy2 *= 0.94;
+                ax += avx2; ay += avy2;
+                if (Math.hypot(ax - centerX, ay - centerY) > arenaRadius + ai.radius) { selfDead = true; break; }
+            }
+            const selfFinalEdge = Math.hypot(ax - centerX, ay - centerY) / arenaRadius;
+
+            // ターゲットの軌跡シミュレーション
+            let tx = target.x, ty = target.y, tvx2 = t_vx, tvy2 = t_vy;
+            let targetDead = false, targetDeadFrame = 999;
+            for (let f = 0; f < 90; f++) {
+                tvx2 *= 0.94; tvy2 *= 0.94;
+                tx += tvx2; ty += tvy2;
+                if (Math.hypot(tx - centerX, ty - centerY) > arenaRadius + target.radius) { targetDead = true; targetDeadFrame = f; break; }
+            }
+            const targetFinalEdge = Math.hypot(tx - centerX, ty - centerY) / arenaRadius;
+
+            return { selfDead, selfFinalEdge, targetDead, targetDeadFrame, targetFinalEdge, impulse };
+        }
+
+        /**
+         * v5強化版脅威検知: 遠距離突進も含む広角・早期検知
+         * 
+         * 従来の問題: dot < 0.78 で 38度以内しか検知しない
+         *   → 遠距離から斜めに来るプレイヤーを検知できなかった
+         * 
+         * v5改善: 
+         *   - ダッシュ開始を速度変化で検知する「早期警戒」
+         *   - 検知角度を 0.62 (51度) まで拡大
+         *   - 距離に応じて衝突時間を精密計算
+         *   - 相手の予測位置も使って「これから自分に向かうか」を判定
+         */
+        function calcIncomingThreat(ai, enemies, st) {
+            let maxThreat = 0;
+            let bestDodgeAngle = 0;
+            let bestImpactTime = Infinity;
+            const cx = centerX, cy = centerY;
+
+            for (const enemy of enemies) {
+                const enemySpeed = Math.hypot(enemy.vx, enemy.vy);
+                const toAI_x = ai.x - enemy.x;
+                const toAI_y = ai.y - enemy.y;
+                const dist = Math.hypot(toAI_x, toAI_y);
+
+                if (dist > arenaRadius * 1.4 || dist < ai.radius + enemy.radius + 4) continue;
+
+                // v5: ダッシュ中 OR 速度が閾値以上で脅威候補
+                // ダッシュ状態なら速度が低くても危険(加速中)
+                const isDangerousBySpeed = enemySpeed > 5.0;
+                const isDangerousByDash = enemy.isDashing && enemySpeed > 1.5;
+                if (!isDangerousBySpeed && !isDangerousByDash) continue;
+
+                // 方向一致度チェック (v5: 0.62まで拡大 = 約51度以内)
+                const dot = enemySpeed > 0 ? (enemy.vx * toAI_x + enemy.vy * toAI_y) / (enemySpeed * dist) : 0;
+                
+                // ダッシュ中の敵はより広い角度で脅威判定
+                const dotThreshold = enemy.isDashing ? 0.55 : 0.72;
+                if (dot < dotThreshold) {
+                    // v5追加: ダッシュ中で自分の方向を向いているなら速度が低くても警戒
+                    // (敵の「角度」が自分に向いているか確認)
+                    if (enemy.isDashing) {
+                        const enemyFacingX = Math.cos(enemy.angle);
+                        const enemyFacingY = Math.sin(enemy.angle);
+                        const facingDot = (enemyFacingX * toAI_x + enemyFacingY * toAI_y) / (dist || 1);
+                        if (facingDot < 0.60) continue; // 角度でも向いていなければスキップ
+                    } else {
+                        continue;
+                    }
+                }
+
+                // 衝突予測時間
+                const closingSpeed = Math.max(0.1, enemySpeed * Math.max(dot, 0.1));
+                const impactTime = (dist - ai.radius - enemy.radius) / closingSpeed;
+                if (impactTime < 0 || impactTime > 40) continue;
+
+                // 脅威スコア = 速度 × 方向一致度 × 近さ補正
+                const proximityBonus = 1 + (1 - dist / (arenaRadius * 1.4));
+                const threatScore = enemySpeed * Math.max(dot, 0.5) * proximityBonus;
+
+                if (threatScore > maxThreat) {
+                    maxThreat = threatScore;
+                    bestImpactTime = impactTime;
+
+                    // 最適回避方向: 脅威の移動方向に対して垂直
+                    // センターに近い方を選択
+                    const threatAngle = Math.atan2(enemy.vy, enemy.vx);
+                    const perp1 = threatAngle + Math.PI / 2;
+                    const perp2 = threatAngle - Math.PI / 2;
+                    const testX1 = ai.x + Math.cos(perp1) * 80;
+                    const testY1 = ai.y + Math.sin(perp1) * 80;
+                    const testX2 = ai.x + Math.cos(perp2) * 80;
+                    const testY2 = ai.y + Math.sin(perp2) * 80;
+                    const d1 = Math.hypot(testX1 - cx, testY1 - cy);
+                    const d2 = Math.hypot(testX2 - cx, testY2 - cy);
+                    bestDodgeAngle = d1 <= d2 ? perp1 : perp2;
+                }
+            }
+
+            if (maxThreat > 0) {
+                return { threat: maxThreat, dodgeAngle: bestDodgeAngle, impactTime: bestImpactTime };
+            }
+            return null;
+        }
+
+        /**
+         * v5 最強AI コア
+         * 
+         * 優先順位:
+         *  P0: パニック回避 (端に落ちそう)          → 即座に中心向きダッシュ
+         *  P1: 脅威検知ドッジ (突進が来ている)       → 垂直方向に回避
+         *  P2: カウンター攻撃 (ドッジ直後の無防備)   → 即反撃
+         *  P3: 確定KO攻撃 (端の相手を倒せる)        → 狙い澄まして攻撃
+         *  P4: 最適ポジショニング                    → 中心内側をキープ
+         */
+        function updateAI(ai) {
+            const params = AI_PARAMS[aiDifficulty] || AI_PARAMS.hard;
+            const st = aiState[ai.id] || (aiState[ai.id] = {
+                delayCounter: 0, decision: false, burstTimer: 0,
+                dodgeTimer: 0, dodgeDecision: false, wasInDodge: false, postDodgeTimer: 0,
+                earlyWarnTimer: 0, prevEnemyState: {}, repositionTimer: 0,
+            });
+
+            // 反応遅延 (easy/normalのみ)
+            st.delayCounter++;
+            if (st.delayCounter < params.reactionDelay) { ai.isDashing = st.decision; return; }
+            st.delayCounter = 0;
+
+            const cx = centerX, cy = centerY;
+            const myDist = Math.hypot(ai.x - cx, ai.y - cy);
+            const myEdge = myDist / arenaRadius;
+            const toCenterAngle = Math.atan2(cy - ai.y, cx - ai.x);
+
+            // アウトワード速度 (端方向の速度成分)
+            const odx = myDist > 0 ? (ai.x - cx) / myDist : 0;
+            const ody = myDist > 0 ? (ai.y - cy) / myDist : 0;
+            const outSpeed = ai.vx * odx + ai.vy * ody;
+
+            // ====================================================
+            // P0: パニック判定 (最優先)
+            // ====================================================
+            // 20フレーム先の予測位置でエッジ判定
+            const sf20 = predictPos(ai, 20, false);
+            const futureEdge20 = Math.hypot(sf20.x - cx, sf20.y - cy) / arenaRadius;
+            // v5: アウトワード速度も考慮した厳しめのパニック判定
+            const isPanic = futureEdge20 > params.panicEdge 
+                || (myEdge > 0.88 && outSpeed > 1.2)
+                || (myEdge > 0.95); // 95%以上は問答無用でパニック
+
+            if (isPanic) {
+                const diff = Math.abs(normalizeAngle(ai.angle - toCenterAngle));
+                // v5: パニック時は中心方向に対してより緩い角度でもダッシュ
+                st.decision = diff < (aiDifficulty === 'max' ? 0.55 : 0.45);
+                ai.isDashing = st.decision;
+                st.dodgeTimer = 0;
+                st.postDodgeTimer = 0;
+                return;
+            }
+
+            const enemies = players.filter(p => p.isAlive && p.id !== ai.id);
+            if (enemies.length === 0) { st.decision = false; ai.isDashing = false; return; }
+
+            // ====================================================
+            // MAX専用ブロック: 高度ドッジシステム
+            // ====================================================
+            if (aiDifficulty === 'max') {
+
+                // ドッジ完了 → 反撃ウィンドウ開始
+                if (st.wasInDodge && st.dodgeTimer === 0) {
+                    st.wasInDodge = false;
+                    st.postDodgeTimer = 35; // 35Fの反撃ウィンドウ
+                }
+
+                // アクティブドッジ中: 方向維持
+                if (st.dodgeTimer > 0) {
+                    st.dodgeTimer--;
+                    st.wasInDodge = true;
+                    ai.isDashing = st.dodgeDecision;
+                    st.decision = st.dodgeDecision;
+                    return;
+                }
+
+                if (st.postDodgeTimer > 0) st.postDodgeTimer--;
+
+                // ====================================================
+                // P1: 脅威検知 → 垂直ドッジ発動 (v5: 早期広角検知)
+                // ====================================================
+                const incomingThreat = calcIncomingThreat(ai, enemies, st);
+                if (incomingThreat) {
+                    const { dodgeAngle, impactTime, threat } = incomingThreat;
+                    const diff = Math.abs(normalizeAngle(ai.angle - dodgeAngle));
+                    
+                    // v5: 少し広い角度で回避判定 (0.40 → 0.50)
+                    const dodging = diff < 0.50;
+                    st.dodgeDecision = dodging;
+                    // 衝突時間 + 余裕フレーム
+                    const extraFrames = threat > 8 ? 12 : 8;
+                    st.dodgeTimer = Math.max(6, Math.ceil(impactTime) + extraFrames);
+                    st.wasInDodge = true;
+                    st.decision = dodging;
+                    ai.isDashing = dodging;
+                    return;
+                }
+            }
+
+            // ====================================================
+            // ターゲット選定: スコアリング方式
+            // max: outward velocity + エッジ距離 + 距離の総合スコア
+            // ====================================================
+            const target = enemies.reduce((best, e) => {
+                const eEdge = Math.hypot(e.x - cx, e.y - cy) / arenaRadius;
+                const eDist = Math.hypot(e.x - ai.x, e.y - ai.y);
+                let outVel = 0;
+                if (aiDifficulty === 'max') {
+                    const eDstC = Math.hypot(e.x - cx, e.y - cy) || 1;
+                    outVel = (e.vx * (e.x - cx) / eDstC + e.vy * (e.y - cy) / eDstC);
+                }
+                // エッジ近さ(最重要) + 端向き速度 + 近さ
+                const s = eEdge * 3.0 + Math.max(0, outVel) * 0.40 - eDist / arenaRadius * 0.5;
+
+                const bEdge = Math.hypot(best.x - cx, best.y - cy) / arenaRadius;
+                const bDist = Math.hypot(best.x - ai.x, best.y - ai.y);
+                let bOutVel = 0;
+                if (aiDifficulty === 'max') {
+                    const bDstC = Math.hypot(best.x - cx, best.y - cy) || 1;
+                    bOutVel = (best.vx * (best.x - cx) / bDstC + best.vy * (best.y - cy) / bDstC);
+                }
+                const bs = bEdge * 3.0 + Math.max(0, bOutVel) * 0.40 - bDist / arenaRadius * 0.5;
+                return s > bs ? e : best;
+            });
+
+            // ====================================================
+            // 精密先読み射撃: 相手の回転・速度を考慮した未来位置
+            // ====================================================
+            // v5: targetがダッシュ中かどうかで予測モード切り替え
+            const predictDashing = aiDifficulty === 'max' ? target.isDashing : false;
+            const ft = predictPos(target, params.lookahead, predictDashing);
+            
+            // v5: 自分自身もフレーム後に移動していることを考慮した相対位置
+            const selfFt = aiDifficulty === 'max' ? predictPos(ai, params.lookahead / 3, true) : ai;
+            const angleToTarget = Math.atan2(ft.y - selfFt.y, ft.x - selfFt.x);
+            const aimDiff = Math.abs(normalizeAngle(ai.angle - angleToTarget));
+            const noise = (Math.random() < params.randomness) ? Math.random() * 0.6 : 0;
+            const effectiveAim = aimDiff + noise;
+
+            const distToTarget = Math.hypot(target.x - ai.x, target.y - ai.y);
+            const inRange = distToTarget < arenaRadius * 2.2;
+            const isAimed = effectiveAim < params.aimTol;
+
+            // 自分がターゲットより中心寄りか (有利ポジション)
+            const targetFromCenter = Math.hypot(target.x - cx, target.y - cy);
+            const goodPosition = aiDifficulty === 'max' ? (myDist <= targetFromCenter * 1.05) : true;
+
+            // ====================================================
+            // P2 & P3: 攻撃判定
+            // ====================================================
+            let shouldAttack = false;
+            if (isAimed && inRange) {
+                const simFrames = Math.min(params.lookahead, 35);
+                const sim = simulateHit(ai, target, simFrames);
+                
+                if (!sim.selfDead) {
+                    if (aiDifficulty === 'max') {
+                        const targetEdge = targetFromCenter / arenaRadius;
+                        const isCounterWindow = st.postDodgeTimer > 0;
+
+                        if (isCounterWindow) {
+                            // P2: カウンター時は自分が死なないなら即攻撃
+                            shouldAttack = true;
+                        } else if (goodPosition) {
+                            // 有利ポジ: 少し積極的
+                            shouldAttack = sim.targetFinalEdge > 0.45 || sim.targetDead || targetEdge > 0.60;
+                        } else {
+                            // 不利ポジ: 確実な攻撃のみ
+                            shouldAttack = sim.targetFinalEdge > 0.60 || sim.targetDead || targetEdge > 0.75;
+                        }
+                    } else {
+                        shouldAttack = sim.targetFinalEdge > 0.5 || sim.targetDead;
+                    }
+                } else if (sim.targetDead && sim.targetDeadFrame < 6) {
+                    // 自分も死ぬが相手が先に死ぬ → 特攻OK (v5: 6フレームに短縮)
+                    shouldAttack = true;
+                }
+            }
+
+            // MAX: 端ギリギリの相手への即攻撃
+            if (aiDifficulty === 'max' && !shouldAttack && isAimed) {
+                const targetEdge = targetFromCenter / arenaRadius;
+                if (targetEdge > 0.78) {
+                    shouldAttack = true;
+                }
+            }
+
+            // ====================================================
+            // P4: ポジショニング (攻撃できないとき)
+            // ====================================================
+            let shouldMove = false;
+            if (!shouldAttack) {
+                if (myEdge > params.aggrEdge) {
+                    // 端に近い → 中心方向にダッシュ
+                    const cdiff = Math.abs(normalizeAngle(ai.angle - toCenterAngle));
+                    shouldMove = cdiff < params.aimTol * 5.0;
+                } else if (distToTarget > arenaRadius * 0.55) {
+                    // 相手が遠い → 積極的に詰める (v5: 0.65 → 0.55 に短縮)
+                    const adiff = Math.abs(normalizeAngle(ai.angle - angleToTarget));
+                    shouldMove = adiff < params.aimTol * 4.5;
+                } else {
+                    // 近距離・狙えていない → バーストで速度維持
+                    st.burstTimer = (st.burstTimer + 1) % 8;
+                    shouldMove = st.burstTimer < 3;
+                }
+
+                // MAX専用: 有利ポジション（センター内側）への移動
+                if (aiDifficulty === 'max' && !goodPosition && myEdge < 0.50) {
+                    const cdiff = Math.abs(normalizeAngle(ai.angle - toCenterAngle));
+                    if (cdiff < 0.30) shouldMove = true;
+                }
+
+                // v5追加: MAXが遠距離で待機しているときは積極的に近づく
+                if (aiDifficulty === 'max' && distToTarget > arenaRadius * 0.80) {
+                    const adiff = Math.abs(normalizeAngle(ai.angle - angleToTarget));
+                    if (adiff < params.aimTol * 6.0) shouldMove = true;
+                }
+            }
+
+            st.decision = shouldAttack || shouldMove;
+            ai.isDashing = st.decision;
+        }
+
+        function update() {
+            if (gameState === 'menu' || gameState === 'game_over') return;
+
+            // アリーナの縮小（サドンデス）
+            if (gameState === 'playing') {
+                arenaRadius -= 0.05;
+                if (arenaRadius < 50) arenaRadius = 50;
+            }
+
+            // プレイヤーの更新
+            players.forEach(p => {
+                if (!p.isAlive) return;
+
+                // AI制御
+                if (aiPlayers.has(p.id) && gameState === 'playing') {
+                    updateAI(p);
+                }
+
+                if (gameState === 'playing' || gameState === 'countdown') {
+                    // 回転とダッシュ
+                    if (p.isDashing && gameState === 'playing') {
+                        p.angle += 0.02; // ダッシュ中はゆっくり回転（狙いを定めるため）
+                        p.vx += Math.cos(p.angle) * 0.7; // 加速
+                        p.vy += Math.sin(p.angle) * 0.7;
+                        
+                        // ダッシュトレイルパーティクル
+                        if (Math.random() > 0.3) {
+                            const trailX = p.x - Math.cos(p.angle) * p.radius;
+                            const trailY = p.y - Math.sin(p.angle) * p.radius;
+                            const spd = Math.hypot(p.vx, p.vy);
+                            particles.push(new Particle(
+                                trailX + (Math.random()-0.5)*6,
+                                trailY + (Math.random()-0.5)*6,
+                                p.color,
+                                -Math.cos(p.angle) * (1 + spd*0.15) + (Math.random()-0.5)*0.8,
+                                -Math.sin(p.angle) * (1 + spd*0.15) + (Math.random()-0.5)*0.8,
+                                12 + Math.floor(spd*1.2),
+                                Math.random() < 0.35 ? 'spark' : 'dot'
+                            ));
+                        }
+                    } else {
+                        p.angle += 0.08; // 通常時は速く回転
+                    }
+
+                    // 摩擦
+                    p.vx *= 0.94;
+                    p.vy *= 0.94;
+
+                    // 位置更新
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    // リングアウト判定
+                    if (gameState === 'playing') {
+                        const distFromCenter = Math.hypot(p.x - centerX, p.y - centerY);
+                        if (distFromCenter > arenaRadius + p.radius) {
+                            p.isAlive = false;
+                            screenShake = 18;
+                            spawnDeathFX(p.x, p.y, p.color);
+                            // UIのハイライトを消す
+                            document.getElementById(`zone-${p.id}`).classList.remove('active');
+                        }
+                    }
+                }
+            });
+
+            if (gameState === 'playing') {
+                checkCollisions();
+
+                // 勝敗判定
+                const alivePlayers = players.filter(p => p.isAlive);
+                if (alivePlayers.length <= 1) {
+                    gameState = 'round_end';
+                    if (alivePlayers.length === 1) {
+                        const winner = alivePlayers[0];
+                        scores[winner.id]++;
+                        updateScoreBoard();
+                        
+                        if (scores[winner.id] >= targetScore) {
+                            // 最終勝利
+                            setTimeout(() => {
+                                gameState = 'game_over';
+                                showMessage(`WINNER`, 0, winner.color);
+                                document.getElementById('message-text').innerHTML = `<span style="color:${winner.color}">${PLAYER_CONFIG[winner.id].name}</span><br><span style="font-size:0.5em;color:#fff">CHAMPION!</span>`;
+                                setTimeout(() => {
+                                    document.getElementById('message-overlay').classList.add('hidden');
+                                    returnToMenu();
+                                }, 4000);
+                            }, 1000);
+                        } else {
+                            // ラウンド勝利
+                            showMessage(`ROUND WINNER!`, 2000, winner.color);
+                            setTimeout(startRound, 2500);
+                        }
+                    } else {
+                        // 引き分け（相打ち）
+                        showMessage(`DRAW!`, 2000, '#94a3b8');
+                        setTimeout(startRound, 2500);
+                    }
+                }
+            }
+
+            // パーティクル更新
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                if (particles[i].life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            
+            // 画面揺れ減衰
+            if (screenShake > 0) {
+                screenShake *= 0.85;
+                if (screenShake < 0.5) screenShake = 0;
+            }
+        }
+
+        // --- 描画ロジック ---
+        function drawGrid() {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.lineWidth = 1;
+            const gridSize = 60;
+            
+            ctx.beginPath();
+            for (let x = centerX % gridSize; x < canvas.width; x += gridSize) {
+                ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
+            }
+            for (let y = centerY % gridSize; y < canvas.height; y += gridSize) {
+                ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
+            }
+            ctx.stroke();
+        }
+
+        function draw() {
+            // 背景（残像効果のために半透明で塗りつぶす）
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            // 画面揺れ適用
+            if (screenShake > 0) {
+                const dx = (Math.random() - 0.5) * screenShake;
+                const dy = (Math.random() - 0.5) * screenShake;
+                ctx.translate(dx, dy);
+            }
+
+            // メニュー画面以外ではアリーナを描画
+            if (gameState !== 'menu' && gameState !== 'game_over') {
+                drawGrid();
+
+                // アリーナ（土俵）の描画
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, arenaRadius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.82)';
+                ctx.fill();
+                
+                // 内側グロー (アリーナ床)
+                const floorGradient = ctx.createRadialGradient(centerX, centerY, arenaRadius*0.3, centerX, centerY, arenaRadius);
+                floorGradient.addColorStop(0, 'rgba(6, 182, 212, 0.03)');
+                floorGradient.addColorStop(1, 'rgba(6, 182, 212, 0.00)');
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, arenaRadius, 0, Math.PI * 2);
+                ctx.fillStyle = floorGradient;
+                ctx.fill();
+
+                // アリーナ外周ネオンリング
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = arenaRadius < 120 ? 'rgba(255, 50, 50, 0.9)' : 'rgba(255, 255, 255, 0.35)';
+                ctx.shadowBlur = arenaRadius < 120 ? 30 : 18;
+                ctx.shadowColor = arenaRadius < 120 ? 'rgba(255, 50, 50, 0.8)' : 'rgba(100, 200, 255, 0.6)';
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, arenaRadius, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                // 危険帯: 外側にグラデーション
+                const dangerGradient = ctx.createRadialGradient(centerX, centerY, arenaRadius - 40, centerX, centerY, arenaRadius + 120);
+                dangerGradient.addColorStop(0, 'rgba(225, 29, 72, 0.00)');
+                dangerGradient.addColorStop(0.4, 'rgba(225, 29, 72, 0.08)');
+                dangerGradient.addColorStop(1, 'rgba(225, 29, 72, 0.22)');
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, arenaRadius + 120, 0, Math.PI * 2);
+                ctx.arc(centerX, centerY, Math.max(0, arenaRadius - 1), 0, Math.PI * 2, true);
+                ctx.fillStyle = dangerGradient;
+                ctx.fill();
+            }
+
+            // パーティクル描画
+            particles.forEach(p => p.draw(ctx));
+
+            players.forEach(p => {
+                if (!p.isAlive) return;
+                
+                const spd = Math.hypot(p.vx, p.vy);
+                
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.angle);
+                
+                // ネオン発光効果 (速度に応じて強さが変化)
+                const glowIntensity = p.isDashing ? Math.min(40, 20 + spd * 2) : Math.max(8, spd * 1.5);
+                ctx.shadowBlur = glowIntensity;
+                ctx.shadowColor = p.color;
+                
+                // 外側グロー (アウタリング)
+                if (p.isDashing || spd > 4) {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, p.radius + 5, 0, Math.PI * 2);
+                    const glowAlpha = Math.min(0.4, (spd / 20) + (p.isDashing ? 0.2 : 0));
+                    ctx.fillStyle = p.color.replace(')', `, ${glowAlpha})`).replace('rgb', 'rgba');
+                    ctx.fill();
+                }
+                
+                // 本体
+                ctx.beginPath();
+                ctx.arc(0, 0, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.isDashing ? '#ffffff' : p.color;
+                ctx.fill();
+                
+                // インナーハイライト
+                if (p.isDashing) {
+                    const innerGrad = ctx.createRadialGradient(-p.radius*0.3, -p.radius*0.3, 0, 0, 0, p.radius);
+                    innerGrad.addColorStop(0, 'rgba(255,255,255,0.8)');
+                    innerGrad.addColorStop(1, 'rgba(255,255,255,0.0)');
+                    ctx.beginPath();
+                    ctx.arc(0, 0, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = innerGrad;
+                    ctx.fill();
+                }
+                
+                // 縁取り
+                ctx.lineWidth = 2.5;
+                ctx.strokeStyle = p.isDashing ? p.color : 'rgba(255,255,255,0.7)';
+                ctx.stroke();
+                
+                // 向きを示すインジケーター（矢印）
+                ctx.shadowBlur = 0;
+                ctx.beginPath();
+                ctx.moveTo(p.radius + 9, 0);
+                ctx.lineTo(p.radius + 1, 6);
+                ctx.lineTo(p.radius + 1, -6);
+                ctx.fillStyle = p.isDashing ? p.color : 'rgba(255,255,255,0.85)';
+                ctx.fill();
+                
+                ctx.restore();
+            });
+
+            ctx.restore();
+        }
+
+        // --- メインループ ---
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+        
+        // 起動
+        requestAnimationFrame(loop);
+
+    </script>
 </body>
 </html>
