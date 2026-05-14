@@ -1,1691 +1,1343 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON BUMP - Local Multiplayer Game</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { 
-            margin: 0; 
-            overflow: hidden; 
-            background-color: #0f172a; /* Tailwind slate-900 */
-            touch-action: none; 
-            user-select: none; 
-            -webkit-user-select: none;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        /* Glassmorphism for UI panels */
-        .glass { 
-            background: rgba(15, 23, 42, 0.6); 
-            backdrop-filter: blur(12px); 
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>イオンマスター｜中3理科1 化学</title>
+<style>
+  :root{
+    --bg:#ffffff;
+    --bg-soft:#fafbfc;
+    --line:#e5e7eb;
+    --line-strong:#d1d5db;
+    --ink:#111827;
+    --ink-sub:#4b5563;
+    --ink-mute:#9ca3af;
+    --accent:#2563eb;
+    --accent-soft:#eff6ff;
+    --good:#059669;
+    --good-soft:#ecfdf5;
+    --bad:#dc2626;
+    --bad-soft:#fef2f2;
+    --warn:#d97706;
+    --warn-soft:#fffbeb;
+    --shadow:0 1px 3px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.03);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI",sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* HEADER */
+  header{
+    border-bottom:1px solid var(--line);
+    padding:14px 20px;
+    background:#fff;
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(10px);
+    background:rgba(255,255,255,.92);
+  }
+  .head-inner{
+    max-width:1100px;margin:0 auto;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+  }
+  .logo{
+    display:flex;align-items:center;gap:10px;
+    font-weight:700;font-size:17px;letter-spacing:.02em;
+  }
+  .logo-mark{
+    width:32px;height:32px;border-radius:8px;
+    background:linear-gradient(135deg,#2563eb,#7c3aed);
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:14px;font-weight:800;
+  }
+  .head-stat{
+    display:flex;gap:18px;font-size:13px;color:var(--ink-sub);
+  }
+  .head-stat b{color:var(--ink);font-weight:700;}
 
-        /* Touch Zones for Mobile/Tablet */
-        .touch-zone { 
-            position: absolute; 
-            width: 50%; 
-            height: 50%; 
-            pointer-events: auto; 
-            display: flex; 
-            padding: 24px; 
-            opacity: 0.15; 
-            transition: all 0.2s ease-out; 
-            z-index: 10;
-        }
-        .touch-zone.active { 
-            opacity: 0.6; 
-        }
-        /* Positions & Gradients for zones */
-        #zone-0 { top: 0; left: 0; justify-content: flex-start; align-items: flex-start; color: #06b6d4; }
-        #zone-0.active { background: radial-gradient(circle at top left, rgba(6, 182, 212, 0.3) 0%, transparent 70%); }
-        
-        #zone-1 { top: 0; right: 0; justify-content: flex-end; align-items: flex-start; color: #d946ef; }
-        #zone-1.active { background: radial-gradient(circle at top right, rgba(217, 70, 239, 0.3) 0%, transparent 70%); }
-        
-        #zone-2 { bottom: 0; left: 0; justify-content: flex-start; align-items: flex-end; color: #eab308; }
-        #zone-2.active { background: radial-gradient(circle at bottom left, rgba(234, 179, 8, 0.3) 0%, transparent 70%); }
-        
-        #zone-3 { bottom: 0; right: 0; justify-content: flex-end; align-items: flex-end; color: #22c55e; }
-        #zone-3.active { background: radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.3) 0%, transparent 70%); }
+  /* TABS */
+  nav.tabs{
+    border-bottom:1px solid var(--line);
+    background:#fff;
+    position:sticky;top:61px;z-index:40;
+  }
+  .tabs-inner{
+    max-width:1100px;margin:0 auto;
+    display:flex;gap:2px;padding:0 12px;overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .tabs-inner::-webkit-scrollbar{display:none;}
+  .tab{
+    padding:14px 16px;font-size:14px;font-weight:600;
+    color:var(--ink-sub);cursor:pointer;
+    border:none;background:none;
+    border-bottom:2px solid transparent;
+    white-space:nowrap;
+    transition:color .15s;
+  }
+  .tab:hover{color:var(--ink);}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
 
-        .key-hint {
-            background: rgba(0,0,0,0.5);
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-weight: 800;
-            font-size: 1.5rem;
-            border: 1px solid currentColor;
-            box-shadow: 0 0 10px currentColor;
-        }
-    </style>
+  /* MAIN */
+  main{max-width:1100px;margin:0 auto;padding:24px 20px 80px;}
+  .panel{display:none;}
+  .panel.active{display:block;animation:fadeIn .25s;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  h2.panel-title{
+    font-size:22px;font-weight:700;margin:0 0 6px;letter-spacing:-.01em;
+  }
+  p.panel-sub{color:var(--ink-sub);font-size:14px;margin:0 0 22px;}
+
+  /* HOME */
+  .home-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:14px;
+    margin-bottom:28px;
+  }
+  .mode-card{
+    border:1px solid var(--line);border-radius:12px;
+    padding:18px;background:#fff;cursor:pointer;
+    transition:all .15s;
+    text-align:left;
+  }
+  .mode-card:hover{
+    border-color:var(--accent);
+    transform:translateY(-2px);
+    box-shadow:0 4px 12px rgba(37,99,235,.08);
+  }
+  .mode-card .icon{
+    width:36px;height:36px;border-radius:8px;
+    background:var(--accent-soft);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;font-weight:700;margin-bottom:10px;
+  }
+  .mode-card h3{margin:0 0 4px;font-size:15px;font-weight:700;}
+  .mode-card p{margin:0;font-size:13px;color:var(--ink-sub);}
+
+  .stat-bar{
+    border:1px solid var(--line);border-radius:12px;padding:18px 20px;
+    background:var(--bg-soft);
+    margin-bottom:24px;
+  }
+  .stat-bar h3{margin:0 0 12px;font-size:14px;color:var(--ink-sub);font-weight:600;}
+  .stat-row{display:flex;gap:24px;flex-wrap:wrap;}
+  .stat-item .num{font-size:24px;font-weight:700;color:var(--ink);}
+  .stat-item .lab{font-size:12px;color:var(--ink-sub);}
+
+  /* TABLES */
+  .ion-table-wrap{
+    display:grid;grid-template-columns:1fr 1fr;gap:20px;
+    margin-bottom:20px;
+  }
+  @media(max-width:760px){.ion-table-wrap{grid-template-columns:1fr;}}
+  .ion-table{
+    border:1px solid var(--line);border-radius:10px;overflow:hidden;
+    background:#fff;
+  }
+  .ion-table h4{
+    margin:0;padding:12px 16px;font-size:14px;
+    background:var(--bg-soft);border-bottom:1px solid var(--line);
+  }
+  .ion-table table{width:100%;border-collapse:collapse;font-size:14px;}
+  .ion-table th,.ion-table td{
+    padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);
+  }
+  .ion-table th{background:#fff;font-weight:600;color:var(--ink-sub);font-size:12px;}
+  .ion-table tr:last-child td{border-bottom:none;}
+  .ion-table tr:hover{background:var(--bg-soft);}
+  .formula{
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-weight:600;color:var(--ink);
+  }
+  .pos-tag{
+    display:inline-block;padding:1px 6px;border-radius:4px;
+    font-size:10px;font-weight:700;margin-left:6px;vertical-align:middle;
+  }
+  .tag-mono{background:#f3f4f6;color:#6b7280;}
+  .tag-poly{background:#ddd6fe;color:#5b21b6;}
+
+  /* FLASHCARD */
+  .flash-area{
+    max-width:560px;margin:0 auto;
+  }
+  .flashcard{
+    border:1px solid var(--line);border-radius:16px;
+    padding:50px 30px;text-align:center;
+    background:#fff;min-height:280px;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;
+    cursor:pointer;
+    transition:all .2s;
+    box-shadow:var(--shadow);
+  }
+  .flashcard:hover{border-color:var(--accent);}
+  .flashcard .label{font-size:12px;color:var(--ink-mute);letter-spacing:.1em;text-transform:uppercase;}
+  .flashcard .main{
+    font-size:42px;font-weight:700;letter-spacing:-.01em;
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+  }
+  .flashcard .sub{
+    font-size:18px;color:var(--ink-sub);margin-top:6px;display:none;
+  }
+  .flashcard.flipped .sub{display:block;animation:fadeIn .2s;}
+  .flashcard .hint{
+    font-size:12px;color:var(--ink-mute);margin-top:10px;
+  }
+  .flash-controls{
+    display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap;
+  }
+  .flash-progress{
+    text-align:center;margin-top:14px;font-size:13px;color:var(--ink-sub);
+  }
+  .flash-filter{
+    display:flex;gap:8px;justify-content:center;margin-bottom:18px;flex-wrap:wrap;
+  }
+
+  /* BUTTONS */
+  .btn{
+    border:1px solid var(--line);background:#fff;color:var(--ink);
+    padding:9px 16px;border-radius:8px;font-size:14px;font-weight:500;
+    cursor:pointer;transition:all .1s;
+    font-family:inherit;
+  }
+  .btn:hover{border-color:var(--ink);background:var(--bg-soft);}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .btn.primary:hover{background:#1d4ed8;}
+  .btn.good{background:var(--good);color:#fff;border-color:var(--good);}
+  .btn.good:hover{background:#047857;}
+  .btn.bad{background:var(--bad);color:#fff;border-color:var(--bad);}
+  .btn.bad:hover{background:#b91c1c;}
+  .btn.sm{padding:6px 12px;font-size:12px;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .pill{
+    border:1px solid var(--line);background:#fff;color:var(--ink-sub);
+    padding:6px 12px;border-radius:999px;font-size:12px;cursor:pointer;
+    font-family:inherit;
+    transition:all .1s;
+  }
+  .pill:hover{border-color:var(--ink);}
+  .pill.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+  /* QUIZ */
+  .quiz-area{max-width:640px;margin:0 auto;}
+  .quiz-q{
+    border:1px solid var(--line);border-radius:12px;padding:24px;
+    background:#fff;margin-bottom:16px;
+  }
+  .quiz-q .qhead{font-size:12px;color:var(--ink-mute);letter-spacing:.05em;margin-bottom:8px;}
+  .quiz-q .qmain{font-size:24px;font-weight:600;margin-bottom:6px;font-family:"SF Mono",Menlo,Consolas,monospace;}
+  .quiz-q .qprompt{font-size:14px;color:var(--ink-sub);}
+  .quiz-options{display:grid;gap:8px;}
+  .quiz-opt{
+    border:1px solid var(--line);background:#fff;
+    padding:14px 16px;border-radius:10px;text-align:left;
+    font-size:15px;cursor:pointer;transition:all .1s;
+    font-family:inherit;color:var(--ink);
+  }
+  .quiz-opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft);}
+  .quiz-opt.correct{border-color:var(--good);background:var(--good-soft);color:var(--good);font-weight:600;}
+  .quiz-opt.wrong{border-color:var(--bad);background:var(--bad-soft);color:var(--bad);}
+  .quiz-opt:disabled{cursor:default;}
+  .quiz-feedback{
+    text-align:center;margin:16px 0;font-size:14px;min-height:24px;
+  }
+  .quiz-feedback.ok{color:var(--good);font-weight:600;}
+  .quiz-feedback.ng{color:var(--bad);font-weight:600;}
+  .quiz-bar{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:14px;font-size:13px;color:var(--ink-sub);
+  }
+  .progress-track{
+    height:4px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:18px;
+  }
+  .progress-fill{height:100%;background:var(--accent);transition:width .3s;}
+
+  /* TYPING */
+  .type-input{
+    width:100%;font-size:24px;font-family:"SF Mono",Menlo,Consolas,monospace;
+    border:1px solid var(--line-strong);border-radius:10px;
+    padding:14px 18px;text-align:center;
+    outline:none;background:#fff;
+    transition:border-color .15s;
+  }
+  .type-input:focus{border-color:var(--accent);}
+  .type-input.ok{border-color:var(--good);background:var(--good-soft);}
+  .type-input.ng{border-color:var(--bad);background:var(--bad-soft);}
+  .type-helper{
+    text-align:center;font-size:13px;color:var(--ink-sub);margin:12px 0;
+  }
+  .ion-keys{
+    display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:14px;
+  }
+  .ion-key{
+    border:1px solid var(--line);background:#fff;border-radius:6px;
+    padding:6px 10px;font-size:13px;cursor:pointer;font-family:"SF Mono",Menlo,Consolas,monospace;
+  }
+  .ion-key:hover{background:var(--bg-soft);border-color:var(--ink-sub);}
+
+  /* DENRI (electrolysis) */
+  .denri-card{
+    border:1px solid var(--line);border-radius:12px;padding:24px;
+    background:#fff;margin-bottom:16px;
+  }
+  .denri-q{
+    text-align:center;margin-bottom:16px;
+  }
+  .denri-q .name{font-size:13px;color:var(--ink-sub);margin-bottom:4px;}
+  .denri-q .formula-big{font-size:32px;font-weight:700;font-family:"SF Mono",Menlo,Consolas,monospace;}
+  .denri-arrow{text-align:center;font-size:24px;color:var(--ink-mute);margin:14px 0;}
+  .denri-build{
+    display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+    min-height:60px;align-items:center;
+    padding:12px;border:2px dashed var(--line);border-radius:10px;
+    background:var(--bg-soft);
+  }
+  .denri-chip{
+    background:#fff;border:1px solid var(--line);border-radius:8px;
+    padding:8px 14px;font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-weight:600;font-size:16px;cursor:pointer;
+    user-select:none;
+    transition:all .1s;
+  }
+  .denri-chip:hover{border-color:var(--accent);}
+  .denri-chip.placed{background:var(--accent-soft);border-color:var(--accent);}
+  .denri-pool{
+    display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px;
+  }
+
+  /* FILL IN BLANKS (穴埋め) */
+  .fill-row{
+    display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:12px;align-items:center;
+    padding:10px 14px;border-bottom:1px solid var(--line);
+    font-size:14px;
+  }
+  .fill-row:hover{background:var(--bg-soft);}
+  .fill-row input{
+    border:1px solid var(--line);border-radius:6px;
+    padding:7px 10px;font-size:14px;font-family:"SF Mono",Menlo,Consolas,monospace;
+    width:100%;outline:none;background:#fff;
+  }
+  .fill-row input:focus{border-color:var(--accent);}
+  .fill-row input.ok{border-color:var(--good);background:var(--good-soft);}
+  .fill-row input.ng{border-color:var(--bad);background:var(--bad-soft);}
+  .fill-table{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;}
+  .fill-head{
+    display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:12px;
+    padding:10px 14px;background:var(--bg-soft);
+    font-size:12px;font-weight:600;color:var(--ink-sub);
+    border-bottom:1px solid var(--line);
+  }
+
+  /* CONFIG / SETTINGS */
+  .setting-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 0;border-bottom:1px solid var(--line);
+  }
+  .setting-row .lab{font-size:14px;font-weight:500;}
+  .setting-row .desc{font-size:12px;color:var(--ink-sub);}
+
+  /* WEAK LIST */
+  .weak-list{display:grid;gap:8px;}
+  .weak-item{
+    border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;background:#fff;
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+  }
+  .weak-item .f{font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:600;font-size:16px;}
+  .weak-item .n{color:var(--ink-sub);font-size:14px;}
+  .weak-item .c{
+    font-size:12px;color:var(--bad);font-weight:600;
+    background:var(--bad-soft);padding:3px 8px;border-radius:99px;
+  }
+
+  /* responsive */
+  @media (max-width:600px){
+    .flashcard{padding:34px 16px;}
+    .flashcard .main{font-size:32px;}
+    h2.panel-title{font-size:20px;}
+    .stat-row{gap:14px;}
+  }
+</style>
 </head>
-<body class="text-white">
-    <!-- Game Canvas -->
-    <canvas id="gameCanvas" class="absolute inset-0 w-full h-full block"></canvas>
-    
-    <!-- UI Layer (pointer-events-none so it doesn't block touches on canvas) -->
-    <div id="ui-container" class="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-20">
-        
-        <!-- Main Menu -->
-        <div id="menu" class="glass p-8 md:p-10 rounded-3xl flex flex-col items-center pointer-events-auto transform transition-all duration-500" style="max-width: 440px; width: 92vw;">
-            <h1 class="text-6xl md:text-8xl font-black tracking-tighter mb-1 italic">
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500" style="filter: drop-shadow(0 0 10px rgba(6,182,212,0.5));">NEON</span>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-500" style="filter: drop-shadow(0 0 10px rgba(217,70,239,0.5));">BUMP</span>
-            </h1>
-            <p class="text-slate-400 text-sm font-bold tracking-[0.2em] mb-4 uppercase text-center">1-Button Survival Arena</p>
+<body>
 
-            <!-- 先取設定 -->
-            <div class="w-full bg-slate-800/60 rounded-xl p-3 border border-slate-700/50 mb-4">
-                <p class="text-xs text-slate-400 font-bold tracking-wider mb-2 text-center">🏆 先取ポイント設定</p>
-                <div class="flex gap-1.5 justify-center">
-                    <button onclick="setTargetScore(1)" id="score-1" class="score-btn flex-1 py-2 rounded-lg text-sm font-bold border transition-all border-slate-600 text-slate-400">1本</button>
-                    <button onclick="setTargetScore(3)" id="score-3" class="score-btn flex-1 py-2 rounded-lg text-sm font-bold border transition-all border-slate-600 text-slate-400">3本</button>
-                    <button onclick="setTargetScore(5)" id="score-5" class="score-btn flex-1 py-2 rounded-lg text-sm font-bold border transition-all border-cyan-400/50 text-cyan-400 bg-cyan-400/10">5本</button>
-                    <button onclick="setTargetScore(7)" id="score-7" class="score-btn flex-1 py-2 rounded-lg text-sm font-bold border transition-all border-slate-600 text-slate-400">7本</button>
-                    <button onclick="setTargetScore(10)" id="score-10" class="score-btn flex-1 py-2 rounded-lg text-sm font-bold border transition-all border-slate-600 text-slate-400">10本</button>
-                </div>
-            </div>
+<header>
+  <div class="head-inner">
+    <div class="logo">
+      <div class="logo-mark">Iᐩ</div>
+      <span>イオンマスター</span>
+    </div>
+    <div class="head-stat">
+      <span><b id="hStreak">0</b> 連続正解</span>
+      <span><b id="hScore">0</b>% 正答率</span>
+      <span><b id="hWeak">0</b> 苦手</span>
+    </div>
+  </div>
+</header>
 
-            <!-- タブ切り替え -->
-            <div class="w-full flex gap-2 mb-4 bg-slate-800/60 rounded-xl p-1">
-                <button id="tab-multi" onclick="switchTab('multi')" class="flex-1 py-2 rounded-lg text-sm font-bold transition-all bg-white/10 text-white">👥 マルチ</button>
-                <button id="tab-vs" onclick="switchTab('vs')" class="flex-1 py-2 rounded-lg text-sm font-bold transition-all text-slate-400">🤖 vs AI</button>
-            </div>
+<nav class="tabs">
+  <div class="tabs-inner">
+    <button class="tab active" data-tab="home">ホーム</button>
+    <button class="tab" data-tab="list">早見表</button>
+    <button class="tab" data-tab="flash">フラッシュ</button>
+    <button class="tab" data-tab="quiz">4択クイズ</button>
+    <button class="tab" data-tab="type">タイピング</button>
+    <button class="tab" data-tab="denri">電離式</button>
+    <button class="tab" data-tab="fill">穴埋め表</button>
+    <button class="tab" data-tab="weak">苦手リスト</button>
+    <button class="tab" data-tab="setting">設定</button>
+  </div>
+</nav>
 
-            <!-- マルチプレイパネル -->
-            <div id="panel-multi" class="w-full flex flex-col gap-2.5">
-                <button onclick="startGame(2, [])" class="group relative py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-400/50 transition-all flex justify-between items-center cursor-pointer">
-                    <span class="font-bold text-xl group-hover:text-cyan-400 transition-colors">2人プレイ</span>
-                    <span class="text-sm text-slate-500 group-hover:text-slate-300">Q / P</span>
-                </button>
-                <button onclick="startGame(3, [])" class="group relative py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-fuchsia-400/50 transition-all flex justify-between items-center cursor-pointer">
-                    <span class="font-bold text-xl group-hover:text-fuchsia-400 transition-colors">3人プレイ</span>
-                    <span class="text-sm text-slate-500 group-hover:text-slate-300">Q / P / Z</span>
-                </button>
-                <button onclick="startGame(4, [])" class="group relative py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-yellow-400/50 transition-all flex justify-between items-center cursor-pointer">
-                    <span class="font-bold text-xl group-hover:text-yellow-400 transition-colors">4人プレイ</span>
-                    <span class="text-sm text-slate-500 group-hover:text-slate-300">Q / P / Z / M</span>
-                </button>
-            </div>
+<main>
 
-            <!-- vs AIパネル -->
-            <div id="panel-vs" class="w-full flex-col gap-2.5 hidden">
-                <!-- 難易度選択 -->
-                <div class="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
-                    <p class="text-xs text-slate-400 font-bold tracking-wider mb-2 text-center">AI 難易度</p>
-                    <div class="flex gap-1">
-                        <button onclick="setDifficulty('easy')" id="diff-easy" class="diff-btn flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all border-green-400/50 text-green-400 bg-green-400/10">かんたん</button>
-                        <button onclick="setDifficulty('normal')" id="diff-normal" class="diff-btn flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all border-slate-600 text-slate-400">ふつう</button>
-                        <button onclick="setDifficulty('hard')" id="diff-hard" class="diff-btn flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all border-slate-600 text-slate-400">むずかしい</button>
-                        <button onclick="setDifficulty('max')" id="diff-max" class="diff-btn flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all border-slate-600 text-slate-400">最強</button>
-                    </div>
-                </div>
-                <!-- モード選択 -->
-                <button onclick="startGame(2, [1])" class="group py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-400/50 transition-all flex justify-between items-center cursor-pointer">
-                    <div>
-                        <span class="font-bold text-xl block group-hover:text-cyan-400 transition-colors">1 vs AI</span>
-                        <span class="text-xs text-slate-500">あなた(Q) vs AI</span>
-                    </div>
-                    <span class="text-2xl">🥊</span>
-                </button>
-                <button onclick="startGame(3, [1,2])" class="group py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-fuchsia-400/50 transition-all flex justify-between items-center cursor-pointer">
-                    <div>
-                        <span class="font-bold text-xl block group-hover:text-fuchsia-400 transition-colors">1P vs 2 AI</span>
-                        <span class="text-xs text-slate-500">あなた(Q) vs AI×2</span>
-                    </div>
-                    <span class="text-2xl">🔥</span>
-                </button>
-                <button onclick="startGame(4, [1,2,3])" class="group py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-red-400/50 transition-all flex justify-between items-center cursor-pointer">
-                    <div>
-                        <span class="font-bold text-xl block group-hover:text-red-400 transition-colors">1P vs 3 AI</span>
-                        <span class="text-xs text-slate-500">あなた(Q) vs AI×3</span>
-                    </div>
-                    <span class="text-2xl">💀</span>
-                </button>
-                <button onclick="startGame(4, [0,1,2,3])" class="group py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-yellow-400/50 transition-all flex justify-between items-center cursor-pointer">
-                    <div>
-                        <span class="font-bold text-xl block group-hover:text-yellow-400 transition-colors">AI 同士の対戦を観る</span>
-                        <span class="text-xs text-slate-500">AI×4 バトルロイヤル</span>
-                    </div>
-                    <span class="text-2xl">👁️</span>
-                </button>
-            </div>
-            
-            <div class="mt-4 text-center bg-slate-800/50 p-3 rounded-lg border border-slate-700 w-full">
-                <p class="text-xs text-slate-300">
-                    <span class="text-white font-bold">ルール：</span>
-                    ボタンを<span class="text-cyan-400 font-bold">長押し</span>してダッシュ！相手を円の外に押し出せ！
-                </p>
-            </div>
-        </div>
+<!-- ============== HOME ============== -->
+<section class="panel active" id="panel-home">
+  <h2 class="panel-title">こんにちは 👋</h2>
+  <p class="panel-sub">表穴埋めだけで10点。イオン式・イオン名・電離式の3点を確実に。</p>
 
-        <!-- Score Board -->
-        <div id="score-board" class="absolute top-6 w-full flex justify-center gap-6 md:gap-12 transition-opacity duration-500 opacity-0 hidden">
-            <!-- Dynamically generated -->
-        </div>
+  <div class="stat-bar">
+    <h3>今日の学習状況</h3>
+    <div class="stat-row">
+      <div class="stat-item"><div class="num" id="sTotal">0</div><div class="lab">出題数</div></div>
+      <div class="stat-item"><div class="num" id="sCorrect">0</div><div class="lab">正解数</div></div>
+      <div class="stat-item"><div class="num" id="sAcc">—</div><div class="lab">正答率</div></div>
+      <div class="stat-item"><div class="num" id="sBest">0</div><div class="lab">連続最高</div></div>
+    </div>
+  </div>
 
-        <!-- Central Message -->
-        <div id="message-overlay" class="absolute inset-0 flex items-center justify-center hidden pointer-events-none">
-            <h2 id="message-text" class="text-5xl md:text-8xl font-black uppercase italic tracking-widest text-center" style="transform: scale(0.5); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></h2>
-        </div>
+  <div class="home-grid">
+    <button class="mode-card" data-go="list">
+      <div class="icon">📖</div>
+      <h3>早見表で確認</h3>
+      <p>陽イオン17＋陰イオン17、電離式23本をまとめて閲覧</p>
+    </button>
+    <button class="mode-card" data-go="flash">
+      <div class="icon">🃏</div>
+      <h3>フラッシュカード</h3>
+      <p>イオン式 ⇄ イオン名 を高速反復。タップで裏返し</p>
+    </button>
+    <button class="mode-card" data-go="quiz">
+      <div class="icon">✅</div>
+      <h3>4択クイズ</h3>
+      <p>テスト形式で出題。苦手を自動検出して再出題</p>
+    </button>
+    <button class="mode-card" data-go="type">
+      <div class="icon">⌨️</div>
+      <h3>タイピング演習</h3>
+      <p>イオン式を自分の手で書く。記述式テスト対策に最適</p>
+    </button>
+    <button class="mode-card" data-go="denri">
+      <div class="icon">⚡</div>
+      <h3>電離式を組み立てる</h3>
+      <p>物質名→電離式を完成。係数までしっかり練習</p>
+    </button>
+    <button class="mode-card" data-go="fill">
+      <div class="icon">📝</div>
+      <h3>穴埋め表モード</h3>
+      <p>本番の表問題形式。10点分そのまま再現</p>
+    </button>
+  </div>
+
+  <div class="stat-bar" style="background:var(--accent-soft);border-color:#bfdbfe;">
+    <h3 style="color:var(--accent);">💡 出題範囲メモ（先生より）</h3>
+    <ul style="margin:6px 0 0 18px;padding:0;font-size:14px;color:var(--ink);">
+      <li>原子の構造・イオン式イオン名・電離式などの反応式がメイン</li>
+      <li>表穴埋め問題だけで <b>10点分</b></li>
+      <li><b>電気分解は出題されない</b></li>
+      <li>イオン早見表を使って覚えること</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============== LIST ============== -->
+<section class="panel" id="panel-list">
+  <h2 class="panel-title">イオン早見表</h2>
+  <p class="panel-sub">プリント完全準拠｜陽イオン17種・陰イオン17種｜単原子＝灰タグ／多原子＝紫タグ</p>
+
+  <div class="ion-table-wrap">
+    <div class="ion-table">
+      <h4>🔵 陽イオン</h4>
+      <table>
+        <thead><tr><th>イオン式</th><th>イオン名</th></tr></thead>
+        <tbody id="tbl-cation"></tbody>
+      </table>
+    </div>
+    <div class="ion-table">
+      <h4>🔴 陰イオン</h4>
+      <table>
+        <thead><tr><th>イオン式</th><th>イオン名</th></tr></thead>
+        <tbody id="tbl-anion"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2 class="panel-title" style="margin-top:28px;">電離式リスト</h2>
+  <p class="panel-sub">プリント「電離式 練習シート 入門編」全23物質</p>
+  <div class="ion-table">
+    <table>
+      <thead><tr><th style="width:25%;">物質名</th><th style="width:22%;">化学式</th><th>電離式</th></tr></thead>
+      <tbody id="tbl-denri"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============== FLASH ============== -->
+<section class="panel" id="panel-flash">
+  <h2 class="panel-title">フラッシュカード</h2>
+  <p class="panel-sub">カードをタップして裏返し。覚えた／覚えてないで分類すると苦手リストに反映されます。</p>
+
+  <div class="flash-filter">
+    <button class="pill active" data-flashfilter="all">すべて</button>
+    <button class="pill" data-flashfilter="cation">陽イオンのみ</button>
+    <button class="pill" data-flashfilter="anion">陰イオンのみ</button>
+    <button class="pill" data-flashfilter="poly">多原子のみ</button>
+    <button class="pill" data-flashfilter="weak">苦手のみ</button>
+  </div>
+
+  <div class="flash-area">
+    <div class="flash-filter" style="margin-bottom:10px;">
+      <button class="pill" id="flashDirBtn">方向：式 → 名前</button>
+      <button class="pill" id="flashShuffleBtn">🔀 シャッフル</button>
     </div>
 
-    <!-- Touch Controls (Behind UI but in front of canvas) -->
-    <div id="touch-controls" class="absolute inset-0 hidden z-10">
-        <div id="zone-0" class="touch-zone" data-player="0"><span class="key-hint">Q</span></div>
-        <div id="zone-1" class="touch-zone" data-player="1"><span class="key-hint">P</span></div>
-        <div id="zone-2" class="touch-zone hidden" data-player="2"><span class="key-hint">Z</span></div>
-        <div id="zone-3" class="touch-zone hidden" data-player="3"><span class="key-hint">M</span></div>
+    <div class="flashcard" id="flashCard">
+      <div class="label" id="flashLabel">イオン式</div>
+      <div class="main" id="flashFront">—</div>
+      <div class="sub" id="flashBack">—</div>
+      <div class="hint">タップで裏返し</div>
     </div>
 
-    <script>
-        // ============================================================
-        // NEON BUMP Sound Engine — Web Audio API / 完全ローカル
-        // ============================================================
-        const SFX = (() => {
-            let ctx = null;
-            let masterGain = null;
-            let bgmNodes = {};   // BGMノード群
-            let bgmPlaying = false;
+    <div class="flash-controls">
+      <button class="btn" id="flashPrev">← 前へ</button>
+      <button class="btn bad" id="flashNG">✗ あやふや</button>
+      <button class="btn good" id="flashOK">✓ 覚えた</button>
+      <button class="btn" id="flashNext">次へ →</button>
+    </div>
+    <div class="flash-progress" id="flashProgress">— / —</div>
+  </div>
+</section>
 
-            function getCtx() {
-                if (!ctx) {
-                    ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    masterGain = ctx.createGain();
-                    masterGain.gain.value = 0.7;
-                    masterGain.connect(ctx.destination);
-                }
-                if (ctx.state === 'suspended') ctx.resume();
-                return ctx;
-            }
+<!-- ============== QUIZ ============== -->
+<section class="panel" id="panel-quiz">
+  <h2 class="panel-title">4択クイズ</h2>
+  <p class="panel-sub">10問1セット。間違えたものは苦手リストに自動追加されます。</p>
 
-            // 汎用バスを作って返す (gain → master)
-            function bus(gainVal = 1.0) {
-                const g = getCtx().createGain();
-                g.gain.value = gainVal;
-                g.connect(masterGain);
-                return g;
-            }
+  <div class="quiz-area">
+    <div class="flash-filter">
+      <button class="pill active" data-quizmode="mix">式⇄名前 ミックス</button>
+      <button class="pill" data-quizmode="f2n">式→名前</button>
+      <button class="pill" data-quizmode="n2f">名前→式</button>
+    </div>
 
-            // ノイズバッファ生成
-            function makeNoise(seconds = 0.5) {
-                const ac = getCtx();
-                const buf = ac.createBuffer(1, ac.sampleRate * seconds, ac.sampleRate);
-                const d = buf.getChannelData(0);
-                for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-                return buf;
-            }
+    <div class="quiz-bar">
+      <span>第 <b id="qIdx">1</b> 問 / 10</span>
+      <span>正解 <b id="qOK">0</b> ／ 不正解 <b id="qNG">0</b></span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="qBar" style="width:0%;"></div></div>
 
-            // ──────────────────────────────────────────
-            // BGM: 8bitテクノ風ループ
-            // ──────────────────────────────────────────
-            function startBGM() {
-                if (bgmPlaying) return;
-                bgmPlaying = true;
-                const ac = getCtx();
-                const bgmGain = ac.createGain();
-                bgmGain.gain.value = 0.18;
-                bgmGain.connect(masterGain);
-                bgmNodes.gain = bgmGain;
+    <div class="quiz-q">
+      <div class="qhead" id="qHead">問題</div>
+      <div class="qmain" id="qMain">—</div>
+      <div class="qprompt" id="qPrompt">正しい答えを選んでください</div>
+    </div>
 
-                // BPM 140, 1小節 = 60/140*4 ≈ 1.714s
-                const BPM = 140;
-                const beat = 60 / BPM;
-                const bar = beat * 4;
+    <div class="quiz-options" id="quizOptions"></div>
+    <div class="quiz-feedback" id="quizFeedback"></div>
 
-                // ベースライン音程 (A2〜A3 pentatonic)
-                const bassNotes = [110, 110, 138.6, 165, 138.6, 110, 82.4, 110];
-                // リードメロ音程
-                const leadNotes = [440, 550, 660, 550, 440, 330, 440, 0, 660, 0, 550, 440, 330, 440, 550, 0];
+    <div style="text-align:center;margin-top:8px;">
+      <button class="btn" id="quizNext" style="display:none;">次の問題 →</button>
+      <button class="btn primary" id="quizRestart" style="display:none;">もう一度</button>
+    </div>
+  </div>
+</section>
 
-                let startTime = ac.currentTime + 0.05;
-                const scheduleBar = () => {
-                    if (!bgmPlaying) return;
-                    const t0 = startTime;
+<!-- ============== TYPE ============== -->
+<section class="panel" id="panel-type">
+  <h2 class="panel-title">タイピング演習</h2>
+  <p class="panel-sub">イオン名から化学式を入力。記号入力に慣れるためのヘルパーキー付き。</p>
 
-                    // ── キック（4つ打ち）
-                    for (let i = 0; i < 4; i++) {
-                        const t = t0 + i * beat;
-                        const osc = ac.createOscillator();
-                        const g   = ac.createGain();
-                        osc.connect(g); g.connect(bgmGain);
-                        osc.frequency.setValueAtTime(160, t);
-                        osc.frequency.exponentialRampToValueAtTime(40, t + 0.18);
-                        g.gain.setValueAtTime(1.2, t);
-                        g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
-                        osc.start(t); osc.stop(t + 0.23);
-                    }
+  <div class="flash-area">
+    <div class="flash-filter">
+      <button class="pill active" data-typemode="ion">イオン式</button>
+      <button class="pill" data-typemode="denri">電離式（左辺→右辺）</button>
+    </div>
 
-                    // ── スネア（2・4拍）
-                    for (let i = 1; i < 4; i += 2) {
-                        const t = t0 + i * beat;
-                        const nSrc = ac.createBufferSource();
-                        nSrc.buffer = makeNoise(0.15);
-                        const filt = ac.createBiquadFilter();
-                        filt.type = 'bandpass'; filt.frequency.value = 2200; filt.Q.value = 0.8;
-                        const g = ac.createGain();
-                        nSrc.connect(filt); filt.connect(g); g.connect(bgmGain);
-                        g.gain.setValueAtTime(0.7, t);
-                        g.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
-                        nSrc.start(t); nSrc.stop(t + 0.14);
-                    }
+    <div class="flashcard">
+      <div class="label" id="typeLabel">イオン名</div>
+      <div class="main" id="typeQ" style="font-size:28px;">—</div>
+    </div>
 
-                    // ── ハイハット（8分）
-                    for (let i = 0; i < 8; i++) {
-                        const t = t0 + i * beat * 0.5;
-                        const nSrc = ac.createBufferSource();
-                        nSrc.buffer = makeNoise(0.05);
-                        const filt = ac.createBiquadFilter();
-                        filt.type = 'highpass'; filt.frequency.value = 8000;
-                        const g = ac.createGain();
-                        nSrc.connect(filt); filt.connect(g); g.connect(bgmGain);
-                        g.gain.setValueAtTime(i % 2 === 0 ? 0.28 : 0.14, t);
-                        g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
-                        nSrc.start(t); nSrc.stop(t + 0.045);
-                    }
+    <input type="text" class="type-input" id="typeInput" placeholder="ここに化学式を入力（例: Na+）" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="ion-keys" id="ionKeys">
+      <button class="ion-key" data-ins="₂">₂</button>
+      <button class="ion-key" data-ins="₃">₃</button>
+      <button class="ion-key" data-ins="₄">₄</button>
+      <button class="ion-key" data-ins="⁺">⁺</button>
+      <button class="ion-key" data-ins="⁻">⁻</button>
+      <button class="ion-key" data-ins="²⁺">²⁺</button>
+      <button class="ion-key" data-ins="²⁻">²⁻</button>
+      <button class="ion-key" data-ins="³⁺">³⁺</button>
+      <button class="ion-key" data-ins="³⁻">³⁻</button>
+    </div>
+    <div class="type-helper">
+      💡 普通の <code>2</code> や <code>+</code> で入力してもOK。自動でイオン記号に判定します。
+    </div>
 
-                    // ── ベースライン（8音）
-                    for (let i = 0; i < 8; i++) {
-                        const t = t0 + i * beat * 0.5;
-                        const freq = bassNotes[i];
-                        const osc = ac.createOscillator();
-                        const g   = ac.createGain();
-                        osc.type = 'sawtooth';
-                        const filt = ac.createBiquadFilter();
-                        filt.type = 'lowpass'; filt.frequency.value = 600;
-                        osc.connect(filt); filt.connect(g); g.connect(bgmGain);
-                        osc.frequency.value = freq;
-                        g.gain.setValueAtTime(0.6, t);
-                        g.gain.exponentialRampToValueAtTime(0.001, t + beat * 0.45);
-                        osc.start(t); osc.stop(t + beat * 0.46);
-                    }
+    <div class="flash-controls">
+      <button class="btn" id="typeSkip">スキップ</button>
+      <button class="btn primary" id="typeCheck">答え合わせ</button>
+      <button class="btn" id="typeNext">次へ →</button>
+    </div>
+    <div class="flash-progress" id="typeFeedback">—</div>
+  </div>
+</section>
 
-                    // ── リードシンセ（16音）
-                    for (let i = 0; i < 16; i++) {
-                        const freq = leadNotes[i];
-                        if (freq === 0) continue;
-                        const t = t0 + i * beat * 0.25;
-                        const osc = ac.createOscillator();
-                        const g   = ac.createGain();
-                        osc.type = 'square';
-                        osc.connect(g); g.connect(bgmGain);
-                        osc.frequency.value = freq;
-                        g.gain.setValueAtTime(0.22, t);
-                        g.gain.exponentialRampToValueAtTime(0.001, t + beat * 0.22);
-                        osc.start(t); osc.stop(t + beat * 0.23);
-                    }
+<!-- ============== DENRI ============== -->
+<section class="panel" id="panel-denri">
+  <h2 class="panel-title">電離式を組み立てる</h2>
+  <p class="panel-sub">下のチップをタップして右辺を完成させよう。係数も含めて正確に。</p>
 
-                    startTime += bar;
-                    bgmNodes.timer = setTimeout(scheduleBar, (bar - 0.1) * 1000);
-                };
-                scheduleBar();
-            }
+  <div class="quiz-area">
+    <div class="denri-card">
+      <div class="denri-q">
+        <div class="name" id="denriName">—</div>
+        <div class="formula-big" id="denriLeft">—</div>
+      </div>
+      <div class="denri-arrow">↓</div>
+      <div class="denri-build" id="denriBuild">
+        <span style="color:var(--ink-mute);font-size:14px;">↓ ここに組み立て</span>
+      </div>
+      <div class="denri-pool" id="denriPool"></div>
+    </div>
 
-            function stopBGM() {
-                bgmPlaying = false;
-                clearTimeout(bgmNodes.timer);
-                if (bgmNodes.gain) {
-                    bgmNodes.gain.gain.setTargetAtTime(0, getCtx().currentTime, 0.1);
-                }
-            }
+    <div class="quiz-feedback" id="denriFeedback"></div>
 
-            // ──────────────────────────────────────────
-            // SFX: 衝突
-            // impulse = 衝突の強さ (3〜15程度)
-            // ──────────────────────────────────────────
-            function collision(impulse) {
-                const ac = getCtx();
-                const g = bus(Math.min(1.0, impulse / 10));
-                const now = ac.currentTime;
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn" id="denriClear">クリア</button>
+      <button class="btn primary" id="denriCheck">答え合わせ</button>
+      <button class="btn" id="denriShow">答えを見る</button>
+      <button class="btn" id="denriNext">次の物質 →</button>
+    </div>
+  </div>
+</section>
 
-                // 低音パンチ
-                const sub = ac.createOscillator();
-                const subG = ac.createGain();
-                sub.connect(subG); subG.connect(g);
-                sub.frequency.setValueAtTime(180, now);
-                sub.frequency.exponentialRampToValueAtTime(60, now + 0.08);
-                subG.gain.setValueAtTime(1.0, now);
-                subG.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-                sub.start(now); sub.stop(now + 0.13);
+<!-- ============== FILL ============== -->
+<section class="panel" id="panel-fill">
+  <h2 class="panel-title">穴埋め表モード</h2>
+  <p class="panel-sub">本番の「表穴埋め問題（10点分）」と同じ形式。空欄を埋めて「答え合わせ」を押してください。</p>
 
-                // メタリックノイズ
-                const ns = ac.createBufferSource();
-                ns.buffer = makeNoise(0.1);
-                const filt = ac.createBiquadFilter();
-                filt.type = 'bandpass'; filt.frequency.value = 1200 + impulse * 80; filt.Q.value = 2;
-                const nsG = ac.createGain();
-                ns.connect(filt); filt.connect(nsG); nsG.connect(g);
-                nsG.gain.setValueAtTime(0.6, now);
-                nsG.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-                ns.start(now); ns.stop(now + 0.09);
+  <div class="flash-filter">
+    <button class="pill active" data-fillmode="cation">陽イオン編</button>
+    <button class="pill" data-fillmode="anion">陰イオン編</button>
+    <button class="pill" data-fillmode="denri">電離式編</button>
+  </div>
 
-                // 高音スパーク（強衝突時のみ）
-                if (impulse > 8) {
-                    const sp = ac.createOscillator();
-                    const spG = ac.createGain();
-                    sp.type = 'sawtooth';
-                    sp.connect(spG); spG.connect(g);
-                    sp.frequency.setValueAtTime(800, now);
-                    sp.frequency.exponentialRampToValueAtTime(200, now + 0.06);
-                    spG.gain.setValueAtTime(0.4, now);
-                    spG.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
-                    sp.start(now); sp.stop(now + 0.08);
-                }
-            }
+  <div class="fill-table">
+    <div class="fill-head" id="fillHead">
+      <div>物質名</div><div>イオン式</div><div>イオン名</div>
+    </div>
+    <div id="fillBody"></div>
+  </div>
 
-            // ──────────────────────────────────────────
-            // SFX: ダッシュ開始
-            // ──────────────────────────────────────────
-            function dashStart() {
-                const ac = getCtx();
-                const g = bus(0.18);
-                const now = ac.currentTime;
-                const osc = ac.createOscillator();
-                const og = ac.createGain();
-                osc.type = 'sawtooth';
-                osc.connect(og); og.connect(g);
-                osc.frequency.setValueAtTime(120, now);
-                osc.frequency.exponentialRampToValueAtTime(280, now + 0.07);
-                og.gain.setValueAtTime(0.6, now);
-                og.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
-                osc.start(now); osc.stop(now + 0.1);
-            }
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px;">
+    <button class="btn" id="fillReset">リセット</button>
+    <button class="btn primary" id="fillCheck">答え合わせ</button>
+    <button class="btn" id="fillShow">答えを表示</button>
+  </div>
+  <div class="quiz-feedback" id="fillFeedback"></div>
+</section>
 
-            // ──────────────────────────────────────────
-            // SFX: 死亡（リングアウト）
-            // ──────────────────────────────────────────
-            function death() {
-                const ac = getCtx();
-                const g = bus(0.9);
-                const now = ac.currentTime;
+<!-- ============== WEAK ============== -->
+<section class="panel" id="panel-weak">
+  <h2 class="panel-title">苦手リスト</h2>
+  <p class="panel-sub">クイズ・タイピングで間違えたものが自動的にここに集まります。優先して復習を。</p>
+  <div class="weak-list" id="weakList"></div>
+  <div style="text-align:center;margin-top:20px;">
+    <button class="btn bad" id="weakClear">苦手リストを全消去</button>
+  </div>
+</section>
 
-                // 爆発低音
-                const sub = ac.createOscillator();
-                const subG = ac.createGain();
-                sub.connect(subG); subG.connect(g);
-                sub.frequency.setValueAtTime(120, now);
-                sub.frequency.exponentialRampToValueAtTime(25, now + 0.5);
-                subG.gain.setValueAtTime(1.2, now);
-                subG.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
-                sub.start(now); sub.stop(now + 0.56);
+<!-- ============== SETTING ============== -->
+<section class="panel" id="panel-setting">
+  <h2 class="panel-title">設定</h2>
+  <p class="panel-sub">学習データはこの端末のブラウザに保存されています（オフラインでも動作）。</p>
+  <div class="setting-row">
+    <div>
+      <div class="lab">学習データをリセット</div>
+      <div class="desc">出題数・正解数・連続記録・苦手リストをすべて初期化します</div>
+    </div>
+    <button class="btn bad" id="resetAll">リセット</button>
+  </div>
+  <div class="setting-row">
+    <div>
+      <div class="lab">バージョン</div>
+      <div class="desc">中3 1学期中間考査範囲｜化学イオン特化版</div>
+    </div>
+    <div style="font-family:monospace;color:var(--ink-mute);">v1.0</div>
+  </div>
+</section>
 
-                // ホワイトノイズ爆発
-                const ns = ac.createBufferSource();
-                ns.buffer = makeNoise(0.6);
-                const filt = ac.createBiquadFilter();
-                filt.type = 'lowpass'; filt.frequency.value = 3000;
-                const nsG = ac.createGain();
-                ns.connect(filt); filt.connect(nsG); nsG.connect(g);
-                nsG.gain.setValueAtTime(1.0, now);
-                nsG.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-                ns.start(now); ns.stop(now + 0.55);
+</main>
 
-                // 悲鳴的な下降音
-                const cry = ac.createOscillator();
-                const cryG = ac.createGain();
-                cry.type = 'sawtooth';
-                cry.connect(cryG); cryG.connect(g);
-                cry.frequency.setValueAtTime(600, now + 0.05);
-                cry.frequency.exponentialRampToValueAtTime(80, now + 0.55);
-                cryG.gain.setValueAtTime(0.5, now + 0.05);
-                cryG.gain.exponentialRampToValueAtTime(0.001, now + 0.58);
-                cry.start(now + 0.05); cry.stop(now + 0.59);
-            }
+<script>
+/* ================================================================
+   データ（プリント完全準拠）
+================================================================ */
+const CATIONS = [
+  {f:"H⁺", n:"水素イオン", poly:false},
+  {f:"Li⁺", n:"リチウムイオン", poly:false},
+  {f:"Na⁺", n:"ナトリウムイオン", poly:false},
+  {f:"K⁺", n:"カリウムイオン", poly:false},
+  {f:"Mg²⁺", n:"マグネシウムイオン", poly:false},
+  {f:"Ca²⁺", n:"カルシウムイオン", poly:false},
+  {f:"Ba²⁺", n:"バリウムイオン", poly:false},
+  {f:"Al³⁺", n:"アルミニウムイオン", poly:false},
+  {f:"Cu⁺", n:"銅(I)イオン", poly:false},
+  {f:"Cu²⁺", n:"銅(II)イオン", poly:false},
+  {f:"Fe²⁺", n:"鉄(II)イオン", poly:false},
+  {f:"Fe³⁺", n:"鉄(III)イオン", poly:false},
+  {f:"Zn²⁺", n:"亜鉛イオン", poly:false},
+  {f:"Ni²⁺", n:"ニッケルイオン", poly:false},
+  {f:"Ag⁺", n:"銀イオン", poly:false},
+  {f:"NH₄⁺", n:"アンモニウムイオン", poly:true},
+  {f:"H₃O⁺", n:"オキソニウムイオン", poly:true},
+];
+const ANIONS = [
+  {f:"Cl⁻", n:"塩化物イオン", poly:false},
+  {f:"F⁻", n:"フッ化物イオン", poly:false},
+  {f:"Br⁻", n:"臭化物イオン", poly:false},
+  {f:"I⁻", n:"ヨウ化物イオン", poly:false},
+  {f:"O²⁻", n:"酸化物イオン", poly:false},
+  {f:"S²⁻", n:"硫化物イオン", poly:false},
+  {f:"CN⁻", n:"シアン化物イオン", poly:true},
+  {f:"OH⁻", n:"水酸化物イオン", poly:true},
+  {f:"SO₄²⁻", n:"硫酸イオン", poly:true},
+  {f:"NO₃⁻", n:"硝酸イオン", poly:true},
+  {f:"CO₃²⁻", n:"炭酸イオン", poly:true},
+  {f:"CH₃COO⁻", n:"酢酸イオン", poly:true},
+  {f:"HCO₃⁻", n:"炭酸水素イオン", poly:true},
+  {f:"C₂O₄²⁻", n:"シュウ酸イオン", poly:true},
+  {f:"PO₄³⁻", n:"リン酸イオン", poly:true},
+  {f:"MnO₄⁻", n:"過マンガン酸イオン", poly:true},
+  {f:"Cr₂O₇²⁻", n:"ニクロム酸イオン", poly:true},
+];
 
-            // ──────────────────────────────────────────
-            // SFX: ラウンド開始 "GO!"
-            // ──────────────────────────────────────────
-            function go() {
-                const ac = getCtx();
-                const g = bus(0.8);
-                const now = ac.currentTime;
-                // 上昇ファンファーレ
-                const freqs = [330, 440, 550, 660, 880];
-                freqs.forEach((f, i) => {
-                    const osc = ac.createOscillator();
-                    const og = ac.createGain();
-                    osc.type = 'square';
-                    osc.connect(og); og.connect(g);
-                    osc.frequency.value = f;
-                    const t = now + i * 0.055;
-                    og.gain.setValueAtTime(0, t);
-                    og.gain.linearRampToValueAtTime(0.5, t + 0.03);
-                    og.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-                    osc.start(t); osc.stop(t + 0.19);
-                });
-            }
+// 電離式（プリント「電離式 練習シート 入門編」より完全抽出）
+// parts は右辺をチップに分割（係数・イオンを別チップで管理）
+const DENRI = [
+  {name:"水", left:"H₂O", right:"H⁺ + OH⁻", parts:["H⁺","+","OH⁻"]},
+  {name:"塩酸（塩化水素）", left:"HCl", right:"H⁺ + Cl⁻", parts:["H⁺","+","Cl⁻"]},
+  {name:"水酸化ナトリウム", left:"NaOH", right:"Na⁺ + OH⁻", parts:["Na⁺","+","OH⁻"]},
+  {name:"酸化鉄(II)", left:"FeO", right:"Fe²⁺ + O²⁻", parts:["Fe²⁺","+","O²⁻"]},
+  {name:"酸化鉄(III)", left:"Fe₂O₃", right:"2Fe³⁺ + 3O²⁻", parts:["2Fe³⁺","+","3O²⁻"]},
+  {name:"フッ化カルシウム", left:"CaF₂", right:"Ca²⁺ + 2F⁻", parts:["Ca²⁺","+","2F⁻"]},
+  {name:"硫酸銅(II)", left:"CuSO₄", right:"Cu²⁺ + SO₄²⁻", parts:["Cu²⁺","+","SO₄²⁻"]},
+  {name:"シアン化カリウム", left:"KCN", right:"K⁺ + CN⁻", parts:["K⁺","+","CN⁻"]},
+  {name:"硫酸アルミニウム", left:"Al₂(SO₄)₃", right:"2Al³⁺ + 3SO₄²⁻", parts:["2Al³⁺","+","3SO₄²⁻"]},
+  {name:"ヨウ化銀", left:"AgI", right:"Ag⁺ + I⁻", parts:["Ag⁺","+","I⁻"]},
+  {name:"硫化リチウム", left:"Li₂S", right:"2Li⁺ + S²⁻", parts:["2Li⁺","+","S²⁻"]},
+  {name:"炭酸カルシウム", left:"CaCO₃", right:"Ca²⁺ + CO₃²⁻", parts:["Ca²⁺","+","CO₃²⁻"]},
+  {name:"酢酸ナトリウム", left:"CH₃COONa", right:"Na⁺ + CH₃COO⁻", parts:["Na⁺","+","CH₃COO⁻"]},
+  {name:"硝酸マグネシウム", left:"Mg(NO₃)₂", right:"Mg²⁺ + 2NO₃⁻", parts:["Mg²⁺","+","2NO₃⁻"]},
+  {name:"塩化バリウム", left:"BaCl₂", right:"Ba²⁺ + 2Cl⁻", parts:["Ba²⁺","+","2Cl⁻"]},
+  {name:"硫化亜鉛", left:"ZnS", right:"Zn²⁺ + S²⁻", parts:["Zn²⁺","+","S²⁻"]},
+  {name:"シュウ酸", left:"H₂C₂O₄", right:"2H⁺ + C₂O₄²⁻", parts:["2H⁺","+","C₂O₄²⁻"]},
+  {name:"リン酸カルシウム", left:"Ca₃(PO₄)₂", right:"3Ca²⁺ + 2PO₄³⁻", parts:["3Ca²⁺","+","2PO₄³⁻"]},
+  {name:"硫酸アンモニウム", left:"(NH₄)₂SO₄", right:"2NH₄⁺ + SO₄²⁻", parts:["2NH₄⁺","+","SO₄²⁻"]},
+  {name:"次亜塩素酸ナトリウム", left:"NaClO", right:"Na⁺ + ClO⁻", parts:["Na⁺","+","ClO⁻"]},
+  {name:"炭酸水素ナトリウム", left:"NaHCO₃", right:"Na⁺ + HCO₃⁻", parts:["Na⁺","+","HCO₃⁻"]},
+  {name:"塩素酸カリウム", left:"KClO₃", right:"K⁺ + ClO₃⁻", parts:["K⁺","+","ClO₃⁻"]},
+  {name:"酸化チタン(IV)", left:"TiO₂", right:"Ti⁴⁺ + 2O²⁻", parts:["Ti⁴⁺","+","2O²⁻"]},
+];
 
-            // ──────────────────────────────────────────
-            // SFX: ラウンド勝利
-            // ──────────────────────────────────────────
-            function roundWin() {
-                const ac = getCtx();
-                const g = bus(0.75);
-                const now = ac.currentTime;
-                const melody = [523, 659, 784, 1047, 784, 1047];
-                const times  = [0, 0.12, 0.24, 0.38, 0.52, 0.62];
-                melody.forEach((f, i) => {
-                    const osc = ac.createOscillator();
-                    const og = ac.createGain();
-                    osc.type = 'square';
-                    osc.connect(og); og.connect(g);
-                    osc.frequency.value = f;
-                    const t = now + times[i];
-                    og.gain.setValueAtTime(0.45, t);
-                    og.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
-                    osc.start(t); osc.stop(t + 0.15);
-                });
-            }
+const ALL_IONS = [...CATIONS.map(c=>({...c,charge:"+"})),...ANIONS.map(a=>({...a,charge:"-"}))];
 
-            // ──────────────────────────────────────────
-            // SFX: 最終勝利 (チャンピオン)
-            // ──────────────────────────────────────────
-            function champion() {
-                const ac = getCtx();
-                const g = bus(0.8);
-                const now = ac.currentTime;
-                // 派手なアルペジオ + 和音
-                const phrase = [
-                    [262, 0.00], [330, 0.10], [392, 0.20], [523, 0.30],
-                    [659, 0.42], [784, 0.54], [1047,0.66], [1047,0.80],
-                ];
-                phrase.forEach(([f, dt]) => {
-                    const osc = ac.createOscillator();
-                    const og = ac.createGain();
-                    osc.type = i => i % 2 === 0 ? 'square' : 'sawtooth';
-                    osc.connect(og); og.connect(g);
-                    osc.frequency.value = f;
-                    const t = now + dt;
-                    og.gain.setValueAtTime(0.5, t);
-                    og.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
-                    osc.start(t); osc.stop(t + 0.26);
-                });
-                // 締めのノイズ爆発
-                const ns = ac.createBufferSource();
-                ns.buffer = makeNoise(0.3);
-                const filt = ac.createBiquadFilter();
-                filt.type = 'bandpass'; filt.frequency.value = 1500; filt.Q.value = 1.5;
-                const nsG = ac.createGain();
-                ns.connect(filt); filt.connect(nsG); nsG.connect(g);
-                nsG.gain.setValueAtTime(0.8, now + 0.95);
-                nsG.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
-                ns.start(now + 0.95); ns.stop(now + 1.21);
-            }
+/* ================================================================
+   ストレージ
+================================================================ */
+const STORE_KEY = "ionMaster_v1";
+let state = {
+  total:0, correct:0, streak:0, bestStreak:0,
+  weak:{}, // key=ion.f, value=miss count
+};
+function save(){ try{localStorage.setItem(STORE_KEY, JSON.stringify(state));}catch(e){} }
+function load(){
+  try{
+    const r = localStorage.getItem(STORE_KEY);
+    if(r){ state = Object.assign(state, JSON.parse(r)); }
+  }catch(e){}
+}
+load();
 
-            // ──────────────────────────────────────────
-            // SFX: カウントダウン "ROUND N"
-            // ──────────────────────────────────────────
-            function countBeep(pitch = 440) {
-                const ac = getCtx();
-                const g = bus(0.5);
-                const now = ac.currentTime;
-                const osc = ac.createOscillator();
-                const og = ac.createGain();
-                osc.type = 'sine';
-                osc.connect(og); og.connect(g);
-                osc.frequency.value = pitch;
-                og.gain.setValueAtTime(0.6, now);
-                og.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-                osc.start(now); osc.stop(now + 0.19);
-            }
+function recordCorrect(){
+  state.total++; state.correct++; state.streak++;
+  if(state.streak>state.bestStreak) state.bestStreak=state.streak;
+  save(); renderHeader(); renderHomeStats();
+}
+function recordWrong(key){
+  state.total++; state.streak=0;
+  if(key){ state.weak[key]=(state.weak[key]||0)+1; }
+  save(); renderHeader(); renderHomeStats(); renderWeak();
+}
 
-            // ──────────────────────────────────────────
-            // SFX: アリーナ縮小警告（危険帯になったとき）
-            // ──────────────────────────────────────────
-            function arenaWarning() {
-                const ac = getCtx();
-                const g = bus(0.35);
-                const now = ac.currentTime;
-                const osc = ac.createOscillator();
-                const og = ac.createGain();
-                osc.type = 'sawtooth';
-                osc.connect(og); og.connect(g);
-                osc.frequency.setValueAtTime(220, now);
-                osc.frequency.linearRampToValueAtTime(180, now + 0.3);
-                og.gain.setValueAtTime(0.5, now);
-                og.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-                osc.start(now); osc.stop(now + 0.36);
-            }
+function renderHeader(){
+  document.getElementById("hStreak").textContent = state.streak;
+  document.getElementById("hScore").textContent = state.total ? Math.round(state.correct/state.total*100) : 0;
+  document.getElementById("hWeak").textContent = Object.keys(state.weak).length;
+}
+function renderHomeStats(){
+  document.getElementById("sTotal").textContent = state.total;
+  document.getElementById("sCorrect").textContent = state.correct;
+  document.getElementById("sAcc").textContent = state.total ? Math.round(state.correct/state.total*100)+"%" : "—";
+  document.getElementById("sBest").textContent = state.bestStreak;
+}
 
-            return { startBGM, stopBGM, collision, dashStart, death, go, roundWin, champion, countBeep, arenaWarning };
-        })();
+/* ================================================================
+   タブ切り替え
+================================================================ */
+document.querySelectorAll(".tab").forEach(t=>{
+  t.addEventListener("click", ()=>switchTab(t.dataset.tab));
+});
+document.querySelectorAll("[data-go]").forEach(b=>{
+  b.addEventListener("click", ()=>switchTab(b.dataset.go));
+});
+function switchTab(name){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===name));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active", p.id==="panel-"+name));
+  window.scrollTo({top:0, behavior:"smooth"});
+  if(name==="weak") renderWeak();
+  if(name==="fill") renderFill();
+}
 
-        // --- 設定と状態 ---
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        const PLAYER_CONFIG = [
-            { color: '#06b6d4', name: 'P1 (CYAN)', key: 'q' },    // Cyan
-            { color: '#d946ef', name: 'P2 (PINK)', key: 'p' },    // Pink
-            { color: '#eab308', name: 'P3 (YELLOW)', key: 'z' },  // Yellow
-            { color: '#22c55e', name: 'P4 (GREEN)', key: 'm' }    // Green
-        ];
-        
-        // キーバインディングのマッピング
-        const KEY_MAP = {
-            'q': 0, 'Q': 0, 'ｑ': 0, 'Ｑ': 0,
-            'p': 1, 'P': 1, 'ｐ': 1, 'Ｐ': 1,
-            'z': 2, 'Z': 2, 'ｚ': 2, 'Ｚ': 2,
-            'm': 3, 'M': 3, 'ｍ': 3, 'Ｍ': 3
-        };
+/* ================================================================
+   LIST レンダリング
+================================================================ */
+function tagSpan(poly){
+  return poly ? '<span class="pos-tag tag-poly">多原子</span>' : '<span class="pos-tag tag-mono">単原子</span>';
+}
+function renderList(){
+  document.getElementById("tbl-cation").innerHTML = CATIONS.map(c=>
+    `<tr><td class="formula">${c.f}${tagSpan(c.poly)}</td><td>${c.n}</td></tr>`).join("");
+  document.getElementById("tbl-anion").innerHTML = ANIONS.map(c=>
+    `<tr><td class="formula">${c.f}${tagSpan(c.poly)}</td><td>${c.n}</td></tr>`).join("");
+  document.getElementById("tbl-denri").innerHTML = DENRI.map(d=>
+    `<tr><td>${d.name}</td><td class="formula">${d.left}</td><td class="formula">${d.left} → ${d.right}</td></tr>`).join("");
+}
+renderList();
 
-        let gameState = 'menu'; // menu, countdown, playing, round_end, game_over
-        let playerCount = 2;
-        let players = [];
-        let particles = [];
-        let scores = [0, 0, 0, 0];
-        let targetScore = 5; // 勝利に必要なラウンド数
-        let roundNumber = 0;
-        let aiPlayers = []; // AI制御するプレイヤーIDのセット
-        let aiDifficulty = 'hard'; // easy / normal / hard / max
-        
-        let arenaRadius = 0;
-        let centerX = 0;
-        let centerY = 0;
-        let screenShake = 0;
+/* ================================================================
+   FLASHCARD
+================================================================ */
+let flashList = [];
+let flashIdx = 0;
+let flashFlipped = false;
+let flashDir = "f2n"; // f→n
+let flashFilter = "all";
 
-        // タッチデバイス判定
-        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        if (isTouchDevice) {
-            // タッチデバイスならキー表示を隠す
-            document.querySelectorAll('.key-hint').forEach(el => el.style.display = 'none');
+function buildFlashList(){
+  let src = [];
+  if(flashFilter==="all") src = [...CATIONS,...ANIONS];
+  else if(flashFilter==="cation") src = [...CATIONS];
+  else if(flashFilter==="anion") src = [...ANIONS];
+  else if(flashFilter==="poly") src = [...CATIONS,...ANIONS].filter(x=>x.poly);
+  else if(flashFilter==="weak") src = [...CATIONS,...ANIONS].filter(x=>state.weak[x.f]);
+  if(src.length===0) src=[{f:"—",n:"対象データなし",poly:false}];
+  flashList = src;
+  flashIdx = 0;
+}
+function renderFlash(){
+  if(flashList.length===0){ buildFlashList(); }
+  const c = flashList[flashIdx];
+  flashFlipped = false;
+  const card = document.getElementById("flashCard");
+  card.classList.remove("flipped");
+  if(flashDir==="f2n"){
+    document.getElementById("flashLabel").textContent = "イオン式";
+    document.getElementById("flashFront").innerHTML = c.f;
+    document.getElementById("flashBack").textContent = c.n;
+  }else{
+    document.getElementById("flashLabel").textContent = "イオン名";
+    document.getElementById("flashFront").innerHTML = c.n;
+    document.getElementById("flashFront").style.fontSize = "30px";
+    document.getElementById("flashBack").textContent = c.f;
+    document.getElementById("flashBack").style.fontFamily="SF Mono,Menlo,monospace";
+  }
+  if(flashDir==="f2n"){
+    document.getElementById("flashFront").style.fontSize = "42px";
+    document.getElementById("flashFront").style.fontFamily="SF Mono,Menlo,monospace";
+  }
+  document.getElementById("flashProgress").textContent = `${flashIdx+1} / ${flashList.length}`;
+}
+document.getElementById("flashCard").addEventListener("click", ()=>{
+  flashFlipped = !flashFlipped;
+  document.getElementById("flashCard").classList.toggle("flipped", flashFlipped);
+});
+document.getElementById("flashPrev").addEventListener("click", ()=>{
+  flashIdx = (flashIdx-1+flashList.length)%flashList.length;
+  renderFlash();
+});
+document.getElementById("flashNext").addEventListener("click", ()=>{
+  flashIdx = (flashIdx+1)%flashList.length;
+  renderFlash();
+});
+document.getElementById("flashOK").addEventListener("click", ()=>{
+  const c = flashList[flashIdx];
+  if(state.weak[c.f]){ delete state.weak[c.f]; save(); renderHeader(); renderWeak(); }
+  flashIdx = (flashIdx+1)%flashList.length;
+  renderFlash();
+});
+document.getElementById("flashNG").addEventListener("click", ()=>{
+  const c = flashList[flashIdx];
+  state.weak[c.f] = (state.weak[c.f]||0)+1;
+  save(); renderHeader(); renderWeak();
+  flashIdx = (flashIdx+1)%flashList.length;
+  renderFlash();
+});
+document.getElementById("flashDirBtn").addEventListener("click", ()=>{
+  flashDir = flashDir==="f2n"?"n2f":"f2n";
+  document.getElementById("flashDirBtn").textContent = flashDir==="f2n"?"方向：式 → 名前":"方向：名前 → 式";
+  renderFlash();
+});
+document.getElementById("flashShuffleBtn").addEventListener("click", ()=>{
+  flashList = flashList.map(v=>({v,r:Math.random()})).sort((a,b)=>a.r-b.r).map(x=>x.v);
+  flashIdx = 0; renderFlash();
+});
+document.querySelectorAll("[data-flashfilter]").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    document.querySelectorAll("[data-flashfilter]").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    flashFilter = b.dataset.flashfilter;
+    buildFlashList(); renderFlash();
+  });
+});
+buildFlashList(); renderFlash();
+
+/* ================================================================
+   QUIZ
+================================================================ */
+let quizMode = "mix";
+let quizList = [];
+let quizIdx = 0;
+let quizOK = 0, quizNG = 0;
+let quizPool = [...CATIONS,...ANIONS];
+
+function buildQuiz(){
+  // 苦手を多めに混ぜる
+  const weakItems = quizPool.filter(x=>state.weak[x.f]);
+  let pool = [...quizPool, ...weakItems, ...weakItems]; // 苦手は3倍出やすく
+  pool = pool.sort(()=>Math.random()-0.5);
+  // 重複除いて10問
+  const seen = new Set();
+  quizList = [];
+  for(const it of pool){
+    if(seen.has(it.f)) continue;
+    seen.add(it.f);
+    quizList.push(it);
+    if(quizList.length>=10) break;
+  }
+  quizIdx = 0; quizOK = 0; quizNG = 0;
+}
+function renderQuiz(){
+  if(quizIdx>=quizList.length){
+    // 終了
+    document.getElementById("qMain").textContent = `🎉 ${quizOK}/10 正解！`;
+    document.getElementById("qHead").textContent = "終了";
+    document.getElementById("qPrompt").textContent = quizOK===10 ? "満点！！この調子！" : (quizOK>=8?"あと一歩で満点。苦手リストを復習しよう":"苦手リストを重点的に復習しよう");
+    document.getElementById("quizOptions").innerHTML = "";
+    document.getElementById("quizNext").style.display="none";
+    document.getElementById("quizRestart").style.display="inline-block";
+    document.getElementById("qBar").style.width = "100%";
+    return;
+  }
+  const it = quizList[quizIdx];
+  let dir = quizMode;
+  if(quizMode==="mix") dir = Math.random()<0.5 ? "f2n" : "n2f";
+  it._dir = dir;
+
+  document.getElementById("qIdx").textContent = quizIdx+1;
+  document.getElementById("qOK").textContent = quizOK;
+  document.getElementById("qNG").textContent = quizNG;
+  document.getElementById("qBar").style.width = ((quizIdx)/10*100)+"%";
+
+  if(dir==="f2n"){
+    document.getElementById("qHead").textContent = "このイオン式の名前は？";
+    document.getElementById("qMain").innerHTML = it.f;
+    document.getElementById("qPrompt").textContent = "正しいイオン名を選んでください";
+  }else{
+    document.getElementById("qHead").textContent = "このイオン名の化学式は？";
+    document.getElementById("qMain").textContent = it.n;
+    document.getElementById("qPrompt").textContent = "正しいイオン式を選んでください";
+  }
+
+  // 選択肢生成
+  const wrongs = quizPool.filter(x=>x.f!==it.f).sort(()=>Math.random()-0.5).slice(0,3);
+  const opts = [...wrongs, it].sort(()=>Math.random()-0.5);
+  const optHtml = opts.map(o=>{
+    const txt = dir==="f2n" ? o.n : o.f;
+    return `<button class="quiz-opt" data-f="${o.f}">${txt}</button>`;
+  }).join("");
+  document.getElementById("quizOptions").innerHTML = optHtml;
+  document.getElementById("quizFeedback").textContent = "";
+  document.getElementById("quizNext").style.display = "none";
+  document.getElementById("quizRestart").style.display = "none";
+
+  document.querySelectorAll(".quiz-opt").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const selected = btn.dataset.f;
+      const correct = it.f;
+      document.querySelectorAll(".quiz-opt").forEach(b=>{
+        b.disabled = true;
+        if(b.dataset.f===correct) b.classList.add("correct");
+        else if(b.dataset.f===selected) b.classList.add("wrong");
+      });
+      if(selected===correct){
+        quizOK++;
+        recordCorrect();
+        document.getElementById("quizFeedback").innerHTML = '<span class="ok">✓ 正解！</span>';
+        if(state.weak[it.f]){ delete state.weak[it.f]; save(); renderHeader(); }
+      }else{
+        quizNG++;
+        recordWrong(it.f);
+        document.getElementById("quizFeedback").innerHTML = `<span class="ng">✗ 不正解：正解は <b>${it.f}（${it.n}）</b></span>`;
+      }
+      document.getElementById("quizNext").style.display="inline-block";
+    });
+  });
+}
+document.getElementById("quizNext").addEventListener("click", ()=>{
+  quizIdx++; renderQuiz();
+});
+document.getElementById("quizRestart").addEventListener("click", ()=>{
+  buildQuiz(); renderQuiz();
+});
+document.querySelectorAll("[data-quizmode]").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    document.querySelectorAll("[data-quizmode]").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    quizMode = b.dataset.quizmode;
+    buildQuiz(); renderQuiz();
+  });
+});
+buildQuiz(); renderQuiz();
+
+/* ================================================================
+   TYPING
+================================================================ */
+let typeMode = "ion";
+let typeIdx = 0;
+let typeList = [];
+
+function buildTypeList(){
+  if(typeMode==="ion"){
+    typeList = [...CATIONS,...ANIONS].sort(()=>Math.random()-0.5);
+  }else{
+    typeList = DENRI.slice().sort(()=>Math.random()-0.5);
+  }
+  typeIdx = 0;
+}
+function renderType(){
+  if(typeList.length===0) buildTypeList();
+  const t = typeList[typeIdx];
+  document.getElementById("typeInput").value="";
+  document.getElementById("typeInput").className = "type-input";
+  document.getElementById("typeFeedback").textContent = `${typeIdx+1} / ${typeList.length}`;
+  if(typeMode==="ion"){
+    document.getElementById("typeLabel").textContent = "このイオン名の化学式を入力";
+    document.getElementById("typeQ").textContent = t.n;
+    document.getElementById("typeQ").style.fontSize="28px";
+    document.getElementById("typeInput").placeholder = "例: Na+, SO4 2-, NH4+";
+  }else{
+    document.getElementById("typeLabel").textContent = "この物質の電離式を入力（→の右辺）";
+    document.getElementById("typeQ").innerHTML = `${t.name}<br><span style="font-size:18px;color:var(--ink-mute);">${t.left} →</span>`;
+    document.getElementById("typeQ").style.fontSize="22px";
+    document.getElementById("typeInput").placeholder = "例: 2Na+ + SO4 2-";
+  }
+}
+function normalize(s){
+  if(!s) return "";
+  // 全角→半角、特殊記号正規化
+  let r = s.trim()
+    .replace(/[０-９]/g, ch=>String.fromCharCode(ch.charCodeAt(0)-0xFEE0))
+    .replace(/[₀-₉]/g, ch=>String(ch.charCodeAt(0)-0x2080)) // 下付き→普通の数字
+    .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g, ch=>"⁰¹²³⁴⁵⁶⁷⁸⁹".indexOf(ch)+"")
+    .replace(/⁺/g,"+").replace(/⁻/g,"-")
+    .replace(/[\s　]/g,"") // 空白除去
+    .replace(/→/g,"→");
+  return r;
+}
+function checkType(){
+  const t = typeList[typeIdx];
+  const input = document.getElementById("typeInput").value;
+  const got = normalize(input);
+  let want;
+  if(typeMode==="ion"){
+    want = normalize(t.f);
+  }else{
+    want = normalize(t.right);
+  }
+  const inp = document.getElementById("typeInput");
+  if(got===want){
+    inp.classList.add("ok");
+    document.getElementById("typeFeedback").innerHTML = `<span style="color:var(--good);font-weight:600;">✓ 正解！</span>`;
+    recordCorrect();
+    if(typeMode==="ion" && state.weak[t.f]){ delete state.weak[t.f]; save(); renderHeader(); renderWeak(); }
+  }else{
+    inp.classList.add("ng");
+    const correct = typeMode==="ion" ? t.f : (t.left+" → "+t.right);
+    document.getElementById("typeFeedback").innerHTML = `<span style="color:var(--bad);font-weight:600;">✗ 不正解：正解は ${correct}</span>`;
+    recordWrong(typeMode==="ion" ? t.f : t.left);
+  }
+}
+document.getElementById("typeCheck").addEventListener("click", checkType);
+document.getElementById("typeInput").addEventListener("keydown", e=>{
+  if(e.key==="Enter"){
+    if(document.getElementById("typeInput").classList.contains("ok") || document.getElementById("typeInput").classList.contains("ng")){
+      typeIdx=(typeIdx+1)%typeList.length; renderType();
+    }else{
+      checkType();
+    }
+  }
+});
+document.getElementById("typeNext").addEventListener("click", ()=>{ typeIdx=(typeIdx+1)%typeList.length; renderType(); });
+document.getElementById("typeSkip").addEventListener("click", ()=>{ typeIdx=(typeIdx+1)%typeList.length; renderType(); });
+document.querySelectorAll("[data-typemode]").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    document.querySelectorAll("[data-typemode]").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    typeMode = b.dataset.typemode;
+    buildTypeList(); renderType();
+  });
+});
+document.querySelectorAll(".ion-key").forEach(k=>{
+  k.addEventListener("click", ()=>{
+    const inp = document.getElementById("typeInput");
+    inp.focus();
+    const ins = k.dataset.ins;
+    inp.value += ins;
+  });
+});
+buildTypeList(); renderType();
+
+/* ================================================================
+   DENRI BUILDER
+================================================================ */
+let denriIdx = 0;
+let denriOrder = [];
+let denriBuilt = []; // 配置されたparts
+
+function shuffleDenri(){
+  denriOrder = DENRI.map((_,i)=>i).sort(()=>Math.random()-0.5);
+  denriIdx = 0;
+}
+function renderDenri(){
+  if(denriOrder.length===0) shuffleDenri();
+  const d = DENRI[denriOrder[denriIdx]];
+  document.getElementById("denriName").textContent = d.name;
+  document.getElementById("denriLeft").textContent = d.left;
+  denriBuilt = [];
+  document.getElementById("denriBuild").innerHTML = '<span style="color:var(--ink-mute);font-size:14px;">↓ ここに組み立て</span>';
+  document.getElementById("denriFeedback").textContent = "";
+
+  // プール：正解parts + ダミー2個
+  const correctParts = d.parts.slice();
+  // ダミー：他のDENRIから適当に
+  const allParts = new Set();
+  DENRI.forEach(x=>x.parts.forEach(p=>{ if(p!=="+") allParts.add(p); }));
+  const dummies = [...allParts].filter(p=>!correctParts.includes(p)).sort(()=>Math.random()-0.5).slice(0,3);
+  const poolParts = [...correctParts, ...dummies].sort(()=>Math.random()-0.5);
+
+  const pool = document.getElementById("denriPool");
+  pool.innerHTML = poolParts.map((p,i)=>`<button class="denri-chip" data-i="${i}" data-p="${p}">${p}</button>`).join("");
+  pool.querySelectorAll(".denri-chip").forEach(c=>{
+    c.addEventListener("click", ()=>{
+      if(c.classList.contains("placed")) return;
+      c.classList.add("placed");
+      c.style.display="none";
+      denriBuilt.push(c.dataset.p);
+      renderBuild();
+    });
+  });
+}
+function renderBuild(){
+  const box = document.getElementById("denriBuild");
+  if(denriBuilt.length===0){
+    box.innerHTML = '<span style="color:var(--ink-mute);font-size:14px;">↓ ここに組み立て</span>';
+    return;
+  }
+  box.innerHTML = denriBuilt.map((p,i)=>`<button class="denri-chip placed" data-rm="${i}">${p}</button>`).join("");
+  box.querySelectorAll("[data-rm]").forEach(c=>{
+    c.addEventListener("click", ()=>{
+      const i = parseInt(c.dataset.rm);
+      const removed = denriBuilt.splice(i,1)[0];
+      // プールに戻す
+      document.querySelectorAll("#denriPool .denri-chip").forEach(x=>{
+        if(x.dataset.p===removed && x.style.display==="none"){
+          x.style.display=""; x.classList.remove("placed"); 
         }
-
-        // --- 初期化・リサイズ ---
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            centerX = canvas.width / 2;
-            centerY = canvas.height / 2;
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        // --- パーティクルクラス (軽量版) ---
-        // shadowBlur一切なし、型はdot/ringのみ、プール上限管理
-        const MAX_PARTICLES = 80;
-        class Particle {
-            constructor(x, y, color, vx, vy, life = 20, type = 'dot') {
-                this.x = x; this.y = y;
-                this.vx = vx; this.vy = vy;
-                this.life = life; this.maxLife = life;
-                this.color = color; this.type = type;
-                this.size = Math.random() * 3 + 1.5;
-                this.maxRadius = type === 'ring' ? 55 : 0;
-            }
-            update() {
-                this.x += this.vx; this.y += this.vy;
-                this.vx *= 0.90; this.vy *= 0.90;
-                this.life--;
-            }
-            draw(ctx) {
-                if (this.life <= 0) return;
-                const t = this.life / this.maxLife;
-                ctx.globalAlpha = t;
-                if (this.type === 'ring') {
-                    const r = this.maxRadius * (1 - t);
-                    if (r < 1) return;
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
-                    ctx.strokeStyle = this.color;
-                    ctx.lineWidth = 1.5;
-                    ctx.stroke();
-                } else {
-                    ctx.fillStyle = this.color;
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size * t + 0.5, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                ctx.globalAlpha = 1;
-            }
-        }
-
-        function addParticle(p) {
-            if (particles.length < MAX_PARTICLES) particles.push(p);
-        }
-
-        // 衝突エフェクト: dot×3 + ring×1 のみ
-        function spawnCollisionFX(midX, midY, c1, c2, force) {
-            const spd = force * 0.6 + 1;
-            for (let k = 0; k < 3; k++) {
-                const a = Math.random() * Math.PI * 2;
-                addParticle(new Particle(midX, midY, k === 0 ? '#fff' : k === 1 ? c1 : c2,
-                    Math.cos(a)*spd*(0.5+Math.random()*0.5), Math.sin(a)*spd*(0.5+Math.random()*0.5), 16, 'dot'));
-            }
-            addParticle(new Particle(midX, midY, '#ffffff', 0, 0, 14, 'ring'));
-        }
-
-        // 死亡エフェクト: dot×16 + ring×1
-        function spawnDeathFX(x, y, color) {
-            for (let i = 0; i < 16; i++) {
-                const a = (i / 16) * Math.PI * 2;
-                const spd = Math.random() * 8 + 2;
-                addParticle(new Particle(x, y, i % 2 === 0 ? color : '#fff',
-                    Math.cos(a)*spd, Math.sin(a)*spd, 40, 'dot'));
-            }
-            addParticle(new Particle(x, y, color, 0, 0, 22, 'ring'));
-        }
-
-        // --- ゲーム進行ロジック ---
-        function switchTab(tab) {
-            const isVs = tab === 'vs';
-            document.getElementById('tab-multi').className = `flex-1 py-2 rounded-lg text-sm font-bold transition-all ${!isVs ? 'bg-white/10 text-white' : 'text-slate-400'}`;
-            document.getElementById('tab-vs').className = `flex-1 py-2 rounded-lg text-sm font-bold transition-all ${isVs ? 'bg-white/10 text-white' : 'text-slate-400'}`;
-            document.getElementById('panel-multi').classList.toggle('hidden', isVs);
-            document.getElementById('panel-vs').classList.toggle('hidden', !isVs);
-            if (isVs) document.getElementById('panel-vs').classList.remove('hidden');
-        }
-
-        function setTargetScore(n) {
-            targetScore = n;
-            document.querySelectorAll('.score-btn').forEach(btn => {
-                btn.className = 'score-btn flex-1 py-2 rounded-lg text-sm font-bold border transition-all border-slate-600 text-slate-400';
-            });
-            const el = document.getElementById(`score-${n}`);
-            if (el) el.className = 'score-btn flex-1 py-2 rounded-lg text-sm font-bold border transition-all border-cyan-400/50 text-cyan-400 bg-cyan-400/10';
-        }
-
-        function setDifficulty(diff) {
-            aiDifficulty = diff;
-            document.querySelectorAll('.diff-btn').forEach(btn => {
-                btn.className = 'diff-btn flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all border-slate-600 text-slate-400';
-            });
-            const colors = { easy: 'green', normal: 'blue', hard: 'orange', max: 'red' };
-            const c = colors[diff];
-            const el = document.getElementById(`diff-${diff}`);
-            el.className = `diff-btn flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all border-${c}-400/50 text-${c}-400 bg-${c}-400/10`;
-        }
-
-        function startGame(num, aiIds) {
-            playerCount = num;
-            aiPlayers = new Set(aiIds);
-            scores = [0, 0, 0, 0];
-            roundNumber = 0;
-            SFX.startBGM();
-            
-            // UIの切り替え
-            document.getElementById('menu').style.opacity = '0';
-            document.getElementById('menu').style.pointerEvents = 'none';
-            setTimeout(() => { document.getElementById('menu').classList.add('hidden'); }, 500);
-            
-            document.getElementById('score-board').classList.remove('hidden');
-            setTimeout(() => { document.getElementById('score-board').style.opacity = '1'; }, 50);
-            
-            document.getElementById('touch-controls').classList.remove('hidden');
-            for(let i=0; i<4; i++) {
-                const zone = document.getElementById(`zone-${i}`);
-                if(i < playerCount) zone.classList.remove('hidden');
-                else zone.classList.add('hidden');
-            }
-
-            updateScoreBoard();
-            startRound();
-        }
-
-        function startRound() {
-            roundNumber++;
-            gameState = 'countdown';
-            particles = [];
-            screenShake = 0;
-            
-            // アリーナ初期サイズ
-            arenaRadius = Math.min(canvas.width, canvas.height) * 0.42;
-            
-            // プレイヤーの配置
-            players = [];
-            const spawnRadius = arenaRadius * 0.6;
-            for (let i = 0; i < playerCount; i++) {
-                const angle = (Math.PI * 2 / playerCount) * i - Math.PI / 2;
-                players.push({
-                    id: i,
-                    x: centerX + Math.cos(angle) * spawnRadius,
-                    y: centerY + Math.sin(angle) * spawnRadius,
-                    vx: 0,
-                    vy: 0,
-                    radius: 18,
-                    color: PLAYER_CONFIG[i].color,
-                    angle: angle + Math.PI, // 中心を向く
-                    isDashing: false,
-                    isAlive: true
-                });
-                if (aiPlayers.has(i)) initAiState(i);
-            }
-
-            // カウントダウン演出
-            SFX.countBeep(330);
-            showMessage(`ROUND ${roundNumber}`, 1500, '#ffffff');
-            setTimeout(() => {
-                if (gameState !== 'game_over') {
-                    SFX.go();
-                    showMessage('GO!', 1000, '#ff0055');
-                    gameState = 'playing';
-                }
-            }, 1800);
-        }
-
-        function showMessage(text, duration, color) {
-            const overlay = document.getElementById('message-overlay');
-            const msgEl = document.getElementById('message-text');
-            
-            msgEl.textContent = text;
-            msgEl.style.color = color;
-            msgEl.style.textShadow = `0 0 20px ${color}, 0 0 40px ${color}`;
-            
-            overlay.classList.remove('hidden');
-            
-            // Force reflow
-            void msgEl.offsetWidth; 
-            
-            msgEl.style.transform = 'scale(1)';
-            msgEl.style.opacity = '1';
-
-            if (duration > 0) {
-                setTimeout(() => {
-                    msgEl.style.transform = 'scale(1.5)';
-                    msgEl.style.opacity = '0';
-                    setTimeout(() => {
-                        overlay.classList.add('hidden');
-                        msgEl.style.transform = 'scale(0.5)';
-                    }, 400);
-                }, duration);
-            }
-        }
-
-        function updateScoreBoard() {
-            const board = document.getElementById('score-board');
-            board.innerHTML = '';
-            for(let i=0; i<playerCount; i++) {
-                const div = document.createElement('div');
-                div.className = 'flex flex-col items-center bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50 backdrop-blur-sm';
-                div.innerHTML = `
-                    <span class="text-[10px] font-bold tracking-wider mb-1" style="color: ${PLAYER_CONFIG[i].color}">${PLAYER_CONFIG[i].name}${aiPlayers.has(i) ? ' <span style="background:rgba(255,255,255,0.15);padding:1px 5px;border-radius:4px;font-size:9px;">AI</span>' : ''}</span>
-                    <div class="flex gap-1">
-                        ${Array(targetScore).fill(0).map((_, idx) => 
-                            `<div class="w-3 h-3 rounded-full ${idx < scores[i] ? 'bg-current shadow-[0_0_8px_currentColor]' : 'bg-slate-700'}" style="color: ${PLAYER_CONFIG[i].color}"></div>`
-                        ).join('')}
-                    </div>
-                `;
-                board.appendChild(div);
-            }
-        }
-
-        function returnToMenu() {
-            gameState = 'menu';
-            SFX.stopBGM();
-            document.getElementById('score-board').style.opacity = '0';
-            setTimeout(() => { document.getElementById('score-board').classList.add('hidden'); }, 500);
-            document.getElementById('touch-controls').classList.add('hidden');
-            
-            const menu = document.getElementById('menu');
-            menu.classList.remove('hidden');
-            setTimeout(() => { 
-                menu.style.opacity = '1'; 
-                menu.style.pointerEvents = 'auto';
-            }, 50);
-        }
-
-        // --- 入力処理 ---
-        function setPlayerInput(id, isPressed) {
-            if (gameState !== 'playing' && gameState !== 'countdown') return;
-            const player = players.find(p => p.id === id);
-            if (player && player.isAlive) {
-                player.isDashing = isPressed;
-                if (isPressed) SFX.dashStart();
-                
-                // UI Touch Zone highlight
-                const zone = document.getElementById(`zone-${id}`);
-                if (isPressed) zone.classList.add('active');
-                else zone.classList.remove('active');
-            }
-        }
-
-        // キーボード
-        window.addEventListener('keydown', (e) => {
-            if (KEY_MAP[e.key] !== undefined) setPlayerInput(KEY_MAP[e.key], true);
-        });
-        window.addEventListener('keyup', (e) => {
-            if (KEY_MAP[e.key] !== undefined) setPlayerInput(KEY_MAP[e.key], false);
-        });
-
-        // タッチ
-        const zones = document.querySelectorAll('.touch-zone');
-        zones.forEach(zone => {
-            const id = parseInt(zone.dataset.player);
-            const handleTouch = (e, isPressed) => {
-                e.preventDefault();
-                setPlayerInput(id, isPressed);
-            };
-            zone.addEventListener('touchstart', (e) => handleTouch(e, true), {passive: false});
-            zone.addEventListener('touchend', (e) => handleTouch(e, false), {passive: false});
-            zone.addEventListener('touchcancel', (e) => handleTouch(e, false), {passive: false});
-        });
-
-        // --- 更新ロジック ---
-        function checkCollisions() {
-            for (let i = 0; i < players.length; i++) {
-                if (!players[i].isAlive) continue;
-                for (let j = i + 1; j < players.length; j++) {
-                    if (!players[j].isAlive) continue;
-                    
-                    const p1 = players[i];
-                    const p2 = players[j];
-                    const dx = p2.x - p1.x;
-                    const dy = p2.y - p1.y;
-                    const distance = Math.hypot(dx, dy);
-                    const minDist = p1.radius + p2.radius;
-
-                    if (distance < minDist) {
-                        // 重なりを解消
-                        const angle = Math.atan2(dy, dx);
-                        const overlap = minDist - distance;
-                        const nx = Math.cos(angle);
-                        const ny = Math.sin(angle);
-                        
-                        p1.x -= nx * overlap / 2;
-                        p1.y -= ny * overlap / 2;
-                        p2.x += nx * overlap / 2;
-                        p2.y += ny * overlap / 2;
-
-                        // 速度の反発（弾性衝突）
-                        const relativeVelocityX = p1.vx - p2.vx;
-                        const relativeVelocityY = p1.vy - p2.vy;
-                        const speed = relativeVelocityX * nx + relativeVelocityY * ny;
-                        
-                        if (speed < 0) continue; // すでに離れようとしている
-                        
-                        // 反発係数と基礎反発力を上げてノックバックを強化
-                        const restitution = 2.5; 
-                        const baseImpulse = 3.7; 
-                        const impulse = ((1 + restitution) * speed / 2) + baseImpulse;
-                        
-                        p1.vx -= impulse * nx;
-                        p1.vy -= impulse * ny;
-                        p2.vx += impulse * nx;
-                        p2.vy += impulse * ny;
-
-                        // エフェクト生成
-                        const midX = (p1.x + p2.x) / 2;
-                        const midY = (p1.y + p2.y) / 2;
-                        const force = Math.abs(impulse);
-                        
-                        screenShake = Math.max(screenShake, force * 1.8);
-                        spawnCollisionFX(midX, midY, p1.color, p2.color, force);
-                        SFX.collision(force);
-                    }
-                }
-            }
-        }
-
-        // ============================================================
-        // 最強AI システム v5 — 理論値最強・全トッププレイヤーを超える
-        //
-        // 設計思想 (ゲームルールを完全理解した上での最適解):
-        //
-        // [物理モデル精密理解]
-        //  - ダッシュ中: angle += 0.02, vx += cos(angle)*0.7, 摩擦 *0.94
-        //  - 通常時: angle += 0.08 (高速回転)
-        //  - 衝突: impulse = (1+2.5)*speed/2 + 3.7 の弾性衝突
-        //  → AIはこの物理を完全に内部シミュレーションして動く
-        //
-        // [最強戦略の柱]
-        //  1. 遠距離突進検知: プレイヤーがダッシュを開始した瞬間に検知
-        //     (速度だけでなく「ダッシュ状態 + 向き」で早期警戒)
-        //  2. 精密垂直回避: 脅威方向の真垂直に向いていればダッシュ回避
-        //     センター側の垂直を選択し端落ちリスクを排除
-        //  3. 予測射撃: 相手の回転速度・速度を考慮した未来位置に正確に狙い
-        //  4. カウンター特化: 回避直後に敵が端に向いている「無防備な瞬間」を即攻撃
-        //  5. 戦略的ポジション: センターより常に内側 → 攻撃が必然的に外向き
-        //  6. 危機脱出: 端に向かっていたら即座に最短ルートで戻る
-        //  7. 多人数戦略: 最も端に近い敵を最優先、他の衝突を「漁夫の利」に使う
-        //  8. 遠距離でも突進してくる相手への早期検知 (dot閾値を下げ広角に対応)
-        // ============================================================
-
-        const AI_PARAMS = {
-            easy:   { reactionDelay: 22, aimTol: 0.50, randomness: 0.60, lookahead: 4,  panicEdge: 0.93, aggrEdge: 0.68 },
-            normal: { reactionDelay: 10, aimTol: 0.28, randomness: 0.28, lookahead: 16, panicEdge: 0.90, aggrEdge: 0.62 },
-            hard:   { reactionDelay: 3,  aimTol: 0.13, randomness: 0.08, lookahead: 30, panicEdge: 0.87, aggrEdge: 0.56 },
-            max:    { reactionDelay: 0,  aimTol: 0.032, randomness: 0.04, lookahead: 80, panicEdge: 0.78, aggrEdge: 0.40 },
-        };
-
-        const aiState = {};
-        const AI_STARTUP_FRAMES = 45; // 約0.75秒 (60fps想定)
-
-        function initAiState(id) {
-            // 初期バースト長・位相をAIごとに完全独立で決める（同期防止）
-            const initOn  = 1 + Math.floor(Math.random() * 10);
-            const initOff = 3 + Math.floor(Math.random() * 16);
-            // タイマーの初期値をランダムな中間地点から開始（位相ズレ）
-            const initPhase = Math.floor(Math.random() * (initOn + initOff));
-            aiState[id] = {
-                delayCounter: 0, decision: false, burstTimer: 0,
-                dodgeTimer: 0, dodgeDecision: false,
-                wasInDodge: false, postDodgeTimer: 0,
-                earlyWarnTimer: 0, prevEnemyState: {},
-                repositionTimer: 0,
-                startupTimer: AI_STARTUP_FRAMES,
-                startupBurstLen:  initOn,
-                startupBurstTimer: initPhase, // ← ここが肝：全員バラバラの位相でスタート
-            };
-        }
-
-        function normalizeAngle(a) {
-            while (a > Math.PI) a -= Math.PI * 2;
-            while (a < -Math.PI) a += Math.PI * 2;
-            return a;
-        }
-
-        /**
-         * 物理エンジンの挙動を完全再現した未来位置予測
-         * dashing=true の場合は回転0.02、それ以外は0.08で予測
-         */
-        function predictPos(p, frames, dashing = false) {
-            let x = p.x, y = p.y, vx = p.vx, vy = p.vy, angle = p.angle;
-            for (let f = 0; f < frames; f++) {
-                angle += dashing ? 0.02 : 0.08;
-                if (dashing) { vx += Math.cos(angle) * 0.7; vy += Math.sin(angle) * 0.7; }
-                vx *= 0.94; vy *= 0.94;
-                x += vx; y += vy;
-            }
-            return { x, y, vx, vy, angle };
-        }
-
-        /**
-         * ダッシュしてターゲットに当てた後の双方の運命をシミュレート
-         * より高精度: 衝突タイミングを精密計算
-         */
-        function simulateHit(ai, target, dashFrames) {
-            // AIがdashFramesダッシュした後の速度を計算
-            let avx = ai.vx, avy = ai.vy, aAngle = ai.angle;
-            for (let f = 0; f < dashFrames; f++) {
-                aAngle += 0.02;
-                avx += Math.cos(aAngle) * 0.7;
-                avy += Math.sin(aAngle) * 0.7;
-                avx *= 0.94; avy *= 0.94;
-            }
-            const dx = target.x - ai.x, dy = target.y - ai.y;
-            const dist = Math.hypot(dx, dy) || 1;
-            const nx = dx / dist, ny = dy / dist;
-            const relVx = avx - target.vx, relVy = avy - target.vy;
-            const speed = relVx * nx + relVy * ny;
-            const impulse = ((1 + 2.5) * Math.max(speed, 0) / 2) + 3.7;
-
-            const a_vx = avx - impulse * nx, a_vy = avy - impulse * ny;
-            const t_vx = target.vx + impulse * nx, t_vy = target.vy + impulse * ny;
-
-            // AIの軌跡シミュレーション (90フレーム追跡)
-            let ax = ai.x, ay = ai.y, avx2 = a_vx, avy2 = a_vy;
-            let selfDead = false;
-            for (let f = 0; f < 90; f++) {
-                avx2 *= 0.94; avy2 *= 0.94;
-                ax += avx2; ay += avy2;
-                if (Math.hypot(ax - centerX, ay - centerY) > arenaRadius + ai.radius) { selfDead = true; break; }
-            }
-            const selfFinalEdge = Math.hypot(ax - centerX, ay - centerY) / arenaRadius;
-
-            // ターゲットの軌跡シミュレーション
-            let tx = target.x, ty = target.y, tvx2 = t_vx, tvy2 = t_vy;
-            let targetDead = false, targetDeadFrame = 999;
-            for (let f = 0; f < 90; f++) {
-                tvx2 *= 0.94; tvy2 *= 0.94;
-                tx += tvx2; ty += tvy2;
-                if (Math.hypot(tx - centerX, ty - centerY) > arenaRadius + target.radius) { targetDead = true; targetDeadFrame = f; break; }
-            }
-            const targetFinalEdge = Math.hypot(tx - centerX, ty - centerY) / arenaRadius;
-
-            return { selfDead, selfFinalEdge, targetDead, targetDeadFrame, targetFinalEdge, impulse };
-        }
-
-        /**
-         * v5強化版脅威検知: 遠距離突進も含む広角・早期検知
-         * 
-         * 従来の問題: dot < 0.78 で 38度以内しか検知しない
-         *   → 遠距離から斜めに来るプレイヤーを検知できなかった
-         * 
-         * v5改善: 
-         *   - ダッシュ開始を速度変化で検知する「早期警戒」
-         *   - 検知角度を 0.62 (51度) まで拡大
-         *   - 距離に応じて衝突時間を精密計算
-         *   - 相手の予測位置も使って「これから自分に向かうか」を判定
-         */
-        function calcIncomingThreat(ai, enemies, st) {
-            let maxThreat = 0;
-            let bestDodgeAngle = 0;
-            let bestImpactTime = Infinity;
-            const cx = centerX, cy = centerY;
-
-            for (const enemy of enemies) {
-                const enemySpeed = Math.hypot(enemy.vx, enemy.vy);
-                const toAI_x = ai.x - enemy.x;
-                const toAI_y = ai.y - enemy.y;
-                const dist = Math.hypot(toAI_x, toAI_y);
-
-                if (dist > arenaRadius * 1.4 || dist < ai.radius + enemy.radius + 4) continue;
-
-                // v5: ダッシュ中 OR 速度が閾値以上で脅威候補
-                // ダッシュ状態なら速度が低くても危険(加速中)
-                const isDangerousBySpeed = enemySpeed > 5.0;
-                const isDangerousByDash = enemy.isDashing && enemySpeed > 1.5;
-                if (!isDangerousBySpeed && !isDangerousByDash) continue;
-
-                // 方向一致度チェック (v5: 0.62まで拡大 = 約51度以内)
-                const dot = enemySpeed > 0 ? (enemy.vx * toAI_x + enemy.vy * toAI_y) / (enemySpeed * dist) : 0;
-                
-                // ダッシュ中の敵はより広い角度で脅威判定
-                const dotThreshold = enemy.isDashing ? 0.55 : 0.72;
-                if (dot < dotThreshold) {
-                    // v5追加: ダッシュ中で自分の方向を向いているなら速度が低くても警戒
-                    // (敵の「角度」が自分に向いているか確認)
-                    if (enemy.isDashing) {
-                        const enemyFacingX = Math.cos(enemy.angle);
-                        const enemyFacingY = Math.sin(enemy.angle);
-                        const facingDot = (enemyFacingX * toAI_x + enemyFacingY * toAI_y) / (dist || 1);
-                        if (facingDot < 0.60) continue; // 角度でも向いていなければスキップ
-                    } else {
-                        continue;
-                    }
-                }
-
-                // 衝突予測時間
-                const closingSpeed = Math.max(0.1, enemySpeed * Math.max(dot, 0.1));
-                const impactTime = (dist - ai.radius - enemy.radius) / closingSpeed;
-                if (impactTime < 0 || impactTime > 40) continue;
-
-                // 脅威スコア = 速度 × 方向一致度 × 近さ補正
-                const proximityBonus = 1 + (1 - dist / (arenaRadius * 1.4));
-                const threatScore = enemySpeed * Math.max(dot, 0.5) * proximityBonus;
-
-                if (threatScore > maxThreat) {
-                    maxThreat = threatScore;
-                    bestImpactTime = impactTime;
-
-                    // 最適回避方向: 脅威の移動方向に対して垂直
-                    // センターに近い方を選択
-                    const threatAngle = Math.atan2(enemy.vy, enemy.vx);
-                    const perp1 = threatAngle + Math.PI / 2;
-                    const perp2 = threatAngle - Math.PI / 2;
-                    const testX1 = ai.x + Math.cos(perp1) * 80;
-                    const testY1 = ai.y + Math.sin(perp1) * 80;
-                    const testX2 = ai.x + Math.cos(perp2) * 80;
-                    const testY2 = ai.y + Math.sin(perp2) * 80;
-                    const d1 = Math.hypot(testX1 - cx, testY1 - cy);
-                    const d2 = Math.hypot(testX2 - cx, testY2 - cy);
-                    bestDodgeAngle = d1 <= d2 ? perp1 : perp2;
-                }
-            }
-
-            if (maxThreat > 0) {
-                return { threat: maxThreat, dodgeAngle: bestDodgeAngle, impactTime: bestImpactTime };
-            }
-            return null;
-        }
-
-        /**
-         * v5 最強AI コア
-         * 
-         * 優先順位:
-         *  P0: パニック回避 (端に落ちそう)          → 即座に中心向きダッシュ
-         *  P1: 脅威検知ドッジ (突進が来ている)       → 垂直方向に回避
-         *  P2: カウンター攻撃 (ドッジ直後の無防備)   → 即反撃
-         *  P3: 確定KO攻撃 (端の相手を倒せる)        → 狙い澄まして攻撃
-         *  P4: 最適ポジショニング                    → 中心内側をキープ
-         */
-        function updateAI(ai) {
-            const params = AI_PARAMS[aiDifficulty] || AI_PARAMS.hard;
-            const st = aiState[ai.id] || (aiState[ai.id] = {
-                delayCounter: 0, decision: false, burstTimer: 0,
-                dodgeTimer: 0, dodgeDecision: false, wasInDodge: false, postDodgeTimer: 0,
-                earlyWarnTimer: 0, prevEnemyState: {}, repositionTimer: 0,
-            });
-
-            // ====================================================
-            // スタートアップ期間 (最初の約45f): ちょこちょこ動いてランダム攻撃
-            // ====================================================
-            if (st.startupTimer > 0) {
-                st.startupTimer--;
-
-                const cx_s = centerX, cy_s = centerY;
-                const myDist_s = Math.hypot(ai.x - cx_s, ai.y - cy_s);
-                const myEdge_s = myDist_s / arenaRadius;
-
-                // 外向き速度を計算
-                const odx_s = myDist_s > 0 ? (ai.x - cx_s) / myDist_s : 0;
-                const ody_s = myDist_s > 0 ? (ai.y - cy_s) / myDist_s : 0;
-                const outSpeed_s = ai.vx * odx_s + ai.vy * ody_s;
-
-                // 15フレーム先の予測位置でエッジ判定
-                const sf_s = predictPos(ai, 15, true);
-                const futureEdge_s = Math.hypot(sf_s.x - cx_s, sf_s.y - cy_s) / arenaRadius;
-
-                // 危険判定: 端に近い or 外向きに飛んでいる → 強制ダッシュOFF
-                const isDangerous = futureEdge_s > 0.80
-                    || (myEdge_s > 0.72 && outSpeed_s > 0.8)
-                    || myEdge_s > 0.88;
-
-                if (isDangerous) {
-                    // 危険時は問答無用でOFF（回転だけして自然に向きが変わるのを待つ）
-                    st.decision = false;
-                    ai.isDashing = false;
-                    // バーストタイマーもリセットして次の安全なタイミングで再開
-                    st.startupBurstTimer = 0;
-                    st.startupBurstLen = 0;
-                    return;
-                }
-
-                // バーストタイマーが切れたら次のバーストをランダムに決める
-                if (st.startupBurstTimer <= 0) {
-                    // ON幅・OFF幅ともに独立した広い乱数で決定
-                    const onLen  = 2 + Math.floor(Math.random() * 11);          // 2〜12f
-                    const offLen = 4 + Math.floor(Math.random() * 18)            // 4〜21f
-                                 + Math.floor(Math.random() * Math.random() * 10); // 右裾重め追加
-                    st.startupBurstLen   = onLen;
-                    st.startupBurstTimer = onLen + offLen;
-                }
-                st.startupBurstTimer--;
-
-                // 毎フレーム小確率で強制ON/OFF切り替え（位相をランダムに壊す）
-                const r = Math.random();
-                if (r < 0.04) {
-                    // 4%: 今のバーストを途中で打ち切り → すぐ新しい長さで再抽選
-                    const onLen  = 1 + Math.floor(Math.random() * 8);
-                    const offLen = 3 + Math.floor(Math.random() * 14);
-                    st.startupBurstLen   = onLen;
-                    st.startupBurstTimer = onLen + offLen;
-                } else if (r < 0.07) {
-                    // 3%: 今のフレームだけ強制OFF（ちらつき）
-                    st.decision = false;
-                    ai.isDashing = false;
-                    return;
-                }
-
-                // バースト長の残り時間中だけダッシュ
-                const isDashPhase = st.startupBurstTimer < st.startupBurstLen;
-                st.decision = isDashPhase;
-                ai.isDashing = isDashPhase;
-                return;
-            }
-
-            // 反応遅延 (easy/normalのみ)
-            st.delayCounter++;
-            if (st.delayCounter < params.reactionDelay) { ai.isDashing = st.decision; return; }
-            st.delayCounter = 0;
-
-            const cx = centerX, cy = centerY;
-            const myDist = Math.hypot(ai.x - cx, ai.y - cy);
-            const myEdge = myDist / arenaRadius;
-            const toCenterAngle = Math.atan2(cy - ai.y, cx - ai.x);
-
-            // アウトワード速度 (端方向の速度成分)
-            const odx = myDist > 0 ? (ai.x - cx) / myDist : 0;
-            const ody = myDist > 0 ? (ai.y - cy) / myDist : 0;
-            const outSpeed = ai.vx * odx + ai.vy * ody;
-
-            // ====================================================
-            // P0: パニック判定 (最優先)
-            // ====================================================
-            // 20フレーム先の予測位置でエッジ判定
-            const sf20 = predictPos(ai, 20, false);
-            const futureEdge20 = Math.hypot(sf20.x - cx, sf20.y - cy) / arenaRadius;
-            // v5: アウトワード速度も考慮した厳しめのパニック判定
-            const isPanic = futureEdge20 > params.panicEdge 
-                || (myEdge > 0.88 && outSpeed > 1.2)
-                || (myEdge > 0.95); // 95%以上は問答無用でパニック
-
-            if (isPanic) {
-                const diff = Math.abs(normalizeAngle(ai.angle - toCenterAngle));
-                // v5: パニック時は中心方向に対してより緩い角度でもダッシュ
-                st.decision = diff < (aiDifficulty === 'max' ? 0.55 : 0.45);
-                ai.isDashing = st.decision;
-                st.dodgeTimer = 0;
-                st.postDodgeTimer = 0;
-                return;
-            }
-
-            const enemies = players.filter(p => p.isAlive && p.id !== ai.id);
-            if (enemies.length === 0) { st.decision = false; ai.isDashing = false; return; }
-
-            // ====================================================
-            // MAX専用ブロック: 高度ドッジシステム
-            // ====================================================
-            if (aiDifficulty === 'max') {
-
-                // ドッジ完了 → 反撃ウィンドウ開始
-                if (st.wasInDodge && st.dodgeTimer === 0) {
-                    st.wasInDodge = false;
-                    st.postDodgeTimer = 35; // 35Fの反撃ウィンドウ
-                }
-
-                // アクティブドッジ中: 方向維持
-                if (st.dodgeTimer > 0) {
-                    st.dodgeTimer--;
-                    st.wasInDodge = true;
-                    ai.isDashing = st.dodgeDecision;
-                    st.decision = st.dodgeDecision;
-                    return;
-                }
-
-                if (st.postDodgeTimer > 0) st.postDodgeTimer--;
-
-                // ====================================================
-                // P1: 脅威検知 → 垂直ドッジ発動 (v5: 早期広角検知)
-                // ====================================================
-                const incomingThreat = calcIncomingThreat(ai, enemies, st);
-                if (incomingThreat) {
-                    const { dodgeAngle, impactTime, threat } = incomingThreat;
-                    const diff = Math.abs(normalizeAngle(ai.angle - dodgeAngle));
-                    
-                    // v5: 少し広い角度で回避判定 (0.40 → 0.50)
-                    const dodging = diff < 0.50;
-                    st.dodgeDecision = dodging;
-                    // 衝突時間 + 余裕フレーム
-                    const extraFrames = threat > 8 ? 12 : 8;
-                    st.dodgeTimer = Math.max(6, Math.ceil(impactTime) + extraFrames);
-                    st.wasInDodge = true;
-                    st.decision = dodging;
-                    ai.isDashing = dodging;
-                    return;
-                }
-            }
-
-            // ====================================================
-            // ターゲット選定: スコアリング方式
-            // max: outward velocity + エッジ距離 + 距離の総合スコア
-            // ====================================================
-            const target = enemies.reduce((best, e) => {
-                const eEdge = Math.hypot(e.x - cx, e.y - cy) / arenaRadius;
-                const eDist = Math.hypot(e.x - ai.x, e.y - ai.y);
-                let outVel = 0;
-                if (aiDifficulty === 'max') {
-                    const eDstC = Math.hypot(e.x - cx, e.y - cy) || 1;
-                    outVel = (e.vx * (e.x - cx) / eDstC + e.vy * (e.y - cy) / eDstC);
-                }
-                // エッジ近さ(最重要) + 端向き速度 + 近さ
-                const s = eEdge * 3.0 + Math.max(0, outVel) * 0.40 - eDist / arenaRadius * 0.5;
-
-                const bEdge = Math.hypot(best.x - cx, best.y - cy) / arenaRadius;
-                const bDist = Math.hypot(best.x - ai.x, best.y - ai.y);
-                let bOutVel = 0;
-                if (aiDifficulty === 'max') {
-                    const bDstC = Math.hypot(best.x - cx, best.y - cy) || 1;
-                    bOutVel = (best.vx * (best.x - cx) / bDstC + best.vy * (best.y - cy) / bDstC);
-                }
-                const bs = bEdge * 3.0 + Math.max(0, bOutVel) * 0.40 - bDist / arenaRadius * 0.5;
-                return s > bs ? e : best;
-            });
-
-            // ====================================================
-            // 精密先読み射撃: 相手の回転・速度を考慮した未来位置
-            // ====================================================
-            // v5: targetがダッシュ中かどうかで予測モード切り替え
-            const predictDashing = aiDifficulty === 'max' ? target.isDashing : false;
-            const ft = predictPos(target, params.lookahead, predictDashing);
-            
-            // v5: 自分自身もフレーム後に移動していることを考慮した相対位置
-            const selfFt = aiDifficulty === 'max' ? predictPos(ai, params.lookahead / 3, true) : ai;
-            const angleToTarget = Math.atan2(ft.y - selfFt.y, ft.x - selfFt.x);
-            const aimDiff = Math.abs(normalizeAngle(ai.angle - angleToTarget));
-            const noise = (Math.random() < params.randomness) ? Math.random() * (aiDifficulty === 'max' ? 0.08 : 0.6) : 0;
-            const effectiveAim = aimDiff + noise;
-
-            const distToTarget = Math.hypot(target.x - ai.x, target.y - ai.y);
-            const inRange = distToTarget < arenaRadius * 2.2;
-            const isAimed = effectiveAim < params.aimTol;
-
-            // 自分がターゲットより中心寄りか (有利ポジション)
-            const targetFromCenter = Math.hypot(target.x - cx, target.y - cy);
-            const goodPosition = aiDifficulty === 'max' ? (myDist <= targetFromCenter * 1.05) : true;
-
-            // ====================================================
-            // P2 & P3: 攻撃判定
-            // ====================================================
-            let shouldAttack = false;
-            if (isAimed && inRange) {
-                const simFrames = Math.min(params.lookahead, 35);
-                const sim = simulateHit(ai, target, simFrames);
-                
-                if (!sim.selfDead) {
-                    if (aiDifficulty === 'max') {
-                        const targetEdge = targetFromCenter / arenaRadius;
-                        const isCounterWindow = st.postDodgeTimer > 0;
-
-                        if (isCounterWindow) {
-                            // P2: カウンター時は自分が死なないなら即攻撃
-                            shouldAttack = true;
-                        } else if (goodPosition) {
-                            // 有利ポジ: 少し積極的
-                            shouldAttack = sim.targetFinalEdge > 0.45 || sim.targetDead || targetEdge > 0.60;
-                        } else {
-                            // 不利ポジ: 確実な攻撃のみ
-                            shouldAttack = sim.targetFinalEdge > 0.60 || sim.targetDead || targetEdge > 0.75;
-                        }
-                    } else {
-                        shouldAttack = sim.targetFinalEdge > 0.5 || sim.targetDead;
-                    }
-                } else if (sim.targetDead && sim.targetDeadFrame < 6) {
-                    // 自分も死ぬが相手が先に死ぬ → 特攻OK (v5: 6フレームに短縮)
-                    shouldAttack = true;
-                }
-            }
-
-            // MAX: 端ギリギリの相手への即攻撃
-            if (aiDifficulty === 'max' && !shouldAttack && isAimed) {
-                const targetEdge = targetFromCenter / arenaRadius;
-                if (targetEdge > 0.78) {
-                    shouldAttack = true;
-                }
-            }
-
-            // ====================================================
-            // P4: ポジショニング (攻撃できないとき)
-            // ====================================================
-            let shouldMove = false;
-            if (!shouldAttack) {
-                if (myEdge > params.aggrEdge) {
-                    // 端に近い → 中心方向にダッシュ
-                    const cdiff = Math.abs(normalizeAngle(ai.angle - toCenterAngle));
-                    shouldMove = cdiff < params.aimTol * 5.0;
-                } else if (distToTarget > arenaRadius * 0.55) {
-                    // 相手が遠い → 積極的に詰める (v5: 0.65 → 0.55 に短縮)
-                    const adiff = Math.abs(normalizeAngle(ai.angle - angleToTarget));
-                    shouldMove = adiff < params.aimTol * 4.5;
-                } else {
-                    // 近距離・狙えていない → バーストで速度維持
-                    st.burstTimer = (st.burstTimer + 1) % 8;
-                    shouldMove = st.burstTimer < 3;
-                }
-
-                // MAX専用: 有利ポジション（センター内側）への移動
-                if (aiDifficulty === 'max' && !goodPosition && myEdge < 0.50) {
-                    const cdiff = Math.abs(normalizeAngle(ai.angle - toCenterAngle));
-                    if (cdiff < 0.30) shouldMove = true;
-                }
-
-                // v5追加: MAXが遠距離で待機しているときは積極的に近づく
-                if (aiDifficulty === 'max' && distToTarget > arenaRadius * 0.80) {
-                    const adiff = Math.abs(normalizeAngle(ai.angle - angleToTarget));
-                    if (adiff < params.aimTol * 6.0) shouldMove = true;
-                }
-            }
-
-            st.decision = shouldAttack || shouldMove;
-            ai.isDashing = st.decision;
-        }
-
-        let arenaWarnCooldown = 0;
-        function update() {
-            if (gameState === 'menu' || gameState === 'game_over') return;
-
-            // アリーナの縮小（サドンデス）
-            if (gameState === 'playing') {
-                arenaRadius -= 0.05;
-                if (arenaRadius < 50) arenaRadius = 50;
-                // 危険サイズになったら警告音（120px以下、120fに1回）
-                if (arenaRadius < 120 && arenaRadius > 50) {
-                    arenaWarnCooldown--;
-                    if (arenaWarnCooldown <= 0) {
-                        SFX.arenaWarning();
-                        arenaWarnCooldown = 120;
-                    }
-                }
-            }
-
-            // プレイヤーの更新
-            players.forEach(p => {
-                if (!p.isAlive) return;
-
-                // AI制御
-                if (aiPlayers.has(p.id) && gameState === 'playing') {
-                    updateAI(p);
-                }
-
-                if (gameState === 'playing' || gameState === 'countdown') {
-                    // 回転とダッシュ
-                    if (p.isDashing && gameState === 'playing') {
-                        p.angle += 0.02; // ダッシュ中はゆっくり回転（狙いを定めるため）
-                        p.vx += Math.cos(p.angle) * 0.7; // 加速
-                        p.vy += Math.sin(p.angle) * 0.7;
-                        
-                        // ダッシュトレイル (50%間引き、軽量)
-                        if (Math.random() > 0.55) {
-                            const spd = Math.hypot(p.vx, p.vy);
-                            addParticle(new Particle(
-                                p.x - Math.cos(p.angle) * p.radius + (Math.random()-0.5)*4,
-                                p.y - Math.sin(p.angle) * p.radius + (Math.random()-0.5)*4,
-                                p.color,
-                                -Math.cos(p.angle) * (0.8 + spd*0.1),
-                                -Math.sin(p.angle) * (0.8 + spd*0.1),
-                                10 + Math.floor(spd*0.8), 'dot'
-                            ));
-                        }
-                    } else {
-                        p.angle += 0.08; // 通常時は速く回転
-                    }
-
-                    // 摩擦
-                    p.vx *= 0.94;
-                    p.vy *= 0.94;
-
-                    // 位置更新
-                    p.x += p.vx;
-                    p.y += p.vy;
-
-                    // リングアウト判定
-                    if (gameState === 'playing') {
-                        const distFromCenter = Math.hypot(p.x - centerX, p.y - centerY);
-                        if (distFromCenter > arenaRadius + p.radius) {
-                            p.isAlive = false;
-                            screenShake = 18;
-                            spawnDeathFX(p.x, p.y, p.color);
-                            SFX.death();
-                            // UIのハイライトを消す
-                            document.getElementById(`zone-${p.id}`).classList.remove('active');
-                        }
-                    }
-                }
-            });
-
-            if (gameState === 'playing') {
-                checkCollisions();
-
-                // 勝敗判定
-                const alivePlayers = players.filter(p => p.isAlive);
-                if (alivePlayers.length <= 1) {
-                    gameState = 'round_end';
-                    if (alivePlayers.length === 1) {
-                        const winner = alivePlayers[0];
-                        scores[winner.id]++;
-                        updateScoreBoard();
-                        
-                        if (scores[winner.id] >= targetScore) {
-                            // 最終勝利
-                            SFX.champion();
-                            setTimeout(() => {
-                                gameState = 'game_over';
-                                showMessage(`WINNER`, 0, winner.color);
-                                document.getElementById('message-text').innerHTML = `<span style="color:${winner.color}">${PLAYER_CONFIG[winner.id].name}</span><br><span style="font-size:0.5em;color:#fff">CHAMPION!</span>`;
-                                setTimeout(() => {
-                                    document.getElementById('message-overlay').classList.add('hidden');
-                                    returnToMenu();
-                                }, 4000);
-                            }, 1000);
-                        } else {
-                            // ラウンド勝利
-                            SFX.roundWin();
-                            showMessage(`ROUND WINNER!`, 2000, winner.color);
-                            setTimeout(startRound, 2500);
-                        }
-                    } else {
-                        // 引き分け（相打ち）
-                        SFX.countBeep(220);
-                        showMessage(`DRAW!`, 2000, '#94a3b8');
-                        setTimeout(startRound, 2500);
-                    }
-                }
-            }
-
-            // パーティクル更新
-            for (let i = particles.length - 1; i >= 0; i--) {
-                particles[i].update();
-                if (particles[i].life <= 0) {
-                    particles.splice(i, 1);
-                }
-            }
-            
-            // 画面揺れ減衰
-            if (screenShake > 0) {
-                screenShake *= 0.85;
-                if (screenShake < 0.5) screenShake = 0;
-            }
-        }
-
-        // --- 描画ロジック ---
-        function drawGrid() {
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-            ctx.lineWidth = 1;
-            const gridSize = 60;
-            
-            ctx.beginPath();
-            for (let x = centerX % gridSize; x < canvas.width; x += gridSize) {
-                ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
-            }
-            for (let y = centerY % gridSize; y < canvas.height; y += gridSize) {
-                ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
-            }
-            ctx.stroke();
-        }
-
-        function draw() {
-            // 背景（残像効果のために半透明で塗りつぶす）
-            ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.save();
-            // 画面揺れ適用
-            if (screenShake > 0) {
-                const dx = (Math.random() - 0.5) * screenShake;
-                const dy = (Math.random() - 0.5) * screenShake;
-                ctx.translate(dx, dy);
-            }
-
-            // メニュー画面以外ではアリーナを描画
-            if (gameState !== 'menu' && gameState !== 'game_over') {
-                drawGrid();
-
-                // アリーナ（土俵）の描画
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, arenaRadius, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(15, 23, 42, 0.82)';
-                ctx.fill();
-                
-                // 内側グロー (アリーナ床)
-                const floorGradient = ctx.createRadialGradient(centerX, centerY, arenaRadius*0.3, centerX, centerY, arenaRadius);
-                floorGradient.addColorStop(0, 'rgba(6, 182, 212, 0.03)');
-                floorGradient.addColorStop(1, 'rgba(6, 182, 212, 0.00)');
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, arenaRadius, 0, Math.PI * 2);
-                ctx.fillStyle = floorGradient;
-                ctx.fill();
-
-                // アリーナ外周ネオンリング
-                ctx.lineWidth = 3;
-                ctx.strokeStyle = arenaRadius < 120 ? 'rgba(255, 50, 50, 0.9)' : 'rgba(255, 255, 255, 0.35)';
-                ctx.shadowBlur = arenaRadius < 120 ? 30 : 18;
-                ctx.shadowColor = arenaRadius < 120 ? 'rgba(255, 50, 50, 0.8)' : 'rgba(100, 200, 255, 0.6)';
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, arenaRadius, 0, Math.PI * 2);
-                ctx.stroke();
-                ctx.shadowBlur = 0;
-
-                // 危険帯: 外側にグラデーション
-                const dangerGradient = ctx.createRadialGradient(centerX, centerY, arenaRadius - 40, centerX, centerY, arenaRadius + 120);
-                dangerGradient.addColorStop(0, 'rgba(225, 29, 72, 0.00)');
-                dangerGradient.addColorStop(0.4, 'rgba(225, 29, 72, 0.08)');
-                dangerGradient.addColorStop(1, 'rgba(225, 29, 72, 0.22)');
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, arenaRadius + 120, 0, Math.PI * 2);
-                ctx.arc(centerX, centerY, Math.max(0, arenaRadius - 1), 0, Math.PI * 2, true);
-                ctx.fillStyle = dangerGradient;
-                ctx.fill();
-            }
-
-            // パーティクル描画
-            particles.forEach(p => p.draw(ctx));
-
-            players.forEach(p => {
-                if (!p.isAlive) return;
-                
-                const spd = Math.hypot(p.vx, p.vy);
-                
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                ctx.rotate(p.angle);
-                
-                // ネオン発光効果 (軽量: shadowBlurを最小限に)
-                ctx.shadowBlur = p.isDashing ? 14 : 5;
-                ctx.shadowColor = p.color;
-                
-                // 外側グロー (アウタリング)
-                if (p.isDashing || spd > 4) {
-                    ctx.beginPath();
-                    ctx.arc(0, 0, p.radius + 5, 0, Math.PI * 2);
-                    const glowAlpha = Math.min(0.35, (spd / 20) + (p.isDashing ? 0.18 : 0));
-                    ctx.globalAlpha = glowAlpha;
-                    ctx.fillStyle = p.color;
-                    ctx.fill();
-                    ctx.globalAlpha = 1.0;
-                }
-                
-                // 本体
-                ctx.beginPath();
-                ctx.arc(0, 0, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = p.isDashing ? '#ffffff' : p.color;
-                ctx.fill();
-                
-                // インナーハイライト
-                if (p.isDashing) {
-                    const innerGrad = ctx.createRadialGradient(-p.radius*0.3, -p.radius*0.3, 0, 0, 0, p.radius);
-                    innerGrad.addColorStop(0, 'rgba(255,255,255,0.8)');
-                    innerGrad.addColorStop(1, 'rgba(255,255,255,0.0)');
-                    ctx.beginPath();
-                    ctx.arc(0, 0, p.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = innerGrad;
-                    ctx.fill();
-                }
-                
-                // 縁取り
-                ctx.lineWidth = 2.5;
-                ctx.strokeStyle = p.isDashing ? p.color : 'rgba(255,255,255,0.7)';
-                ctx.stroke();
-                
-                // 向きを示すインジケーター（矢印）
-                ctx.shadowBlur = 0;
-                ctx.beginPath();
-                ctx.moveTo(p.radius + 9, 0);
-                ctx.lineTo(p.radius + 1, 6);
-                ctx.lineTo(p.radius + 1, -6);
-                ctx.fillStyle = p.isDashing ? p.color : 'rgba(255,255,255,0.85)';
-                ctx.fill();
-                
-                ctx.restore();
-            });
-
-            ctx.restore();
-        }
-
-        // --- メインループ ---
-        function loop() {
-            update();
-            draw();
-            requestAnimationFrame(loop);
-        }
-        
-        // 起動
-        requestAnimationFrame(loop);
-
-    </script>
+      });
+      // 1個ずつしか戻さない
+      let found=false;
+      document.querySelectorAll("#denriPool .denri-chip").forEach(x=>{
+        if(!found && x.dataset.p===removed){ found=true; }
+      });
+      renderBuild();
+    });
+  });
+}
+document.getElementById("denriClear").addEventListener("click", ()=>{
+  denriBuilt = [];
+  document.querySelectorAll("#denriPool .denri-chip").forEach(c=>{
+    c.style.display=""; c.classList.remove("placed");
+  });
+  renderBuild();
+});
+document.getElementById("denriCheck").addEventListener("click", ()=>{
+  const d = DENRI[denriOrder[denriIdx]];
+  // 正解判定：partsの並びを比較（"+"も含めて）
+  const want = d.parts.join("");
+  const got = denriBuilt.join("");
+  const fb = document.getElementById("denriFeedback");
+  if(got===want){
+    fb.innerHTML = '<span class="ok" style="color:var(--good);font-weight:600;">✓ 正解！</span>';
+    recordCorrect();
+  }else{
+    fb.innerHTML = `<span class="ng" style="color:var(--bad);font-weight:600;">✗ 不正解：正解は ${d.left} → ${d.right}</span>`;
+    recordWrong(d.left);
+  }
+});
+document.getElementById("denriShow").addEventListener("click", ()=>{
+  const d = DENRI[denriOrder[denriIdx]];
+  document.getElementById("denriFeedback").innerHTML = `答え：<b>${d.left} → ${d.right}</b>`;
+});
+document.getElementById("denriNext").addEventListener("click", ()=>{
+  denriIdx = (denriIdx+1)%denriOrder.length;
+  renderDenri();
+});
+shuffleDenri(); renderDenri();
+
+/* ================================================================
+   FILL IN (穴埋め表)
+================================================================ */
+let fillMode = "cation";
+function renderFill(){
+  const head = document.getElementById("fillHead");
+  const body = document.getElementById("fillBody");
+  body.innerHTML = "";
+  document.getElementById("fillFeedback").textContent = "";
+
+  if(fillMode==="cation" || fillMode==="anion"){
+    head.innerHTML = '<div>イオン名</div><div>イオン式</div><div>分類</div>';
+    const src = fillMode==="cation" ? CATIONS : ANIONS;
+    // ランダムに片方を空欄に
+    body.innerHTML = src.map((it,i)=>{
+      const blankFormula = Math.random()<0.5;
+      const nameCell = blankFormula ? it.n : `<input data-ans="${it.n}" data-i="${i}" data-k="n" placeholder="イオン名">`;
+      const formulaCell = blankFormula ? `<input data-ans="${it.f}" data-i="${i}" data-k="f" placeholder="イオン式">` : it.f;
+      return `<div class="fill-row">
+        <div>${nameCell}</div>
+        <div class="formula">${formulaCell}</div>
+        <div>${it.poly?'多原子':'単原子'}</div>
+      </div>`;
+    }).join("");
+  }else{
+    head.innerHTML = '<div>物質名</div><div>化学式</div><div>電離式</div>';
+    body.innerHTML = DENRI.map((d,i)=>{
+      return `<div class="fill-row">
+        <div>${d.name}</div>
+        <div class="formula">${d.left}</div>
+        <div><input data-ans="${d.right}" data-i="${i}" data-k="d" placeholder="例: 2H+ + Cl-" style="font-size:13px;"></div>
+      </div>`;
+    }).join("");
+  }
+}
+document.getElementById("fillCheck").addEventListener("click", ()=>{
+  let ok=0, total=0;
+  document.querySelectorAll("#fillBody input").forEach(inp=>{
+    total++;
+    const got = normalize(inp.value);
+    const want = normalize(inp.dataset.ans);
+    if(got===want){
+      inp.classList.remove("ng"); inp.classList.add("ok"); ok++;
+    }else{
+      inp.classList.remove("ok"); inp.classList.add("ng");
+    }
+  });
+  document.getElementById("fillFeedback").innerHTML = 
+    `<span style="color:${ok===total?'var(--good)':'var(--ink)'};font-weight:600;">${ok} / ${total} 正解</span>`;
+});
+document.getElementById("fillReset").addEventListener("click", renderFill);
+document.getElementById("fillShow").addEventListener("click", ()=>{
+  document.querySelectorAll("#fillBody input").forEach(inp=>{
+    inp.value = inp.dataset.ans;
+    inp.classList.add("ok");
+  });
+});
+document.querySelectorAll("[data-fillmode]").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    document.querySelectorAll("[data-fillmode]").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    fillMode = b.dataset.fillmode;
+    renderFill();
+  });
+});
+
+/* ================================================================
+   WEAK LIST
+================================================================ */
+function renderWeak(){
+  const box = document.getElementById("weakList");
+  const keys = Object.keys(state.weak);
+  if(keys.length===0){
+    box.innerHTML = '<div style="text-align:center;color:var(--ink-mute);padding:40px 20px;">まだ苦手はありません。クイズ・タイピングで間違えるとここに集まります。</div>';
+    return;
+  }
+  // ソート：ミス回数多い順
+  keys.sort((a,b)=>state.weak[b]-state.weak[a]);
+  box.innerHTML = keys.map(k=>{
+    const ion = ALL_IONS.find(x=>x.f===k);
+    if(!ion){
+      // 電離式の物質名(left)で記録された場合
+      const d = DENRI.find(x=>x.left===k);
+      if(d) return `<div class="weak-item"><div><div class="f">${d.left} → ${d.right}</div><div class="n">${d.name}</div></div><div class="c">${state.weak[k]} 回</div></div>`;
+      return "";
+    }
+    return `<div class="weak-item">
+      <div><div class="f">${ion.f}</div><div class="n">${ion.n}${ion.poly?'　（多原子）':''}</div></div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span class="c">${state.weak[k]} 回ミス</span>
+        <button class="btn sm" onclick="(()=>{ delete state.weak['${k.replace(/'/g,"\\'")}']; save(); renderHeader(); renderWeak(); })()">克服</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+document.getElementById("weakClear").addEventListener("click", ()=>{
+  if(confirm("苦手リストを全消去しますか？")){
+    state.weak = {}; save(); renderHeader(); renderWeak();
+  }
+});
+renderWeak();
+
+/* ================================================================
+   SETTING
+================================================================ */
+document.getElementById("resetAll").addEventListener("click", ()=>{
+  if(confirm("学習データをすべてリセットしますか？")){
+    state = {total:0,correct:0,streak:0,bestStreak:0,weak:{}};
+    save(); renderHeader(); renderHomeStats(); renderWeak();
+    alert("リセットしました");
+  }
+});
+
+/* 初期描画 */
+renderHeader();
+renderHomeStats();
+</script>
 </body>
 </html>
