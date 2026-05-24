@@ -3,1341 +3,1009 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>イオンマスター｜中3理科1 化学</title>
+<title>成績分析ダッシュボード</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+
   :root{
-    --bg:#ffffff;
-    --bg-soft:#fafbfc;
-    --line:#e5e7eb;
-    --line-strong:#d1d5db;
-    --ink:#111827;
-    --ink-sub:#4b5563;
-    --ink-mute:#9ca3af;
-    --accent:#2563eb;
-    --accent-soft:#eff6ff;
-    --good:#059669;
-    --good-soft:#ecfdf5;
-    --bad:#dc2626;
-    --bad-soft:#fef2f2;
-    --warn:#d97706;
-    --warn-soft:#fffbeb;
-    --shadow:0 1px 3px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.03);
+    --bg:#f6f8fc;
+    --bg2:#edf1f9;
+    --card:rgba(255,255,255,.78);
+    --card-solid:#ffffff;
+    --ink:#161a2e;
+    --ink-soft:#646c87;
+    --ink-faint:#9aa1ba;
+    --line:#e7ecf6;
+    --line-soft:#eef2fa;
+    --accent:#5b5bf0;
+    --accent-deep:#3d36c4;
+    --accent2:#0fb5c4;
+    --accent3:#ff7a59;
+    --good:#16b364;
+    --good-deep:#0c8a4a;
+    --warn:#f59e0b;
+    --bad:#f0432f;
+    --bad-deep:#cf2718;
+    --green-cell:#e6faf0;
+    --green-border:#2fc77a;
+    --blue-cell:#ecefff;
+    --blue-border:#7d7dff;
+    --shadow:0 10px 34px rgba(40,52,110,.07);
+    --shadow-lg:0 28px 70px rgba(40,52,110,.16);
+    --ring:0 0 0 3px rgba(91,91,240,.16);
+    --mono:'JetBrains Mono',monospace;
+    --display:'Sora','Zen Kaku Gothic New',sans-serif;
+    --body:'Space Grotesk','Zen Kaku Gothic New',sans-serif;
   }
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
   body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI",sans-serif;
-    background:var(--bg);
-    color:var(--ink);
-    line-height:1.6;
-    -webkit-font-smoothing:antialiased;
+    margin:0;font-family:var(--body);
+    background:
+      radial-gradient(1100px 560px at 6% -12%, #e4ebff 0%, transparent 52%),
+      radial-gradient(1000px 520px at 102% -4%, #def8fb 0%, transparent 46%),
+      radial-gradient(800px 800px at 88% 108%, #fdeee9 0%, transparent 50%),
+      var(--bg);
+    color:var(--ink);min-height:100vh;line-height:1.62;
+    -webkit-font-smoothing:antialiased;letter-spacing:.005em;
   }
-  /* HEADER */
-  header{
-    border-bottom:1px solid var(--line);
-    padding:14px 20px;
-    background:#fff;
-    position:sticky;top:0;z-index:50;
-    backdrop-filter:blur(10px);
-    background:rgba(255,255,255,.92);
+  /* subtle grain overlay */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.4;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
   }
-  .head-inner{
-    max-width:1100px;margin:0 auto;
-    display:flex;align-items:center;justify-content:space-between;gap:16px;
-  }
-  .logo{
-    display:flex;align-items:center;gap:10px;
-    font-weight:700;font-size:17px;letter-spacing:.02em;
-  }
-  .logo-mark{
-    width:32px;height:32px;border-radius:8px;
-    background:linear-gradient(135deg,#2563eb,#7c3aed);
-    color:#fff;display:flex;align-items:center;justify-content:center;
-    font-size:14px;font-weight:800;
-  }
-  .head-stat{
-    display:flex;gap:18px;font-size:13px;color:var(--ink-sub);
-  }
-  .head-stat b{color:var(--ink);font-weight:700;}
+  .wrap{max-width:1500px;margin:0 auto;padding:32px 24px 96px;position:relative;z-index:1;}
 
-  /* TABS */
-  nav.tabs{
-    border-bottom:1px solid var(--line);
-    background:#fff;
-    position:sticky;top:61px;z-index:40;
+  header.hero{
+    display:flex;align-items:flex-end;justify-content:space-between;gap:20px;
+    flex-wrap:wrap;margin-bottom:30px;position:relative;
   }
-  .tabs-inner{
-    max-width:1100px;margin:0 auto;
-    display:flex;gap:2px;padding:0 12px;overflow-x:auto;
-    scrollbar-width:none;
+  .hero .eyebrow{
+    font-family:var(--mono);font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:9px;
   }
-  .tabs-inner::-webkit-scrollbar{display:none;}
-  .tab{
-    padding:14px 16px;font-size:14px;font-weight:600;
-    color:var(--ink-sub);cursor:pointer;
-    border:none;background:none;
-    border-bottom:2px solid transparent;
-    white-space:nowrap;
-    transition:color .15s;
+  .hero .eyebrow::before{content:"";width:26px;height:2px;background:linear-gradient(90deg,var(--accent),transparent);}
+  .hero h1{
+    font-family:var(--display);font-weight:800;font-size:2.5rem;
+    margin:0;letter-spacing:-.03em;line-height:1.05;
+    background:linear-gradient(115deg,var(--ink) 12%,var(--accent) 60%,var(--accent2) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
   }
-  .tab:hover{color:var(--ink);}
-  .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .hero .sub{color:var(--ink-soft);font-size:.9rem;margin-top:9px;display:flex;gap:9px;flex-wrap:wrap;align-items:center;}
+  .hero-actions{display:flex;gap:9px;flex-wrap:wrap;}
+  button.btn{
+    border:none;border-radius:13px;padding:11px 17px;font-weight:600;cursor:pointer;
+    font-family:var(--body);font-size:.84rem;transition:.2s cubic-bezier(.2,.8,.2,1);
+    display:inline-flex;align-items:center;gap:7px;letter-spacing:.01em;
+  }
+  .btn-primary{background:linear-gradient(120deg,var(--accent),var(--accent-deep));color:#fff;box-shadow:0 8px 22px rgba(91,91,240,.4);}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(91,91,240,.5);}
+  .btn-ghost{background:rgba(255,255,255,.7);color:var(--ink);border:1.5px solid var(--line);backdrop-filter:blur(8px);}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px);}
+  .btn-danger{background:rgba(255,255,255,.7);color:var(--bad);border:1.5px solid #fbd5d0;backdrop-filter:blur(8px);}
+  .btn-danger:hover{background:var(--bad);color:#fff;}
 
-  /* MAIN */
-  main{max-width:1100px;margin:0 auto;padding:24px 20px 80px;}
-  .panel{display:none;}
-  .panel.active{display:block;animation:fadeIn .25s;}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  /* Summary cards */
+  .summary-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:26px;
+  }
+  .scard{
+    background:var(--card);border-radius:20px;padding:20px 20px 17px;box-shadow:var(--shadow);
+    border:1px solid rgba(255,255,255,.6);position:relative;overflow:hidden;backdrop-filter:blur(14px);
+    transition:.25s cubic-bezier(.2,.8,.2,1);
+  }
+  .scard:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);}
+  .scard::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));}
+  .scard::after{content:"";position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;
+    background:radial-gradient(circle,rgba(91,91,240,.1),transparent 70%);}
+  .scard .label{font-size:.7rem;color:var(--ink-soft);font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-family:var(--mono);}
+  .scard .value{font-size:1.85rem;font-weight:800;margin-top:6px;font-family:var(--display);letter-spacing:-.03em;line-height:1;}
+  .scard .value small{font-size:.8rem;font-weight:600;color:var(--ink-faint);}
+  .scard .delta{font-size:.76rem;font-weight:600;margin-top:6px;font-family:var(--mono);}
+  .pos{color:var(--good-deep);}.neg{color:var(--bad-deep);}.mid{color:var(--ink-soft);}
 
-  h2.panel-title{
-    font-size:22px;font-weight:700;margin:0 0 6px;letter-spacing:-.01em;
+  .panel{
+    background:var(--card);border-radius:24px;box-shadow:var(--shadow);
+    border:1px solid rgba(255,255,255,.6);padding:26px;margin-bottom:24px;backdrop-filter:blur(14px);
+    position:relative;
   }
-  p.panel-sub{color:var(--ink-sub);font-size:14px;margin:0 0 22px;}
+  .panel h2{
+    font-size:1.12rem;margin:0 0 5px;font-weight:700;display:flex;align-items:center;gap:11px;
+    font-family:var(--display);letter-spacing:-.01em;
+  }
+  .panel h2 .dot{width:9px;height:9px;border-radius:3px;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 0 4px rgba(91,91,240,.12);}
+  .panel .hint{font-size:.82rem;color:var(--ink-soft);margin:0 0 18px;}
 
-  /* HOME */
-  .home-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:14px;
-    margin-bottom:28px;
-  }
-  .mode-card{
-    border:1px solid var(--line);border-radius:12px;
-    padding:18px;background:#fff;cursor:pointer;
-    transition:all .15s;
-    text-align:left;
-  }
-  .mode-card:hover{
-    border-color:var(--accent);
-    transform:translateY(-2px);
-    box-shadow:0 4px 12px rgba(37,99,235,.08);
-  }
-  .mode-card .icon{
-    width:36px;height:36px;border-radius:8px;
-    background:var(--accent-soft);color:var(--accent);
-    display:flex;align-items:center;justify-content:center;
-    font-size:18px;font-weight:700;margin-bottom:10px;
-  }
-  .mode-card h3{margin:0 0 4px;font-size:15px;font-weight:700;}
-  .mode-card p{margin:0;font-size:13px;color:var(--ink-sub);}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:.78rem;color:var(--ink-soft);margin-bottom:14px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:14px;height:14px;border-radius:4px;display:inline-block;}
+  .sw-green{background:var(--green-cell);border:1.5px solid var(--green-border);}
+  .sw-blue{background:var(--blue-cell);border:1.5px solid var(--blue-border);}
 
-  .stat-bar{
-    border:1px solid var(--line);border-radius:12px;padding:18px 20px;
-    background:var(--bg-soft);
-    margin-bottom:24px;
+  .table-scroll{overflow-x:auto;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.5);}
+  table{border-collapse:separate;border-spacing:0;width:100%;min-width:1220px;font-size:.84rem;}
+  th,td{padding:11px 9px;text-align:center;border-bottom:1px solid var(--line-soft);white-space:nowrap;}
+  thead th{
+    background:linear-gradient(180deg,#fcfdff,#f0f3fb);position:sticky;top:0;z-index:2;
+    font-size:.7rem;color:var(--ink-soft);font-weight:700;border-bottom:2px solid var(--line);
+    font-family:var(--mono);letter-spacing:.02em;
   }
-  .stat-bar h3{margin:0 0 12px;font-size:14px;color:var(--ink-sub);font-weight:600;}
-  .stat-row{display:flex;gap:24px;flex-wrap:wrap;}
-  .stat-item .num{font-size:24px;font-weight:700;color:var(--ink);}
-  .stat-item .lab{font-size:12px;color:var(--ink-sub);}
+  thead th small{font-family:var(--mono);color:var(--ink-faint);font-weight:500;}
+  tbody tr{transition:.15s;}
+  tbody tr:hover{background:rgba(91,91,240,.04);}
+  td.subj{text-align:left;font-weight:700;padding-left:16px;font-family:var(--display);}
+  td.subj .order{display:inline-block;width:22px;height:22px;line-height:22px;border-radius:7px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep));color:#fff;font-size:.68rem;font-weight:700;margin-right:9px;text-align:center;font-family:var(--mono);}
+  tfoot td{font-weight:800;background:linear-gradient(180deg,#f0f3fb,#eaeef8);border-top:2px solid var(--line);}
 
-  /* TABLES */
-  .ion-table-wrap{
-    display:grid;grid-template-columns:1fr 1fr;gap:20px;
-    margin-bottom:20px;
+  input.cell{
+    width:62px;border:1.5px solid var(--line);border-radius:9px;padding:6px 6px;text-align:center;
+    font-family:var(--mono);font-size:.84rem;font-weight:700;color:var(--ink);background:#fff;transition:.18s;
   }
-  @media(max-width:760px){.ion-table-wrap{grid-template-columns:1fr;}}
-  .ion-table{
-    border:1px solid var(--line);border-radius:10px;overflow:hidden;
-    background:#fff;
-  }
-  .ion-table h4{
-    margin:0;padding:12px 16px;font-size:14px;
-    background:var(--bg-soft);border-bottom:1px solid var(--line);
-  }
-  .ion-table table{width:100%;border-collapse:collapse;font-size:14px;}
-  .ion-table th,.ion-table td{
-    padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);
-  }
-  .ion-table th{background:#fff;font-weight:600;color:var(--ink-sub);font-size:12px;}
-  .ion-table tr:last-child td{border-bottom:none;}
-  .ion-table tr:hover{background:var(--bg-soft);}
-  .formula{
-    font-family:"SF Mono",Menlo,Consolas,monospace;
-    font-weight:600;color:var(--ink);
-  }
-  .pos-tag{
-    display:inline-block;padding:1px 6px;border-radius:4px;
-    font-size:10px;font-weight:700;margin-left:6px;vertical-align:middle;
-  }
-  .tag-mono{background:#f3f4f6;color:#6b7280;}
-  .tag-poly{background:#ddd6fe;color:#5b21b6;}
+  input.cell:focus{outline:none;border-color:var(--accent);box-shadow:var(--ring);}
+  input.green{background:var(--green-cell);border-color:var(--green-border);}
+  input.green:focus{box-shadow:0 0 0 3px rgba(47,199,122,.18);}
+  input.blue{background:var(--blue-cell);border-color:var(--blue-border);color:#3a3ac4;}
 
-  /* FLASHCARD */
-  .flash-area{
-    max-width:560px;margin:0 auto;
-  }
-  .flashcard{
-    border:1px solid var(--line);border-radius:16px;
-    padding:50px 30px;text-align:center;
-    background:#fff;min-height:280px;
-    display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;
-    cursor:pointer;
-    transition:all .2s;
-    box-shadow:var(--shadow);
-  }
-  .flashcard:hover{border-color:var(--accent);}
-  .flashcard .label{font-size:12px;color:var(--ink-mute);letter-spacing:.1em;text-transform:uppercase;}
-  .flashcard .main{
-    font-size:42px;font-weight:700;letter-spacing:-.01em;
-    font-family:"SF Mono",Menlo,Consolas,monospace;
-  }
-  .flashcard .sub{
-    font-size:18px;color:var(--ink-sub);margin-top:6px;display:none;
-  }
-  .flashcard.flipped .sub{display:block;animation:fadeIn .2s;}
-  .flashcard .hint{
-    font-size:12px;color:var(--ink-mute);margin-top:10px;
-  }
-  .flash-controls{
-    display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap;
-  }
-  .flash-progress{
-    text-align:center;margin-top:14px;font-size:13px;color:var(--ink-sub);
-  }
-  .flash-filter{
-    display:flex;gap:8px;justify-content:center;margin-bottom:18px;flex-wrap:wrap;
-  }
+  .badge{display:inline-block;padding:3px 11px;border-radius:999px;font-size:.72rem;font-weight:700;font-family:var(--body);letter-spacing:.01em;}
+  .b-perfect{background:linear-gradient(135deg,#d6f9e6,#bff0d6);color:#0a8c4a;box-shadow:inset 0 0 0 1px rgba(10,140,74,.15);}
+  .b-good{background:linear-gradient(135deg,#e3ecff,#d6e2ff);color:#2a4fd6;box-shadow:inset 0 0 0 1px rgba(42,79,214,.12);}
+  .b-mid{background:linear-gradient(135deg,#fff1d4,#ffe9bf);color:#a86e00;box-shadow:inset 0 0 0 1px rgba(168,110,0,.12);}
+  .b-low{background:linear-gradient(135deg,#ffe6df,#ffd6cb);color:#c43a23;box-shadow:inset 0 0 0 1px rgba(196,58,35,.12);}
+  .b-bad{background:linear-gradient(135deg,#ffd9d2,#ffc6bb);color:#b8261a;box-shadow:inset 0 0 0 1px rgba(184,38,26,.15);}
 
-  /* BUTTONS */
-  .btn{
-    border:1px solid var(--line);background:#fff;color:var(--ink);
-    padding:9px 16px;border-radius:8px;font-size:14px;font-weight:500;
-    cursor:pointer;transition:all .1s;
-    font-family:inherit;
-  }
-  .btn:hover{border-color:var(--ink);background:var(--bg-soft);}
-  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
-  .btn.primary:hover{background:#1d4ed8;}
-  .btn.good{background:var(--good);color:#fff;border-color:var(--good);}
-  .btn.good:hover{background:#047857;}
-  .btn.bad{background:var(--bad);color:#fff;border-color:var(--bad);}
-  .btn.bad:hover{background:#b91c1c;}
-  .btn.sm{padding:6px 12px;font-size:12px;}
-  .btn:disabled{opacity:.5;cursor:not-allowed;}
-  .pill{
-    border:1px solid var(--line);background:#fff;color:var(--ink-sub);
-    padding:6px 12px;border-radius:999px;font-size:12px;cursor:pointer;
-    font-family:inherit;
-    transition:all .1s;
-  }
-  .pill:hover{border-color:var(--ink);}
-  .pill.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .databar{position:relative;background:#edf0f8;border-radius:7px;height:23px;width:84px;margin:0 auto;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.04);}
+  .databar > i{position:absolute;left:0;top:0;bottom:0;border-radius:7px;background:linear-gradient(90deg,#8a8aff,var(--accent));transition:width .5s cubic-bezier(.2,.8,.2,1);}
+  .databar > b{position:relative;z-index:1;font-style:normal;font-size:.74rem;line-height:23px;font-weight:700;font-family:var(--mono);}
 
-  /* QUIZ */
-  .quiz-area{max-width:640px;margin:0 auto;}
-  .quiz-q{
-    border:1px solid var(--line);border-radius:12px;padding:24px;
-    background:#fff;margin-bottom:16px;
-  }
-  .quiz-q .qhead{font-size:12px;color:var(--ink-mute);letter-spacing:.05em;margin-bottom:8px;}
-  .quiz-q .qmain{font-size:24px;font-weight:600;margin-bottom:6px;font-family:"SF Mono",Menlo,Consolas,monospace;}
-  .quiz-q .qprompt{font-size:14px;color:var(--ink-sub);}
-  .quiz-options{display:grid;gap:8px;}
-  .quiz-opt{
-    border:1px solid var(--line);background:#fff;
-    padding:14px 16px;border-radius:10px;text-align:left;
-    font-size:15px;cursor:pointer;transition:all .1s;
-    font-family:inherit;color:var(--ink);
-  }
-  .quiz-opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft);}
-  .quiz-opt.correct{border-color:var(--good);background:var(--good-soft);color:var(--good);font-weight:600;}
-  .quiz-opt.wrong{border-color:var(--bad);background:var(--bad-soft);color:var(--bad);}
-  .quiz-opt:disabled{cursor:default;}
-  .quiz-feedback{
-    text-align:center;margin:16px 0;font-size:14px;min-height:24px;
-  }
-  .quiz-feedback.ok{color:var(--good);font-weight:600;}
-  .quiz-feedback.ng{color:var(--bad);font-weight:600;}
-  .quiz-bar{
-    display:flex;justify-content:space-between;align-items:center;
-    margin-bottom:14px;font-size:13px;color:var(--ink-sub);
-  }
-  .progress-track{
-    height:4px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:18px;
-  }
-  .progress-fill{height:100%;background:var(--accent);transition:width .3s;}
+  .grids-2{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  .grids-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  @media(max-width:1000px){.grids-2,.grids-3{grid-template-columns:1fr;}}
+  .chartbox{position:relative;height:312px;}
 
-  /* TYPING */
-  .type-input{
-    width:100%;font-size:24px;font-family:"SF Mono",Menlo,Consolas,monospace;
-    border:1px solid var(--line-strong);border-radius:10px;
-    padding:14px 18px;text-align:center;
-    outline:none;background:#fff;
-    transition:border-color .15s;
-  }
-  .type-input:focus{border-color:var(--accent);}
-  .type-input.ok{border-color:var(--good);background:var(--good-soft);}
-  .type-input.ng{border-color:var(--bad);background:var(--bad-soft);}
-  .type-helper{
-    text-align:center;font-size:13px;color:var(--ink-sub);margin:12px 0;
-  }
-  .ion-keys{
-    display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:14px;
-  }
-  .ion-key{
-    border:1px solid var(--line);background:#fff;border-radius:6px;
-    padding:6px 10px;font-size:13px;cursor:pointer;font-family:"SF Mono",Menlo,Consolas,monospace;
-  }
-  .ion-key:hover{background:var(--bg-soft);border-color:var(--ink-sub);}
+  /* dumbbell */
+  .dumb-row{display:flex;align-items:center;gap:14px;margin-bottom:13px;}
+  .dumb-name{width:92px;font-size:.82rem;font-weight:700;font-family:var(--display);flex-shrink:0;}
+  .dumb-track{flex:1;position:relative;height:26px;}
+  .dumb-track .axis{position:absolute;left:0;right:0;top:50%;height:2px;background:var(--line);border-radius:2px;}
+  .dumb-track .conn{position:absolute;top:50%;height:5px;transform:translateY(-50%);border-radius:3px;}
+  .dumb-track .pt{position:absolute;top:50%;width:15px;height:15px;border-radius:50%;transform:translate(-50%,-50%);border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.18);}
+  .dumb-track .pt.now{background:var(--accent);z-index:2;}
+  .dumb-track .pt.goal{background:#fff;border-color:var(--good);z-index:2;}
+  .dumb-val{width:118px;font-size:.74rem;color:var(--ink-soft);font-family:var(--mono);text-align:right;flex-shrink:0;}
+  .dumb-legend{display:flex;gap:18px;font-size:.76rem;color:var(--ink-soft);margin-bottom:14px;}
+  .dumb-legend span{display:inline-flex;align-items:center;gap:7px;}
+  .dumb-legend i{width:13px;height:13px;border-radius:50%;display:inline-block;}
 
-  /* DENRI (electrolysis) */
-  .denri-card{
-    border:1px solid var(--line);border-radius:12px;padding:24px;
-    background:#fff;margin-bottom:16px;
-  }
-  .denri-q{
-    text-align:center;margin-bottom:16px;
-  }
-  .denri-q .name{font-size:13px;color:var(--ink-sub);margin-bottom:4px;}
-  .denri-q .formula-big{font-size:32px;font-weight:700;font-family:"SF Mono",Menlo,Consolas,monospace;}
-  .denri-arrow{text-align:center;font-size:24px;color:var(--ink-mute);margin:14px 0;}
-  .denri-build{
-    display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
-    min-height:60px;align-items:center;
-    padding:12px;border:2px dashed var(--line);border-radius:10px;
-    background:var(--bg-soft);
-  }
-  .denri-chip{
-    background:#fff;border:1px solid var(--line);border-radius:8px;
-    padding:8px 14px;font-family:"SF Mono",Menlo,Consolas,monospace;
-    font-weight:600;font-size:16px;cursor:pointer;
-    user-select:none;
-    transition:all .1s;
-  }
-  .denri-chip:hover{border-color:var(--accent);}
-  .denri-chip.placed{background:var(--accent-soft);border-color:var(--accent);}
-  .denri-pool{
-    display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px;
-  }
+  .rank-list{list-style:none;margin:0;padding:0;}
+  .rank-list li{display:flex;align-items:center;gap:13px;padding:12px 14px;border-radius:14px;margin-bottom:9px;background:rgba(248,250,255,.7);border:1px solid var(--line);transition:.2s;}
+  .rank-list li:hover{transform:translateX(3px);border-color:var(--accent);}
+  .rank-list li .num{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-weight:800;font-family:var(--display);color:#fff;font-size:.9rem;}
+  .rank-list .n1{background:linear-gradient(135deg,#16b364,#0c8a4a);}
+  .rank-list .n2{background:linear-gradient(135deg,var(--accent),var(--accent-deep));}
+  .rank-list .n3{background:linear-gradient(135deg,var(--accent2),#0a8a96);}
+  .rank-list .nw{background:linear-gradient(135deg,#f59e0b,#e0722b);}
+  .rank-list .nb{background:linear-gradient(135deg,var(--bad),var(--bad-deep));}
+  .rank-list li .meta{flex:1;}
+  .rank-list li .meta b{display:block;font-size:.92rem;font-family:var(--display);}
+  .rank-list li .meta small{color:var(--ink-soft);font-size:.75rem;}
+  .rank-list li .delta{font-weight:700;font-size:1rem;font-family:var(--mono);}
 
-  /* FILL IN BLANKS (穴埋め) */
-  .fill-row{
-    display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:12px;align-items:center;
-    padding:10px 14px;border-bottom:1px solid var(--line);
-    font-size:14px;
-  }
-  .fill-row:hover{background:var(--bg-soft);}
-  .fill-row input{
-    border:1px solid var(--line);border-radius:6px;
-    padding:7px 10px;font-size:14px;font-family:"SF Mono",Menlo,Consolas,monospace;
-    width:100%;outline:none;background:#fff;
-  }
-  .fill-row input:focus{border-color:var(--accent);}
-  .fill-row input.ok{border-color:var(--good);background:var(--good-soft);}
-  .fill-row input.ng{border-color:var(--bad);background:var(--bad-soft);}
-  .fill-table{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;}
-  .fill-head{
-    display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:12px;
-    padding:10px 14px;background:var(--bg-soft);
-    font-size:12px;font-weight:600;color:var(--ink-sub);
-    border-bottom:1px solid var(--line);
-  }
+  .goal-row{display:flex;align-items:center;gap:13px;margin-bottom:12px;}
+  .goal-row .gname{width:96px;font-size:.82rem;font-weight:700;font-family:var(--display);}
+  .goal-track{flex:1;height:18px;background:#eef1f8;border-radius:999px;overflow:hidden;position:relative;box-shadow:inset 0 1px 3px rgba(0,0,0,.05);}
+  .goal-track > i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;transition:width .6s cubic-bezier(.2,.8,.2,1);}
+  .goal-row .gval{width:128px;text-align:right;font-size:.76rem;color:var(--ink-soft);font-weight:600;font-family:var(--mono);}
+  .goal-row input.gt{width:56px;}
 
-  /* CONFIG / SETTINGS */
-  .setting-row{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:14px 0;border-bottom:1px solid var(--line);
-  }
-  .setting-row .lab{font-size:14px;font-weight:500;}
-  .setting-row .desc{font-size:12px;color:var(--ink-sub);}
+  .link-card{display:flex;flex-direction:column;gap:7px;padding:16px;border-radius:16px;border:1px solid var(--line);background:rgba(248,250,255,.7);transition:.2s;}
+  .link-card:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:var(--shadow);}
+  .link-card b{font-size:.92rem;font-family:var(--display);display:flex;align-items:center;gap:8px;}
+  .link-card .tag{font-size:.74rem;color:var(--ink-soft);line-height:1.5;}
+  .link-card .files{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;}
+  .link-card .files code{background:#eceffb;border:1px solid var(--line);border-radius:7px;padding:3px 8px;font-size:.68rem;color:#3a3ac4;font-family:var(--mono);}
 
-  /* WEAK LIST */
-  .weak-list{display:grid;gap:8px;}
-  .weak-item{
-    border:1px solid var(--line);border-radius:10px;
-    padding:14px 16px;background:#fff;
-    display:flex;justify-content:space-between;align-items:center;gap:12px;
-  }
-  .weak-item .f{font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:600;font-size:16px;}
-  .weak-item .n{color:var(--ink-sub);font-size:14px;}
-  .weak-item .c{
-    font-size:12px;color:var(--bad);font-weight:600;
-    background:var(--bad-soft);padding:3px 8px;border-radius:99px;
-  }
+  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(140%);
+    background:var(--ink);color:#fff;padding:13px 24px;border-radius:14px;font-weight:600;font-size:.85rem;
+    box-shadow:var(--shadow-lg);transition:.45s cubic-bezier(.2,.9,.2,1);z-index:99;display:flex;align-items:center;gap:9px;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
 
-  /* responsive */
-  @media (max-width:600px){
-    .flashcard{padding:34px 16px;}
-    .flashcard .main{font-size:32px;}
-    h2.panel-title{font-size:20px;}
-    .stat-row{gap:14px;}
-  }
+  .note{font-size:.78rem;color:var(--ink-soft);background:rgba(251,252,255,.7);border:1px dashed var(--line);border-radius:14px;padding:14px 17px;margin-top:10px;line-height:1.6;}
+  .pill{display:inline-block;background:var(--bg2);border-radius:999px;padding:3px 11px;font-size:.72rem;font-weight:700;color:var(--ink-soft);font-family:var(--mono);}
+
+  /* === new pro-analysis components === */
+  .metric-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:6px;}
+  .mstrip{padding:15px 16px;border-radius:16px;border:1px solid var(--line);background:rgba(252,253,255,.7);}
+  .mstrip .mlabel{font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint);font-family:var(--mono);font-weight:600;}
+  .mstrip .mval{font-size:1.35rem;font-weight:800;font-family:var(--display);margin-top:4px;letter-spacing:-.02em;}
+  .mstrip .mdesc{font-size:.72rem;color:var(--ink-soft);margin-top:3px;}
+
+  .gauge-wrap{display:flex;gap:30px;align-items:center;flex-wrap:wrap;}
+  .gauge{position:relative;width:210px;height:210px;flex-shrink:0;}
+  .gauge .gnum{position:absolute;left:0;right:0;bottom:34px;top:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:3px;}
+  .gauge .gnum b{font-size:3rem;font-family:var(--display);font-weight:800;line-height:.95;letter-spacing:-.04em;}
+  .gauge .gnum .glabel{font-size:.64rem;color:var(--ink-faint);font-family:var(--mono);text-transform:uppercase;letter-spacing:.12em;}
+  .gauge .gnum .grank{margin-top:7px;font-size:.7rem;font-weight:700;font-family:var(--body);padding:3px 11px;border-radius:999px;letter-spacing:.02em;}
+  .grank.r-top{background:linear-gradient(135deg,#d6f9e6,#bff0d6);color:#0a8c4a;}
+  .grank.r-good{background:linear-gradient(135deg,#e3ecff,#d6e2ff);color:#2a4fd6;}
+  .grank.r-mid{background:linear-gradient(135deg,#fff1d4,#ffe9bf);color:#a86e00;}
+  .grank.r-low{background:linear-gradient(135deg,#ffe6df,#ffd6cb);color:#c43a23;}
+  .grank.r-na{background:var(--bg2);color:var(--ink-faint);}
+
+  .insight-list{display:flex;flex-direction:column;gap:10px;}
+  .insight{display:flex;gap:12px;padding:13px 15px;border-radius:14px;background:rgba(248,250,255,.7);border:1px solid var(--line);border-left:3px solid var(--accent);font-size:.84rem;line-height:1.55;}
+  .insight.warn{border-left-color:var(--warn);}
+  .insight.bad{border-left-color:var(--bad);}
+  .insight.good{border-left-color:var(--good);}
+  .insight .ic{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:8px;background:var(--accent);}
+  .insight.warn .ic{background:var(--warn);}
+  .insight.bad .ic{background:var(--bad);}
+  .insight.good .ic{background:var(--good);}
+  .insight b{font-family:var(--display);}
+
+  .seg-track{display:flex;height:30px;border-radius:10px;overflow:hidden;border:1px solid var(--line);margin-top:6px;}
+  .seg-track > div{display:grid;place-items:center;font-size:.7rem;font-weight:700;color:#fff;font-family:var(--mono);transition:flex .5s;min-width:0;overflow:hidden;}
+
+  details.tech{margin-top:10px;}
+  details.tech summary{cursor:pointer;font-size:.8rem;color:var(--accent);font-weight:600;font-family:var(--mono);}
+  details.tech .note{margin-top:8px;}
+  @keyframes floatUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .panel,.scard{animation:floatUp .5s cubic-bezier(.2,.8,.2,1) backwards;}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<header>
-  <div class="head-inner">
-    <div class="logo">
-      <div class="logo-mark">Iᐩ</div>
-      <span>イオンマスター</span>
+  <header class="hero">
+    <div>
+      <div class="eyebrow">PERFORMANCE ANALYTICS · 定期テスト 5/19〜</div>
+      <h1>成績分析ダッシュボード</h1>
+      <div class="sub">返却順に <span class="pill">緑＝自分の点 / 平均点</span> を入力 ・ 偏差値/順位/到達度を自動推定 ・ <span id="dateNote"></span></div>
     </div>
-    <div class="head-stat">
-      <span><b id="hStreak">0</b> 連続正解</span>
-      <span><b id="hScore">0</b>% 正答率</span>
-      <span><b id="hWeak">0</b> 苦手</span>
+    <div class="hero-actions">
+      <button class="btn btn-ghost" id="loadDemo">サンプル投入</button>
+      <button class="btn btn-ghost" id="exportTxt">一覧をテキスト出力</button>
+      <button class="btn btn-danger" id="resetAll">入力リセット</button>
+      <button class="btn btn-primary" id="saveBtn">保存</button>
     </div>
-  </div>
-</header>
+  </header>
 
-<nav class="tabs">
-  <div class="tabs-inner">
-    <button class="tab active" data-tab="home">ホーム</button>
-    <button class="tab" data-tab="list">早見表</button>
-    <button class="tab" data-tab="flash">フラッシュ</button>
-    <button class="tab" data-tab="quiz">4択クイズ</button>
-    <button class="tab" data-tab="type">タイピング</button>
-    <button class="tab" data-tab="denri">電離式</button>
-    <button class="tab" data-tab="fill">穴埋め表</button>
-    <button class="tab" data-tab="weak">苦手リスト</button>
-    <button class="tab" data-tab="setting">設定</button>
-  </div>
-</nav>
+  <!-- SUMMARY -->
+  <div class="summary-grid" id="summaryGrid"></div>
 
-<main>
-
-<!-- ============== HOME ============== -->
-<section class="panel active" id="panel-home">
-  <h2 class="panel-title">こんにちは 👋</h2>
-  <p class="panel-sub">表穴埋めだけで10点。イオン式・イオン名・電離式の3点を確実に。</p>
-
-  <div class="stat-bar">
-    <h3>今日の学習状況</h3>
-    <div class="stat-row">
-      <div class="stat-item"><div class="num" id="sTotal">0</div><div class="lab">出題数</div></div>
-      <div class="stat-item"><div class="num" id="sCorrect">0</div><div class="lab">正解数</div></div>
-      <div class="stat-item"><div class="num" id="sAcc">—</div><div class="lab">正答率</div></div>
-      <div class="stat-item"><div class="num" id="sBest">0</div><div class="lab">連続最高</div></div>
+  <!-- PRO ANALYSIS -->
+  <div class="panel">
+    <h2><span class="dot"></span>総合パフォーマンス分析</h2>
+    <p class="hint">合計偏差値ゲージ・上級指標・自動インサイトをリアルタイム算出。</p>
+    <div class="gauge-wrap">
+      <div class="gauge">
+        <canvas id="gaugeChart"></canvas>
+        <div class="gnum">
+          <b id="gaugeVal">—</b>
+          <span class="glabel">総合偏差値</span>
+          <span class="grank r-na" id="gaugeRank">未入力</span>
+        </div>
+      </div>
+      <div style="flex:1;min-width:280px">
+        <div class="metric-strip" id="metricStrip"></div>
+      </div>
     </div>
+    <div style="margin-top:22px">
+      <div style="font-size:.82rem;font-weight:700;font-family:var(--display);margin-bottom:4px">学習時間の推奨配分（弱点ほど厚く）</div>
+      <div class="seg-track" id="allocTrack"></div>
+    </div>
+    <div class="insight-list" id="insightList" style="margin-top:22px"></div>
   </div>
 
-  <div class="home-grid">
-    <button class="mode-card" data-go="list">
-      <div class="icon">📖</div>
-      <h3>早見表で確認</h3>
-      <p>陽イオン17＋陰イオン17、電離式23本をまとめて閲覧</p>
-    </button>
-    <button class="mode-card" data-go="flash">
-      <div class="icon">🃏</div>
-      <h3>フラッシュカード</h3>
-      <p>イオン式 ⇄ イオン名 を高速反復。タップで裏返し</p>
-    </button>
-    <button class="mode-card" data-go="quiz">
-      <div class="icon">✅</div>
-      <h3>4択クイズ</h3>
-      <p>テスト形式で出題。苦手を自動検出して再出題</p>
-    </button>
-    <button class="mode-card" data-go="type">
-      <div class="icon">⌨️</div>
-      <h3>タイピング演習</h3>
-      <p>イオン式を自分の手で書く。記述式テスト対策に最適</p>
-    </button>
-    <button class="mode-card" data-go="denri">
-      <div class="icon">⚡</div>
-      <h3>電離式を組み立てる</h3>
-      <p>物質名→電離式を完成。係数までしっかり練習</p>
-    </button>
-    <button class="mode-card" data-go="fill">
-      <div class="icon">📝</div>
-      <h3>穴埋め表モード</h3>
-      <p>本番の表問題形式。10点分そのまま再現</p>
-    </button>
-  </div>
-
-  <div class="stat-bar" style="background:var(--accent-soft);border-color:#bfdbfe;">
-    <h3 style="color:var(--accent);">💡 出題範囲メモ（先生より）</h3>
-    <ul style="margin:6px 0 0 18px;padding:0;font-size:14px;color:var(--ink);">
-      <li>原子の構造・イオン式イオン名・電離式などの反応式がメイン</li>
-      <li>表穴埋め問題だけで <b>10点分</b></li>
-      <li><b>電気分解は出題されない</b></li>
-      <li>イオン早見表を使って覚えること</li>
-    </ul>
-  </div>
-</section>
-
-<!-- ============== LIST ============== -->
-<section class="panel" id="panel-list">
-  <h2 class="panel-title">イオン早見表</h2>
-  <p class="panel-sub">プリント完全準拠｜陽イオン17種・陰イオン17種｜単原子＝灰タグ／多原子＝紫タグ</p>
-
-  <div class="ion-table-wrap">
-    <div class="ion-table">
-      <h4>🔵 陽イオン</h4>
-      <table>
-        <thead><tr><th>イオン式</th><th>イオン名</th></tr></thead>
-        <tbody id="tbl-cation"></tbody>
+  <!-- INPUT TABLE -->
+  <div class="panel">
+    <h2><span class="dot"></span>科目別 詳細分析（1科目9項目）</h2>
+    <p class="hint">緑セル＝自分の点(F)・平均点(G)を入力。青セル＝満点(E)・最高点(O)・学年人数は補助入力（任意）。それ以外は全自動。</p>
+    <div class="legend">
+      <span><i class="swatch sw-green"></i>手入力：自分の点・平均点</span>
+      <span><i class="swatch sw-blue"></i>補助入力：満点・最高点</span>
+      <span>そのほかは自動計算</span>
+      <span>学年人数 <input class="cell blue" id="population" value="164" style="width:64px"> 人</span>
+    </div>
+    <div class="table-scroll">
+      <table id="mainTable">
+        <thead>
+          <tr>
+            <th>順</th><th>科目</th>
+            <th>満点<br><small>E</small></th>
+            <th>自分の点<br><small>F</small></th>
+            <th>平均点<br><small>G</small></th>
+            <th>最高点<br><small>O・任意</small></th>
+            <th>得点率<br><small>H</small></th>
+            <th>平均との差<br><small>I</small></th>
+            <th>σ推定<br><small>J</small></th>
+            <th>推定偏差値<br><small>K</small></th>
+            <th>上位%/順位<br><small>L</small></th>
+            <th>到達度<br><small>M</small></th>
+            <th>平均比<br><small>N</small></th>
+            <th>ひとこと分析<br><small>P</small></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+        <tfoot>
+          <tr id="footRow"></tr>
+          <tr id="footKokugo"></tr>
+        </tfoot>
       </table>
     </div>
-    <div class="ion-table">
-      <h4>🔴 陰イオン</h4>
-      <table>
-        <thead><tr><th>イオン式</th><th>イオン名</th></tr></thead>
-        <tbody id="tbl-anion"></tbody>
-      </table>
+    <div class="note">σ推定 = (満点−平均)÷2、推定偏差値 = 50 + 10×(点−平均)÷σ、順位 = 学年人数×(1−正規分布累積)。
+    すべて「学年が正規分布・満点≒平均+2σ」という仮定の推定値です。実際の標準偏差は学校しか持っていないため傾向把握用とお考えください。</div>
+  </div>
+
+  <!-- GOALS -->
+  <div class="panel">
+    <h2><span class="dot"></span>目標点 & 達成度ゲージ</h2>
+    <p class="hint">各科目の目標点を入れると、現在の点との達成度を可視化します。</p>
+    <div id="goalArea"></div>
+  </div>
+
+  <!-- TOP3 / WORST3 -->
+  <div class="grids-2">
+    <div class="panel">
+      <h2><span class="dot"></span>武器科目 TOP3</h2>
+      <p class="hint">平均との差が大きい順。得点源です。</p>
+      <ul class="rank-list" id="topList"></ul>
+    </div>
+    <div class="panel">
+      <h2><span class="dot"></span>弱点科目 TOP3 & 復習リンク</h2>
+      <p class="hint">平均との差が小さい順。最優先で復習を。</p>
+      <ul class="rank-list" id="worstList"></ul>
     </div>
   </div>
 
-  <h2 class="panel-title" style="margin-top:28px;">電離式リスト</h2>
-  <p class="panel-sub">プリント「電離式 練習シート 入門編」全23物質</p>
-  <div class="ion-table">
-    <table>
-      <thead><tr><th style="width:25%;">物質名</th><th style="width:22%;">化学式</th><th>電離式</th></tr></thead>
-      <tbody id="tbl-denri"></tbody>
-    </table>
+  <!-- CHARTS -->
+  <div class="grids-2">
+    <div class="panel"><h2><span class="dot"></span>得点率レーダー</h2><div class="chartbox"><canvas id="radarChart"></canvas></div></div>
+    <div class="panel"><h2><span class="dot"></span>自分の点 vs 平均点</h2><div class="chartbox"><canvas id="barChart"></canvas></div></div>
   </div>
-</section>
-
-<!-- ============== FLASH ============== -->
-<section class="panel" id="panel-flash">
-  <h2 class="panel-title">フラッシュカード</h2>
-  <p class="panel-sub">カードをタップして裏返し。覚えた／覚えてないで分類すると苦手リストに反映されます。</p>
-
-  <div class="flash-filter">
-    <button class="pill active" data-flashfilter="all">すべて</button>
-    <button class="pill" data-flashfilter="cation">陽イオンのみ</button>
-    <button class="pill" data-flashfilter="anion">陰イオンのみ</button>
-    <button class="pill" data-flashfilter="poly">多原子のみ</button>
-    <button class="pill" data-flashfilter="weak">苦手のみ</button>
+  <div class="grids-2">
+    <div class="panel"><h2><span class="dot"></span>推定偏差値ライン（50＝平均）</h2><div class="chartbox"><canvas id="hensaChart"></canvas></div></div>
+    <div class="panel"><h2><span class="dot"></span>平均との差（＋＝上回り）</h2><div class="chartbox"><canvas id="diffChart"></canvas></div></div>
   </div>
 
-  <div class="flash-area">
-    <div class="flash-filter" style="margin-bottom:10px;">
-      <button class="pill" id="flashDirBtn">方向：式 → 名前</button>
-      <button class="pill" id="flashShuffleBtn">🔀 シャッフル</button>
-    </div>
-
-    <div class="flashcard" id="flashCard">
-      <div class="label" id="flashLabel">イオン式</div>
-      <div class="main" id="flashFront">—</div>
-      <div class="sub" id="flashBack">—</div>
-      <div class="hint">タップで裏返し</div>
-    </div>
-
-    <div class="flash-controls">
-      <button class="btn" id="flashPrev">← 前へ</button>
-      <button class="btn bad" id="flashNG">✗ あやふや</button>
-      <button class="btn good" id="flashOK">✓ 覚えた</button>
-      <button class="btn" id="flashNext">次へ →</button>
-    </div>
-    <div class="flash-progress" id="flashProgress">— / —</div>
-  </div>
-</section>
-
-<!-- ============== QUIZ ============== -->
-<section class="panel" id="panel-quiz">
-  <h2 class="panel-title">4択クイズ</h2>
-  <p class="panel-sub">10問1セット。間違えたものは苦手リストに自動追加されます。</p>
-
-  <div class="quiz-area">
-    <div class="flash-filter">
-      <button class="pill active" data-quizmode="mix">式⇄名前 ミックス</button>
-      <button class="pill" data-quizmode="f2n">式→名前</button>
-      <button class="pill" data-quizmode="n2f">名前→式</button>
-    </div>
-
-    <div class="quiz-bar">
-      <span>第 <b id="qIdx">1</b> 問 / 10</span>
-      <span>正解 <b id="qOK">0</b> ／ 不正解 <b id="qNG">0</b></span>
-    </div>
-    <div class="progress-track"><div class="progress-fill" id="qBar" style="width:0%;"></div></div>
-
-    <div class="quiz-q">
-      <div class="qhead" id="qHead">問題</div>
-      <div class="qmain" id="qMain">—</div>
-      <div class="qprompt" id="qPrompt">正しい答えを選んでください</div>
-    </div>
-
-    <div class="quiz-options" id="quizOptions"></div>
-    <div class="quiz-feedback" id="quizFeedback"></div>
-
-    <div style="text-align:center;margin-top:8px;">
-      <button class="btn" id="quizNext" style="display:none;">次の問題 →</button>
-      <button class="btn primary" id="quizRestart" style="display:none;">もう一度</button>
-    </div>
-  </div>
-</section>
-
-<!-- ============== TYPE ============== -->
-<section class="panel" id="panel-type">
-  <h2 class="panel-title">タイピング演習</h2>
-  <p class="panel-sub">イオン名から化学式を入力。記号入力に慣れるためのヘルパーキー付き。</p>
-
-  <div class="flash-area">
-    <div class="flash-filter">
-      <button class="pill active" data-typemode="ion">イオン式</button>
-      <button class="pill" data-typemode="denri">電離式（左辺→右辺）</button>
-    </div>
-
-    <div class="flashcard">
-      <div class="label" id="typeLabel">イオン名</div>
-      <div class="main" id="typeQ" style="font-size:28px;">—</div>
-    </div>
-
-    <input type="text" class="type-input" id="typeInput" placeholder="ここに化学式を入力（例: Na+）" autocomplete="off" autocapitalize="off" spellcheck="false">
-    <div class="ion-keys" id="ionKeys">
-      <button class="ion-key" data-ins="₂">₂</button>
-      <button class="ion-key" data-ins="₃">₃</button>
-      <button class="ion-key" data-ins="₄">₄</button>
-      <button class="ion-key" data-ins="⁺">⁺</button>
-      <button class="ion-key" data-ins="⁻">⁻</button>
-      <button class="ion-key" data-ins="²⁺">²⁺</button>
-      <button class="ion-key" data-ins="²⁻">²⁻</button>
-      <button class="ion-key" data-ins="³⁺">³⁺</button>
-      <button class="ion-key" data-ins="³⁻">³⁻</button>
-    </div>
-    <div class="type-helper">
-      💡 普通の <code>2</code> や <code>+</code> で入力してもOK。自動でイオン記号に判定します。
-    </div>
-
-    <div class="flash-controls">
-      <button class="btn" id="typeSkip">スキップ</button>
-      <button class="btn primary" id="typeCheck">答え合わせ</button>
-      <button class="btn" id="typeNext">次へ →</button>
-    </div>
-    <div class="flash-progress" id="typeFeedback">—</div>
-  </div>
-</section>
-
-<!-- ============== DENRI ============== -->
-<section class="panel" id="panel-denri">
-  <h2 class="panel-title">電離式を組み立てる</h2>
-  <p class="panel-sub">下のチップをタップして右辺を完成させよう。係数も含めて正確に。</p>
-
-  <div class="quiz-area">
-    <div class="denri-card">
-      <div class="denri-q">
-        <div class="name" id="denriName">—</div>
-        <div class="formula-big" id="denriLeft">—</div>
-      </div>
-      <div class="denri-arrow">↓</div>
-      <div class="denri-build" id="denriBuild">
-        <span style="color:var(--ink-mute);font-size:14px;">↓ ここに組み立て</span>
-      </div>
-      <div class="denri-pool" id="denriPool"></div>
-    </div>
-
-    <div class="quiz-feedback" id="denriFeedback"></div>
-
-    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-      <button class="btn" id="denriClear">クリア</button>
-      <button class="btn primary" id="denriCheck">答え合わせ</button>
-      <button class="btn" id="denriShow">答えを見る</button>
-      <button class="btn" id="denriNext">次の物質 →</button>
-    </div>
-  </div>
-</section>
-
-<!-- ============== FILL ============== -->
-<section class="panel" id="panel-fill">
-  <h2 class="panel-title">穴埋め表モード</h2>
-  <p class="panel-sub">本番の「表穴埋め問題（10点分）」と同じ形式。空欄を埋めて「答え合わせ」を押してください。</p>
-
-  <div class="flash-filter">
-    <button class="pill active" data-fillmode="cation">陽イオン編</button>
-    <button class="pill" data-fillmode="anion">陰イオン編</button>
-    <button class="pill" data-fillmode="denri">電離式編</button>
+  <!-- NORMAL DISTRIBUTION -->
+  <div class="panel">
+    <h2><span class="dot"></span>偏差値の正規分布カーブ</h2>
+    <p class="hint">学年を正規分布と仮定した釣鐘曲線。自分の総合偏差値の位置と、上位何%・推定順位を可視化します。</p>
+    <div class="chartbox" style="height:300px;max-width:760px;margin:0 auto"><canvas id="normChart"></canvas></div>
+    <div id="normCaption" style="text-align:center;font-size:.82rem;color:var(--ink-soft);margin-top:10px;font-family:var(--mono)"></div>
   </div>
 
-  <div class="fill-table">
-    <div class="fill-head" id="fillHead">
-      <div>物質名</div><div>イオン式</div><div>イオン名</div>
-    </div>
-    <div id="fillBody"></div>
+  <!-- GOAL DUMBBELL -->
+  <div class="panel">
+    <h2><span class="dot"></span>目標ダンベルチャート</h2>
+    <p class="hint">現在点（●）から目標点（○）への距離。線が長いほど、達成までの伸びしろが大きい科目です。</p>
+    <div id="dumbbell"></div>
   </div>
 
-  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px;">
-    <button class="btn" id="fillReset">リセット</button>
-    <button class="btn primary" id="fillCheck">答え合わせ</button>
-    <button class="btn" id="fillShow">答えを表示</button>
+  <!-- STUDY LINK -->
+  <div class="panel">
+    <h2><span class="dot"></span>復習リソース対応表</h2>
+    <p class="hint">各科目のデータファイル・出題傾向のメモ。弱点科目を上のリンクからここへ。</p>
+    <div class="grids-3" id="linkArea"></div>
   </div>
-  <div class="quiz-feedback" id="fillFeedback"></div>
-</section>
 
-<!-- ============== WEAK ============== -->
-<section class="panel" id="panel-weak">
-  <h2 class="panel-title">苦手リスト</h2>
-  <p class="panel-sub">クイズ・タイピングで間違えたものが自動的にここに集まります。優先して復習を。</p>
-  <div class="weak-list" id="weakList"></div>
-  <div style="text-align:center;margin-top:20px;">
-    <button class="btn bad" id="weakClear">苦手リストを全消去</button>
-  </div>
-</section>
+</div>
 
-<!-- ============== SETTING ============== -->
-<section class="panel" id="panel-setting">
-  <h2 class="panel-title">設定</h2>
-  <p class="panel-sub">学習データはこの端末のブラウザに保存されています（オフラインでも動作）。</p>
-  <div class="setting-row">
-    <div>
-      <div class="lab">学習データをリセット</div>
-      <div class="desc">出題数・正解数・連続記録・苦手リストをすべて初期化します</div>
-    </div>
-    <button class="btn bad" id="resetAll">リセット</button>
-  </div>
-  <div class="setting-row">
-    <div>
-      <div class="lab">バージョン</div>
-      <div class="desc">中3 1学期中間考査範囲｜化学イオン特化版</div>
-    </div>
-    <div style="font-family:monospace;color:var(--ink-mute);">v1.0</div>
-  </div>
-</section>
-
-</main>
+<div class="toast" id="toast">保存しました</div>
 
 <script>
-/* ================================================================
-   データ（プリント完全準拠）
-================================================================ */
-const CATIONS = [
-  {f:"H⁺", n:"水素イオン", poly:false},
-  {f:"Li⁺", n:"リチウムイオン", poly:false},
-  {f:"Na⁺", n:"ナトリウムイオン", poly:false},
-  {f:"K⁺", n:"カリウムイオン", poly:false},
-  {f:"Mg²⁺", n:"マグネシウムイオン", poly:false},
-  {f:"Ca²⁺", n:"カルシウムイオン", poly:false},
-  {f:"Ba²⁺", n:"バリウムイオン", poly:false},
-  {f:"Al³⁺", n:"アルミニウムイオン", poly:false},
-  {f:"Cu⁺", n:"銅(I)イオン", poly:false},
-  {f:"Cu²⁺", n:"銅(II)イオン", poly:false},
-  {f:"Fe²⁺", n:"鉄(II)イオン", poly:false},
-  {f:"Fe³⁺", n:"鉄(III)イオン", poly:false},
-  {f:"Zn²⁺", n:"亜鉛イオン", poly:false},
-  {f:"Ni²⁺", n:"ニッケルイオン", poly:false},
-  {f:"Ag⁺", n:"銀イオン", poly:false},
-  {f:"NH₄⁺", n:"アンモニウムイオン", poly:true},
-  {f:"H₃O⁺", n:"オキソニウムイオン", poly:true},
-];
-const ANIONS = [
-  {f:"Cl⁻", n:"塩化物イオン", poly:false},
-  {f:"F⁻", n:"フッ化物イオン", poly:false},
-  {f:"Br⁻", n:"臭化物イオン", poly:false},
-  {f:"I⁻", n:"ヨウ化物イオン", poly:false},
-  {f:"O²⁻", n:"酸化物イオン", poly:false},
-  {f:"S²⁻", n:"硫化物イオン", poly:false},
-  {f:"CN⁻", n:"シアン化物イオン", poly:true},
-  {f:"OH⁻", n:"水酸化物イオン", poly:true},
-  {f:"SO₄²⁻", n:"硫酸イオン", poly:true},
-  {f:"NO₃⁻", n:"硝酸イオン", poly:true},
-  {f:"CO₃²⁻", n:"炭酸イオン", poly:true},
-  {f:"CH₃COO⁻", n:"酢酸イオン", poly:true},
-  {f:"HCO₃⁻", n:"炭酸水素イオン", poly:true},
-  {f:"C₂O₄²⁻", n:"シュウ酸イオン", poly:true},
-  {f:"PO₄³⁻", n:"リン酸イオン", poly:true},
-  {f:"MnO₄⁻", n:"過マンガン酸イオン", poly:true},
-  {f:"Cr₂O₇²⁻", n:"ニクロム酸イオン", poly:true},
+/* ===== 科目マスタ（表示順）。満点はプロジェクト指定の配点を初期値に。 ===== */
+const SUBJECTS = [
+  {key:'math_a', name:'数学甲', short:'数甲', full:100, hint:'y=ax²中心。因数分解・展開も基本問題で出る。高校入試傾向。', files:['math_a-data.txt']},
+  {key:'math_b', name:'数学乙', short:'数乙', full:100, hint:'円周角の定理・逆、外心、証明。補助線が難解。', files:['math_b-data.txt']},
+  {key:'kokugo_a', name:'国語甲', short:'国甲', full:80, hint:'握手・間の文化。記述の型(立場→根拠→例→まとめ)。', files:['kokugokou-note.txt']},
+  {key:'kokugo_b', name:'国語乙', short:'国乙', full:20, hint:'格助詞・副助詞・終助詞・接続助詞などの文法。', files:['（範囲外データ）']},
+  {key:'sci_butsuri', name:'理科1物理', short:'理物', full:50, hint:'浮力・水圧・力の合成。数値計算を素早く。満点狙い。', files:['science_butsuri-data.txt']},
+  {key:'sci_kagaku', name:'理科1化学', short:'理化', full:50, hint:'原子構造・イオン式/名・電離式。表穴埋め10点。電気分解は出ない。', files:['science_kagaku-data.txt','science_kagaku-jyugyouside_plint.txt']},
+  {key:'sci_2', name:'理科2', short:'理2', full:100, hint:'染色体・細胞分裂・減数分裂・メンデルの法則(3:1)。', files:['science_2-data.txt']},
+  {key:'koumin', name:'公民', short:'公民', full:50, hint:'情報化・グローバル化・少子高齢化のキーワード穴埋め。', files:['koumin-data.txt']},
+  {key:'history', name:'歴史', short:'歴史', full:50, hint:'GHQ〜冷戦〜高度経済成長の年号・固有名詞。', files:['history-data.txt']},
+  {key:'english', name:'英語', short:'英語', full:100, hint:'現在完了・現在完了進行形、since/for、Input Flood本文。', files:['English_alpha-data.txt']},
 ];
 
-// 電離式（プリント「電離式 練習シート 入門編」より完全抽出）
-// parts は右辺をチップに分割（係数・イオンを別チップで管理）
-const DENRI = [
-  {name:"水", left:"H₂O", right:"H⁺ + OH⁻", parts:["H⁺","+","OH⁻"]},
-  {name:"塩酸（塩化水素）", left:"HCl", right:"H⁺ + Cl⁻", parts:["H⁺","+","Cl⁻"]},
-  {name:"水酸化ナトリウム", left:"NaOH", right:"Na⁺ + OH⁻", parts:["Na⁺","+","OH⁻"]},
-  {name:"酸化鉄(II)", left:"FeO", right:"Fe²⁺ + O²⁻", parts:["Fe²⁺","+","O²⁻"]},
-  {name:"酸化鉄(III)", left:"Fe₂O₃", right:"2Fe³⁺ + 3O²⁻", parts:["2Fe³⁺","+","3O²⁻"]},
-  {name:"フッ化カルシウム", left:"CaF₂", right:"Ca²⁺ + 2F⁻", parts:["Ca²⁺","+","2F⁻"]},
-  {name:"硫酸銅(II)", left:"CuSO₄", right:"Cu²⁺ + SO₄²⁻", parts:["Cu²⁺","+","SO₄²⁻"]},
-  {name:"シアン化カリウム", left:"KCN", right:"K⁺ + CN⁻", parts:["K⁺","+","CN⁻"]},
-  {name:"硫酸アルミニウム", left:"Al₂(SO₄)₃", right:"2Al³⁺ + 3SO₄²⁻", parts:["2Al³⁺","+","3SO₄²⁻"]},
-  {name:"ヨウ化銀", left:"AgI", right:"Ag⁺ + I⁻", parts:["Ag⁺","+","I⁻"]},
-  {name:"硫化リチウム", left:"Li₂S", right:"2Li⁺ + S²⁻", parts:["2Li⁺","+","S²⁻"]},
-  {name:"炭酸カルシウム", left:"CaCO₃", right:"Ca²⁺ + CO₃²⁻", parts:["Ca²⁺","+","CO₃²⁻"]},
-  {name:"酢酸ナトリウム", left:"CH₃COONa", right:"Na⁺ + CH₃COO⁻", parts:["Na⁺","+","CH₃COO⁻"]},
-  {name:"硝酸マグネシウム", left:"Mg(NO₃)₂", right:"Mg²⁺ + 2NO₃⁻", parts:["Mg²⁺","+","2NO₃⁻"]},
-  {name:"塩化バリウム", left:"BaCl₂", right:"Ba²⁺ + 2Cl⁻", parts:["Ba²⁺","+","2Cl⁻"]},
-  {name:"硫化亜鉛", left:"ZnS", right:"Zn²⁺ + S²⁻", parts:["Zn²⁺","+","S²⁻"]},
-  {name:"シュウ酸", left:"H₂C₂O₄", right:"2H⁺ + C₂O₄²⁻", parts:["2H⁺","+","C₂O₄²⁻"]},
-  {name:"リン酸カルシウム", left:"Ca₃(PO₄)₂", right:"3Ca²⁺ + 2PO₄³⁻", parts:["3Ca²⁺","+","2PO₄³⁻"]},
-  {name:"硫酸アンモニウム", left:"(NH₄)₂SO₄", right:"2NH₄⁺ + SO₄²⁻", parts:["2NH₄⁺","+","SO₄²⁻"]},
-  {name:"次亜塩素酸ナトリウム", left:"NaClO", right:"Na⁺ + ClO⁻", parts:["Na⁺","+","ClO⁻"]},
-  {name:"炭酸水素ナトリウム", left:"NaHCO₃", right:"Na⁺ + HCO₃⁻", parts:["Na⁺","+","HCO₃⁻"]},
-  {name:"塩素酸カリウム", left:"KClO₃", right:"K⁺ + ClO₃⁻", parts:["K⁺","+","ClO₃⁻"]},
-  {name:"酸化チタン(IV)", left:"TiO₂", right:"Ti⁴⁺ + 2O²⁻", parts:["Ti⁴⁺","+","2O²⁻"]},
-];
+const POP_DEFAULT = 164;
+let state = loadState();
 
-const ALL_IONS = [...CATIONS.map(c=>({...c,charge:"+"})),...ANIONS.map(a=>({...a,charge:"-"}))];
-
-/* ================================================================
-   ストレージ
-================================================================ */
-const STORE_KEY = "ionMaster_v1";
-let state = {
-  total:0, correct:0, streak:0, bestStreak:0,
-  weak:{}, // key=ion.f, value=miss count
-};
-function save(){ try{localStorage.setItem(STORE_KEY, JSON.stringify(state));}catch(e){} }
-function load(){
+function loadState(){
+  let s=null;
   try{
-    const r = localStorage.getItem(STORE_KEY);
-    if(r){ state = Object.assign(state, JSON.parse(r)); }
+    const raw = localStorage.getItem('seiseki_v1');
+    if(raw) s=JSON.parse(raw);
   }catch(e){}
-}
-load();
-
-function recordCorrect(){
-  state.total++; state.correct++; state.streak++;
-  if(state.streak>state.bestStreak) state.bestStreak=state.streak;
-  save(); renderHeader(); renderHomeStats();
-}
-function recordWrong(key){
-  state.total++; state.streak=0;
-  if(key){ state.weak[key]=(state.weak[key]||0)+1; }
-  save(); renderHeader(); renderHomeStats(); renderWeak();
-}
-
-function renderHeader(){
-  document.getElementById("hStreak").textContent = state.streak;
-  document.getElementById("hScore").textContent = state.total ? Math.round(state.correct/state.total*100) : 0;
-  document.getElementById("hWeak").textContent = Object.keys(state.weak).length;
-}
-function renderHomeStats(){
-  document.getElementById("sTotal").textContent = state.total;
-  document.getElementById("sCorrect").textContent = state.correct;
-  document.getElementById("sAcc").textContent = state.total ? Math.round(state.correct/state.total*100)+"%" : "—";
-  document.getElementById("sBest").textContent = state.bestStreak;
-}
-
-/* ================================================================
-   タブ切り替え
-================================================================ */
-document.querySelectorAll(".tab").forEach(t=>{
-  t.addEventListener("click", ()=>switchTab(t.dataset.tab));
-});
-document.querySelectorAll("[data-go]").forEach(b=>{
-  b.addEventListener("click", ()=>switchTab(b.dataset.go));
-});
-function switchTab(name){
-  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===name));
-  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active", p.id==="panel-"+name));
-  window.scrollTo({top:0, behavior:"smooth"});
-  if(name==="weak") renderWeak();
-  if(name==="fill") renderFill();
-}
-
-/* ================================================================
-   LIST レンダリング
-================================================================ */
-function tagSpan(poly){
-  return poly ? '<span class="pos-tag tag-poly">多原子</span>' : '<span class="pos-tag tag-mono">単原子</span>';
-}
-function renderList(){
-  document.getElementById("tbl-cation").innerHTML = CATIONS.map(c=>
-    `<tr><td class="formula">${c.f}${tagSpan(c.poly)}</td><td>${c.n}</td></tr>`).join("");
-  document.getElementById("tbl-anion").innerHTML = ANIONS.map(c=>
-    `<tr><td class="formula">${c.f}${tagSpan(c.poly)}</td><td>${c.n}</td></tr>`).join("");
-  document.getElementById("tbl-denri").innerHTML = DENRI.map(d=>
-    `<tr><td>${d.name}</td><td class="formula">${d.left}</td><td class="formula">${d.left} → ${d.right}</td></tr>`).join("");
-}
-renderList();
-
-/* ================================================================
-   FLASHCARD
-================================================================ */
-let flashList = [];
-let flashIdx = 0;
-let flashFlipped = false;
-let flashDir = "f2n"; // f→n
-let flashFilter = "all";
-
-function buildFlashList(){
-  let src = [];
-  if(flashFilter==="all") src = [...CATIONS,...ANIONS];
-  else if(flashFilter==="cation") src = [...CATIONS];
-  else if(flashFilter==="anion") src = [...ANIONS];
-  else if(flashFilter==="poly") src = [...CATIONS,...ANIONS].filter(x=>x.poly);
-  else if(flashFilter==="weak") src = [...CATIONS,...ANIONS].filter(x=>state.weak[x.f]);
-  if(src.length===0) src=[{f:"—",n:"対象データなし",poly:false}];
-  flashList = src;
-  flashIdx = 0;
-}
-function renderFlash(){
-  if(flashList.length===0){ buildFlashList(); }
-  const c = flashList[flashIdx];
-  flashFlipped = false;
-  const card = document.getElementById("flashCard");
-  card.classList.remove("flipped");
-  if(flashDir==="f2n"){
-    document.getElementById("flashLabel").textContent = "イオン式";
-    document.getElementById("flashFront").innerHTML = c.f;
-    document.getElementById("flashBack").textContent = c.n;
-  }else{
-    document.getElementById("flashLabel").textContent = "イオン名";
-    document.getElementById("flashFront").innerHTML = c.n;
-    document.getElementById("flashFront").style.fontSize = "30px";
-    document.getElementById("flashBack").textContent = c.f;
-    document.getElementById("flashBack").style.fontFamily="SF Mono,Menlo,monospace";
-  }
-  if(flashDir==="f2n"){
-    document.getElementById("flashFront").style.fontSize = "42px";
-    document.getElementById("flashFront").style.fontFamily="SF Mono,Menlo,monospace";
-  }
-  document.getElementById("flashProgress").textContent = `${flashIdx+1} / ${flashList.length}`;
-}
-document.getElementById("flashCard").addEventListener("click", ()=>{
-  flashFlipped = !flashFlipped;
-  document.getElementById("flashCard").classList.toggle("flipped", flashFlipped);
-});
-document.getElementById("flashPrev").addEventListener("click", ()=>{
-  flashIdx = (flashIdx-1+flashList.length)%flashList.length;
-  renderFlash();
-});
-document.getElementById("flashNext").addEventListener("click", ()=>{
-  flashIdx = (flashIdx+1)%flashList.length;
-  renderFlash();
-});
-document.getElementById("flashOK").addEventListener("click", ()=>{
-  const c = flashList[flashIdx];
-  if(state.weak[c.f]){ delete state.weak[c.f]; save(); renderHeader(); renderWeak(); }
-  flashIdx = (flashIdx+1)%flashList.length;
-  renderFlash();
-});
-document.getElementById("flashNG").addEventListener("click", ()=>{
-  const c = flashList[flashIdx];
-  state.weak[c.f] = (state.weak[c.f]||0)+1;
-  save(); renderHeader(); renderWeak();
-  flashIdx = (flashIdx+1)%flashList.length;
-  renderFlash();
-});
-document.getElementById("flashDirBtn").addEventListener("click", ()=>{
-  flashDir = flashDir==="f2n"?"n2f":"f2n";
-  document.getElementById("flashDirBtn").textContent = flashDir==="f2n"?"方向：式 → 名前":"方向：名前 → 式";
-  renderFlash();
-});
-document.getElementById("flashShuffleBtn").addEventListener("click", ()=>{
-  flashList = flashList.map(v=>({v,r:Math.random()})).sort((a,b)=>a.r-b.r).map(x=>x.v);
-  flashIdx = 0; renderFlash();
-});
-document.querySelectorAll("[data-flashfilter]").forEach(b=>{
-  b.addEventListener("click", ()=>{
-    document.querySelectorAll("[data-flashfilter]").forEach(x=>x.classList.remove("active"));
-    b.classList.add("active");
-    flashFilter = b.dataset.flashfilter;
-    buildFlashList(); renderFlash();
+  if(!s) s={population:POP_DEFAULT, rows:{}, goals:{}};
+  // マスタとマージ（科目の増減・配点変更に追従）
+  if(!s.rows)s.rows={};if(!s.goals)s.goals={};
+  SUBJECTS.forEach(su=>{
+    if(!s.rows[su.key]) s.rows[su.key]={full:su.full, mine:'', avg:'', top:''};
+    if(s.goals[su.key]===undefined) s.goals[su.key]='';
+    // 配点が変わった科目（公民・歴史=50点）は古い保存値を正しい満点へ補正
+    if((su.key==='koumin'||su.key==='history') && Number(s.rows[su.key].full)!==su.full){
+      s.rows[su.key].full=su.full;
+    }
   });
-});
-buildFlashList(); renderFlash();
-
-/* ================================================================
-   QUIZ
-================================================================ */
-let quizMode = "mix";
-let quizList = [];
-let quizIdx = 0;
-let quizOK = 0, quizNG = 0;
-let quizPool = [...CATIONS,...ANIONS];
-
-function buildQuiz(){
-  // 苦手を多めに混ぜる
-  const weakItems = quizPool.filter(x=>state.weak[x.f]);
-  let pool = [...quizPool, ...weakItems, ...weakItems]; // 苦手は3倍出やすく
-  pool = pool.sort(()=>Math.random()-0.5);
-  // 重複除いて10問
-  const seen = new Set();
-  quizList = [];
-  for(const it of pool){
-    if(seen.has(it.f)) continue;
-    seen.add(it.f);
-    quizList.push(it);
-    if(quizList.length>=10) break;
-  }
-  quizIdx = 0; quizOK = 0; quizNG = 0;
+  return s;
 }
-function renderQuiz(){
-  if(quizIdx>=quizList.length){
-    // 終了
-    document.getElementById("qMain").textContent = `🎉 ${quizOK}/10 正解！`;
-    document.getElementById("qHead").textContent = "終了";
-    document.getElementById("qPrompt").textContent = quizOK===10 ? "満点！！この調子！" : (quizOK>=8?"あと一歩で満点。苦手リストを復習しよう":"苦手リストを重点的に復習しよう");
-    document.getElementById("quizOptions").innerHTML = "";
-    document.getElementById("quizNext").style.display="none";
-    document.getElementById("quizRestart").style.display="inline-block";
-    document.getElementById("qBar").style.width = "100%";
-    return;
-  }
-  const it = quizList[quizIdx];
-  let dir = quizMode;
-  if(quizMode==="mix") dir = Math.random()<0.5 ? "f2n" : "n2f";
-  it._dir = dir;
+function persist(){ try{ localStorage.setItem('seiseki_v1', JSON.stringify(state)); }catch(e){} }
 
-  document.getElementById("qIdx").textContent = quizIdx+1;
-  document.getElementById("qOK").textContent = quizOK;
-  document.getElementById("qNG").textContent = quizNG;
-  document.getElementById("qBar").style.width = ((quizIdx)/10*100)+"%";
-
-  if(dir==="f2n"){
-    document.getElementById("qHead").textContent = "このイオン式の名前は？";
-    document.getElementById("qMain").innerHTML = it.f;
-    document.getElementById("qPrompt").textContent = "正しいイオン名を選んでください";
+/* ===== 正規分布の累積（誤差関数近似） ===== */
+function normCdf(z){
+  const t=1/(1+0.2316419*Math.abs(z));
+  const d=0.3989423*Math.exp(-z*z/2);
+  let p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));
+  return z>0?1-p:p;
+}
+/* 上位割合(upper)と母数(pop)から順位を推定。
+   純粋な正規分布は裾が薄く、上位ほど1位に張り付いて高得点でも順位が動かない。
+   実分布に近づけるため、中央(upper=0.5→中央順位)は保ちつつ、
+   上位側(upper<0.5)だけをなだらかに引き伸ばして高得点に順位を反応させる。 */
+function estimateRank(upper,pop){
+  const u=Math.min(1,Math.max(0,upper));
+  let frac;
+  if(u>=0.5){
+    frac=u;                                  // 中央〜下位はそのまま（中央が正しく出る）
   }else{
-    document.getElementById("qHead").textContent = "このイオン名の化学式は？";
-    document.getElementById("qMain").textContent = it.n;
-    document.getElementById("qPrompt").textContent = "正しいイオン式を選んでください";
+    // 上位側: 0.5→0.5, 0→0 を保ちつつ指数を下げると frac が大きくなり順位が下がる（厳しめ）
+    frac=0.5*Math.pow(u/0.5,0.52);
   }
+  return Math.max(1, Math.round(1+(pop-1)*frac));
+}
 
-  // 選択肢生成
-  const wrongs = quizPool.filter(x=>x.f!==it.f).sort(()=>Math.random()-0.5).slice(0,3);
-  const opts = [...wrongs, it].sort(()=>Math.random()-0.5);
-  const optHtml = opts.map(o=>{
-    const txt = dir==="f2n" ? o.n : o.f;
-    return `<button class="quiz-opt" data-f="${o.f}">${txt}</button>`;
-  }).join("");
-  document.getElementById("quizOptions").innerHTML = optHtml;
-  document.getElementById("quizFeedback").textContent = "";
-  document.getElementById("quizNext").style.display = "none";
-  document.getElementById("quizRestart").style.display = "none";
+/* 入力済み科目から「合計点ベースの総合偏差値」を算出。
+   各科目の単純平均ではなく、合計点を合計のσ(各σの二乗和の平方根)で評価するため、
+   全科目で上回っているほど総合偏差値が正しく高く出る。 */
+function totalStats(){
+  let tFull=0,tMine=0,tAvg=0,varSum=0,cnt=0;
+  SUBJECTS.forEach(su=>{const a=analyzeRow(su);
+    if(a.valid){tFull+=a.full;tMine+=a.mine;tAvg+=a.avg;varSum+=a.sigma*a.sigma;cnt++;}});
+  const totSigma=Math.max(Math.sqrt(varSum),1e-6);
+  const diff=tMine-tAvg;
+  const hensa=cnt?50+10*diff/totSigma:0;
+  const pop=num(state.population)||POP_DEFAULT;
+  const z=(hensa-50)/10, upper=1-normCdf(z), rank=estimateRank(upper,pop);
+  return {tFull,tMine,tAvg,cnt,diff,hensa,upper,rank,pop,rate:tFull?tMine/tFull:0};
+}
 
-  document.querySelectorAll(".quiz-opt").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      const selected = btn.dataset.f;
-      const correct = it.f;
-      document.querySelectorAll(".quiz-opt").forEach(b=>{
-        b.disabled = true;
-        if(b.dataset.f===correct) b.classList.add("correct");
-        else if(b.dataset.f===selected) b.classList.add("wrong");
-      });
-      if(selected===correct){
-        quizOK++;
-        recordCorrect();
-        document.getElementById("quizFeedback").innerHTML = '<span class="ok">✓ 正解！</span>';
-        if(state.weak[it.f]){ delete state.weak[it.f]; save(); renderHeader(); }
-      }else{
-        quizNG++;
-        recordWrong(it.f);
-        document.getElementById("quizFeedback").innerHTML = `<span class="ng">✗ 不正解：正解は <b>${it.f}（${it.n}）</b></span>`;
-      }
-      document.getElementById("quizNext").style.display="inline-block";
+function analyzeRow(su){
+  const r=state.rows[su.key];
+  const full=num(r.full), mine=numOrNull(r.mine), avg=numOrNull(r.avg);
+  if(mine===null||avg===null||!full){
+    return {valid:false, full, mine, avg};
+  }
+  const rate=mine/full;                       // H
+  const diff=mine-avg;                          // I
+  const sigma=Math.max((full-avg)/2, 1e-6);     // J
+  const hensa=50+10*diff/sigma;                 // K
+  const z=(mine-avg)/sigma;
+  const upper=1-normCdf(z);                     // 上位割合
+  const pop=num(state.population)||POP_DEFAULT;
+  const rank=estimateRank(upper,pop);           // L順位
+  let reach,reachCls;                            // M
+  if(rate>=.9){reach='◎完璧';reachCls='b-perfect';}
+  else if(rate>=.8){reach='○良好';reachCls='b-good';}
+  else if(rate>=.7){reach='△標準';reachCls='b-mid';}
+  else if(rate>=.6){reach='▲要復習';reachCls='b-low';}
+  else{reach='×重点';reachCls='b-bad';}
+  let cmp,cmpCls;                                 // N
+  if(diff>=15){cmp='大きく↑';cmpCls='pos';}
+  else if(diff>=5){cmp='↑上回る';cmpCls='pos';}
+  else if(diff>=-5){cmp='≒平均';cmpCls='mid';}
+  else if(diff>=-15){cmp='↓下回る';cmpCls='neg';}
+  else{cmp='大きく↓';cmpCls='neg';}
+  let one;                                        // P
+  if(rate>=.9&&diff>=5)one='得点源。この調子で維持';
+  else if(rate>=.8)one='安定。ミスを潰せば満点圏';
+  else if(diff<=-15)one='最優先で復習すべき弱点';
+  else if(diff<0)one='平均以下。基礎の取りこぼし注意';
+  else if(rate<.6)one='重点復習。範囲を1周し直そう';
+  else one='あと一歩。失点パターンを分析';
+  return {valid:true, full, mine, avg, rate, diff, sigma, hensa, upper, rank, reach, reachCls, cmp, cmpCls, one};
+}
+
+function num(v){const n=parseFloat(v);return isNaN(n)?0:n;}
+function numOrNull(v){if(v===''||v===null||v===undefined)return null;const n=parseFloat(v);return isNaN(n)?null:n;}
+function sign(n){return (n>0?'+':'')+n;}
+
+/* ===== テーブル描画 ===== */
+function renderTable(){
+  const tb=document.getElementById('tbody');tb.innerHTML='';
+  SUBJECTS.forEach((su,i)=>{
+    const r=state.rows[su.key];
+    const a=analyzeRow(su);
+    const tr=document.createElement('tr');
+    const diffBg = a.valid? diffColor(a.diff):'';
+    const rateBg = a.valid? rateColor(a.rate):'';
+    tr.innerHTML=`
+      <td><span class="order">${i+1}</span></td>
+      <td class="subj">${su.name}</td>
+      <td><input class="cell blue" data-k="${su.key}" data-f="full" value="${r.full}"></td>
+      <td><input class="cell green" data-k="${su.key}" data-f="mine" value="${r.mine}" placeholder="点"></td>
+      <td><input class="cell green" data-k="${su.key}" data-f="avg" value="${r.avg}" placeholder="平均"></td>
+      <td><input class="cell blue" data-k="${su.key}" data-f="top" value="${r.top}" placeholder="—"></td>
+      <td style="background:${rateBg}">${a.valid?(a.rate*100).toFixed(1)+'%':'—'}</td>
+      <td style="background:${diffBg}" class="${a.valid?(a.diff>=0?'pos':'neg'):''}">${a.valid?sign(+a.diff.toFixed(1)):'—'}</td>
+      <td>${a.valid?a.sigma.toFixed(1):'—'}</td>
+      <td>${a.valid?dataBar(a.hensa):'—'}</td>
+      <td>${a.valid?`上位${(a.upper*100).toFixed(1)}%<br><small>${a.rank}位</small>`:'—'}</td>
+      <td>${a.valid?`<span class="badge ${a.reachCls}">${a.reach}</span>`:'—'}</td>
+      <td class="${a.valid?a.cmpCls:''}">${a.valid?a.cmp:'—'}</td>
+      <td style="text-align:left;white-space:normal;font-size:.78rem;max-width:170px">${a.valid?a.one:'—'}</td>`;
+    tb.appendChild(tr);
+  });
+  bindInputs();
+  renderFoot();
+}
+
+function dataBar(h){
+  const pct=Math.max(0,Math.min(100,(h/80)*100));
+  return `<div class="databar"><i style="width:${pct}%"></i><b>${h.toFixed(1)}</b></div>`;
+}
+function diffColor(d){
+  const t=Math.max(-25,Math.min(25,d))/25; // -1..1
+  if(t>=0){const g=Math.round(255-t*120);return `rgb(${g},255,${g})`;}
+  const r=255;const o=Math.round(255+t*120);return `rgb(${r},${o},${o})`;
+}
+function rateColor(rt){
+  const t=Math.max(0,Math.min(1,rt));
+  if(t<.5){const g=Math.round(t*2*255);return `rgb(255,${g},${Math.round(g*.6)})`;}
+  const r=Math.round(255-(t-.5)*2*200);return `rgb(${r},255,${Math.round(r*.6)})`;
+}
+
+function renderFoot(){
+  let tFull=0,tMine=0,tAvg=0,cnt=0,kgaFull=0,kgaMine=0,kgaAvg=0,kgbFull=0,kgbMine=0,kgbAvg=0;
+  SUBJECTS.forEach(su=>{
+    const a=analyzeRow(su);
+    if(a.valid){tFull+=a.full;tMine+=a.mine;tAvg+=a.avg;cnt++;}
+    if(su.key==='kokugo_a'&&a.valid){kgaFull=a.full;kgaMine=a.mine;kgaAvg=a.avg;}
+    if(su.key==='kokugo_b'&&a.valid){kgbFull=a.full;kgbMine=a.mine;kgbAvg=a.avg;}
+  });
+  const T=totalStats();
+  const rate=T.rate, diff=T.diff, avgH=T.hensa, pop=T.pop, upper=T.upper, rank=T.rank;
+  document.getElementById('footRow').innerHTML=`
+    <td></td><td class="subj">合計</td>
+    <td>${tFull}</td><td>${tMine}</td><td>${tAvg.toFixed(1)}</td><td>—</td>
+    <td>${(rate*100).toFixed(1)}%</td>
+    <td class="${diff>=0?'pos':'neg'}">${sign(+diff.toFixed(1))}</td>
+    <td>—</td><td>${avgH.toFixed(1)}</td>
+    <td>上位${(upper*100).toFixed(1)}%<br><small>約${rank}位</small></td>
+    <td colspan="3" style="text-align:left;padding-left:14px">入力済 ${cnt}/10 科目 ・ 総合推定順位 約${rank}位 / ${pop}人</td>`;
+  const kFull=kgaFull+kgbFull,kMine=kgaMine+kgbMine,kAvg=kgaAvg+kgbAvg;
+  document.getElementById('footKokugo').innerHTML = (kFull>0)?`
+    <td></td><td class="subj" style="font-weight:600;color:var(--ink-soft)">└ 国語(甲+乙)</td>
+    <td>${kFull}</td><td>${kMine}</td><td>${kAvg.toFixed(1)}</td><td>—</td>
+    <td>${kFull?((kMine/kFull)*100).toFixed(1):'0'}%</td>
+    <td class="${(kMine-kAvg)>=0?'pos':'neg'}">${sign(+(kMine-kAvg).toFixed(1))}</td>
+    <td colspan="6" style="text-align:left;padding-left:14px;color:var(--ink-soft);font-size:.78rem">国語甲80点＋国語乙20点の合算</td>`:'';
+}
+
+/* ===== サマリーカード ===== */
+function renderSummary(){
+  const T=totalStats();
+  const tFull=T.tFull,tMine=T.tMine,cnt=T.cnt,diff=T.diff,avgH=T.hensa,pop=T.pop,upper=T.upper,rank=T.rank;
+  const rate=T.rate*100;
+  const cards=[
+    {label:'入力済み科目',val:`${cnt}<small>/10</small>`,d:'',cls:'mid'},
+    {label:'合計得点',val:`${tMine}<small>/${tFull}</small>`,d:`得点率 ${rate.toFixed(1)}%`,cls:'mid'},
+    {label:'平均との合計差',val:`${cnt?sign(+diff.toFixed(1)):'—'}`,d:cnt?'全科目合算':'未入力',cls:diff>=0?'pos':'neg'},
+    {label:'平均推定偏差値',val:cnt?avgH.toFixed(1):'—',d:'50が平均',cls:avgH>=50?'pos':'neg'},
+    {label:'総合上位推定',val:cnt?`${(upper*100).toFixed(1)}%`:'—',d:cnt?`約${rank}位 / ${pop}人`:'未入力',cls:'mid'},
+    {label:'総合推定順位',val:cnt?`約${rank}<small>位</small>`:'—',d:`母数 ${pop}人`,cls:'mid'},
+  ];
+  document.getElementById('summaryGrid').innerHTML=cards.map(c=>`
+    <div class="scard"><div class="label">${c.label}</div>
+    <div class="value">${c.val}</div>
+    <div class="delta ${c.cls}">${c.d}</div></div>`).join('');
+}
+
+/* ===== TOP3 / WORST3 ===== */
+function renderRanks(){
+  const arr=SUBJECTS.map((su,i)=>({su,i,a:analyzeRow(su)})).filter(x=>x.a.valid)
+    .map(x=>({...x,sortKey:x.a.diff*1000 - x.i})); // 一意キー
+  const top=[...arr].sort((p,q)=>q.sortKey-p.sortKey).slice(0,3);
+  const worst=[...arr].sort((p,q)=>p.sortKey-q.sortKey).slice(0,3);
+  const tl=document.getElementById('topList'),wl=document.getElementById('worstList');
+  if(!arr.length){tl.innerHTML=wl.innerHTML='<li style="color:var(--ink-soft);justify-content:center">データ未入力</li>';return;}
+  tl.innerHTML=top.map((x,j)=>`<li><span class="num n${j+1}">${j+1}</span>
+    <div class="meta"><b>${x.su.name}</b><small>偏差値 ${x.a.hensa.toFixed(1)} ・ ${x.a.reach}</small></div>
+    <span class="delta pos">${sign(+x.a.diff.toFixed(1))}</span></li>`).join('');
+  wl.innerHTML=worst.map((x,j)=>`<li><span class="num ${j===0?'nb':'nw'}">${j+1}</span>
+    <div class="meta"><b>${x.su.name}</b><small>偏差値 ${x.a.hensa.toFixed(1)} ・ ${x.a.reach} → <a href="#linkArea" style="color:var(--accent);font-weight:700">復習</a></small></div>
+    <span class="delta neg">${sign(+x.a.diff.toFixed(1))}</span></li>`).join('');
+}
+
+/* ===== 目標ゲージ ===== */
+function goalLabelPct(su){
+  const r=state.rows[su.key];const g=state.goals[su.key]||'';
+  const mine=numOrNull(r.mine);const goal=numOrNull(g);const full=num(r.full);
+  let pct=0,col='linear-gradient(90deg,#c7cde0,#aeb5cf)',label='目標未設定';
+  if(goal!==null&&full){
+    pct=mine!==null?Math.min(100,mine/goal*100):0;
+    if(mine!==null){
+      if(mine>=goal){col='linear-gradient(90deg,#16b364,#0f9d77)';label=`達成！(${mine}/${goal})`;}
+      else{col='linear-gradient(90deg,#f5a623,#f0772b)';label=`あと${(goal-mine).toFixed(0)}点 (${mine}/${goal})`;}
+    }else label=`目標${goal}点`;
+  }
+  return {pct,col,label};
+}
+function renderGoals(){
+  const area=document.getElementById('goalArea');
+  area.innerHTML=SUBJECTS.map(su=>{
+    const {pct,col,label}=goalLabelPct(su);const g=state.goals[su.key]||'';
+    return `<div class="goal-row" data-row="${su.key}">
+      <span class="gname">${su.name}</span>
+      <div class="goal-track"><i style="width:${pct}%;background:${col}"></i></div>
+      <input class="cell gt" data-goal="${su.key}" value="${g}" placeholder="目標">
+      <span class="gval">${label}</span></div>`;
+  }).join('');
+  area.querySelectorAll('input[data-goal]').forEach(inp=>{
+    inp.addEventListener('input',e=>{
+      const key=e.target.dataset.goal;
+      state.goals[key]=e.target.value;persist();
+      updateGoalRow(key);          // ← DOMを作り直さず該当行だけ更新（フォーカス維持）
+      renderPro();                  // インサイトの目標連動だけ更新
+      renderDumbbell();             // 目標ダンベルも更新
     });
   });
 }
-document.getElementById("quizNext").addEventListener("click", ()=>{
-  quizIdx++; renderQuiz();
-});
-document.getElementById("quizRestart").addEventListener("click", ()=>{
-  buildQuiz(); renderQuiz();
-});
-document.querySelectorAll("[data-quizmode]").forEach(b=>{
-  b.addEventListener("click", ()=>{
-    document.querySelectorAll("[data-quizmode]").forEach(x=>x.classList.remove("active"));
-    b.classList.add("active");
-    quizMode = b.dataset.quizmode;
-    buildQuiz(); renderQuiz();
+function updateGoalRow(key){
+  const su=SUBJECTS.find(s=>s.key===key);
+  const row=document.querySelector(`.goal-row[data-row="${key}"]`);
+  if(!su||!row)return;
+  const {pct,col,label}=goalLabelPct(su);
+  row.querySelector('.goal-track > i').style.cssText=`width:${pct}%;background:${col}`;
+  row.querySelector('.gval').textContent=label;
+}
+
+/* ===== リンクカード ===== */
+function renderLinks(){
+  document.getElementById('linkArea').innerHTML=SUBJECTS.map(su=>`
+    <div class="link-card"><b>${su.name} <span class="pill">${su.full}点</span></b>
+    <span class="tag">${su.hint}</span>
+    <div class="files">${su.files.map(f=>`<code>${f}</code>`).join('')}</div></div>`).join('');
+}
+
+/* ===== 専門分析（指標ストリップ・配分・インサイト） ===== */
+function renderPro(){
+  const v=SUBJECTS.map(su=>({su,a:analyzeRow(su)})).filter(x=>x.a.valid);
+  const strip=document.getElementById('metricStrip');
+  const alloc=document.getElementById('allocTrack');
+  const ins=document.getElementById('insightList');
+  if(!v.length){
+    strip.innerHTML='<div class="mstrip"><div class="mlabel">待機中</div><div class="mval">—</div><div class="mdesc">点数を入力すると分析開始</div></div>';
+    alloc.innerHTML='';ins.innerHTML='<div class="insight"><span class="ic"></span><div>緑セルに点数と平均点を入力すると、専門分析が表示されます。</div></div>';
+    return;
+  }
+  const hensas=v.map(x=>x.a.hensa);
+  const mean=hensas.reduce((s,h)=>s+h,0)/hensas.length;
+  const variance=hensas.reduce((s,h)=>s+(h-mean)**2,0)/hensas.length;
+  const sd=Math.sqrt(variance);                       // 偏差値のばらつき＝安定度
+  const best=v.reduce((p,q)=>q.a.hensa>p.a.hensa?q:p);
+  const worst=v.reduce((p,q)=>q.a.hensa<p.a.hensa?q:p);
+  const range=best.a.hensa-worst.a.hensa;
+  const totFull=v.reduce((s,x)=>s+x.a.full,0);
+  const totMine=v.reduce((s,x)=>s+x.a.mine,0);
+  const consistency=Math.max(0,100-sd*6).toFixed(0);  // 安定度スコア
+  // 伸びしろ：満点との差の合計
+  const headroom=v.reduce((s,x)=>s+(x.a.full-x.a.mine),0);
+
+  strip.innerHTML=[
+    {l:'安定度スコア',v:consistency,d:'100に近いほど全科目が均一'},
+    {l:'最高 / 最低 偏差値',v:`${best.a.hensa.toFixed(0)}/${worst.a.hensa.toFixed(0)}`,d:`${best.su.short}↑ ${worst.su.short}↓`},
+    {l:'偏差値レンジ',v:range.toFixed(1),d:'得意と苦手の開き'},
+    {l:'総合得点率',v:(totMine/totFull*100).toFixed(1)+'%',d:`${totMine}/${totFull}点`},
+    {l:'伸びしろ',v:headroom+'点',d:'満点まで取り切れる残り'},
+  ].map(m=>`<div class="mstrip"><div class="mlabel">${m.l}</div><div class="mval">${m.v}</div><div class="mdesc">${m.d}</div></div>`).join('');
+
+  // 学習配分：偏差値が低いほど厚く（重み = max(0, 60 - 偏差値) + 5）
+  const weights=v.map(x=>({su:x.su,w:Math.max(0,60-x.a.hensa)+5}));
+  const wsum=weights.reduce((s,w)=>s+w.w,0);
+  const palette=['#5b5bf0','#0fb5c4','#16b364','#f59e0b','#ff7a59','#7d7dff','#0c8a4a','#e0722b','#3d36c4','#cf2718'];
+  alloc.innerHTML=weights.sort((a,b)=>b.w-a.w).map((w,i)=>{
+    const pc=(w.w/wsum*100);
+    return `<div style="flex:${pc};background:${palette[i%palette.length]}" title="${w.su.name} ${pc.toFixed(0)}%">${pc>=8?w.su.short+' '+pc.toFixed(0)+'%':''}</div>`;
+  }).join('');
+
+  // インサイト自動生成
+  const list=[];
+  if(parseFloat(consistency)>=80) list.push({c:'good',t:`<b>非常に安定</b>。科目間の偏差値差が小さく(σ=${sd.toFixed(1)})、穴がありません。トップ層は得意科目の上積みで差をつけましょう。`});
+  else if(range>=12) list.push({c:'warn',t:`<b>科目間の差が大きい</b>（レンジ${range.toFixed(0)}）。<b>${worst.su.name}</b>(偏差値${worst.a.hensa.toFixed(0)})を底上げすると総合偏差値が最も効率よく上がります。`});
+  const belowAvg=v.filter(x=>x.a.diff<0);
+  if(belowAvg.length) list.push({c:'bad',t:`平均を下回るのは <b>${belowAvg.map(x=>x.su.short).join('・')}</b> の${belowAvg.length}科目。まずここを平均ラインまで戻すのが最優先です。`});
+  else list.push({c:'good',t:`全科目で平均以上。<b>${best.su.name}</b>を武器に、上位%をさらに削りにいけます。`});
+  // 目標との接続
+  const goalGap=SUBJECTS.map(su=>{const g=numOrNull(state.goals[su.key]);const m=numOrNull(state.rows[su.key].mine);
+    return (g!==null&&m!==null&&m<g)?{su,gap:g-m}:null;}).filter(Boolean).sort((a,b)=>b.gap-a.gap);
+  if(goalGap.length) list.push({c:'warn',t:`目標未達は <b>${goalGap[0].su.name}</b> が最大（あと${goalGap[0].gap}点）。配点と伸びしろを見て優先度を判断しましょう。`});
+  // 国語甲乙バランス
+  const ka=analyzeRow(SUBJECTS.find(s=>s.key==='kokugo_a')),kb=analyzeRow(SUBJECTS.find(s=>s.key==='kokugo_b'));
+  if(ka.valid&&kb.valid){const w=ka.rate<kb.rate?'甲（読解80点）':'乙（文法20点）';
+    list.push({c:'',t:`国語は ${w} の得点率が低め。配点の大きい甲は記述の型、乙は助詞の識別で固めるのが定石です。`});}
+  ins.innerHTML=list.map(x=>`<div class="insight ${x.c}"><span class="ic"></span><div>${x.t}</div></div>`).join('');
+}
+
+/* ===== グラフ ===== */
+let charts={};
+Chart.defaults.font.family="'Space Grotesk','Zen Kaku Gothic New',sans-serif";
+Chart.defaults.font.size=11.5;
+Chart.defaults.color='#646c87';
+Chart.defaults.responsive=true;
+Chart.defaults.maintainAspectRatio=false;   // コンテナ(.chartbox)の幅・高さいっぱいに描画
+
+function vgrad(ctx,area,c1,c2){
+  if(!area)return c1;
+  const g=ctx.createLinearGradient(0,area.top,0,area.bottom);
+  g.addColorStop(0,c1);g.addColorStop(1,c2);return g;
+}
+function hgrad(ctx,area,c1,c2){
+  if(!area)return c1;
+  const g=ctx.createLinearGradient(area.left,0,area.right,0);
+  g.addColorStop(0,c1);g.addColorStop(1,c2);return g;
+}
+
+function renderCharts(){
+  const labels=SUBJECTS.map(s=>s.short);
+  const valid=SUBJECTS.map(su=>analyzeRow(su));
+  const rateData=valid.map(a=>a.valid?+(a.rate*100).toFixed(1):null);
+  const mineData=valid.map(a=>a.valid?a.mine:null);
+  const avgData=valid.map(a=>a.valid?a.avg:null);
+  const hensaData=valid.map(a=>a.valid?+a.hensa.toFixed(1):null);
+  const diffData=valid.map(a=>a.valid?+a.diff.toFixed(1):null);
+  const grid='rgba(120,130,170,.1)';
+  const tip={backgroundColor:'#161a2e',padding:11,cornerRadius:10,titleFont:{family:"'Sora',sans-serif",size:12},
+    bodyFont:{family:"'JetBrains Mono',monospace",size:11},displayColors:true,boxPadding:4};
+  Object.values(charts).forEach(c=>c&&c.destroy());
+
+  charts.radar=new Chart(radarChart,{type:'radar',data:{labels,datasets:[{label:'得点率%',data:rateData,
+    backgroundColor:(c)=>{const{chart}=c;return chart.chartArea?(()=>{const g=chart.ctx.createRadialGradient(chart.width/2,chart.height/2,10,chart.width/2,chart.height/2,chart.height/2);g.addColorStop(0,'rgba(91,91,240,.06)');g.addColorStop(1,'rgba(15,181,196,.28)');return g;})():'rgba(91,91,240,.18)';},
+    borderColor:'#5b5bf0',pointBackgroundColor:'#5b5bf0',pointBorderColor:'#fff',pointBorderWidth:1.5,pointRadius:3.5,borderWidth:2.5,tension:.05}]},
+    options:{plugins:{legend:{display:false},tooltip:tip},scales:{r:{suggestedMin:0,suggestedMax:100,grid:{color:grid},angleLines:{color:grid},
+      ticks:{display:true,stepSize:25,backdropColor:'transparent',color:'#9aa1ba',font:{size:9}},pointLabels:{font:{family:"'Sora',sans-serif",size:11.5,weight:'600'},color:'#161a2e'}}},
+      elements:{line:{borderJoinStyle:'round'}}}});
+
+  charts.bar=new Chart(barChart,{type:'bar',data:{labels,datasets:[
+    {label:'自分の点',data:mineData,backgroundColor:(c)=>vgrad(c.chart.ctx,c.chart.chartArea,'#6f6fff','#5b5bf0'),borderRadius:7,maxBarThickness:26},
+    {label:'平均点',data:avgData,backgroundColor:(c)=>vgrad(c.chart.ctx,c.chart.chartArea,'#1fc9d6','#0fb5c4'),borderRadius:7,maxBarThickness:26}]},
+    options:{plugins:{legend:{position:'top',labels:{boxWidth:12,boxHeight:12,usePointStyle:true,pointStyle:'rectRounded',padding:16,font:{family:"'Sora',sans-serif",size:11.5}}},tooltip:tip},
+      scales:{y:{beginAtZero:true,grid:{color:grid},border:{display:false}},x:{grid:{display:false},border:{display:false},ticks:{font:{family:"'Sora',sans-serif"}}}}}});
+
+  charts.hensa=new Chart(hensaChart,{type:'line',data:{labels,datasets:[{label:'推定偏差値',data:hensaData,
+    borderColor:(c)=>hgrad(c.chart.ctx,c.chart.chartArea,'#5b5bf0','#0fb5c4'),borderWidth:3,
+    backgroundColor:(c)=>vgrad(c.chart.ctx,c.chart.chartArea,'rgba(91,91,240,.22)','rgba(91,91,240,0)'),
+    fill:true,tension:.4,pointRadius:5,pointHoverRadius:7,pointBackgroundColor:'#fff',pointBorderColor:'#5b5bf0',pointBorderWidth:2.5}]},
+    options:{plugins:{legend:{display:false},tooltip:tip},scales:{y:{suggestedMin:30,suggestedMax:75,grid:{color:(ctx)=>ctx.tick&&ctx.tick.value===50?'rgba(240,67,47,.3)':grid,lineWidth:(ctx)=>ctx.tick&&ctx.tick.value===50?1.5:1},border:{display:false},
+      ticks:{callback:v=>v===50?'50 平均':v,font:{family:"'JetBrains Mono',monospace"}}},x:{grid:{display:false},border:{display:false},ticks:{font:{family:"'Sora',sans-serif"}}}}}});
+
+  charts.diff=new Chart(diffChart,{type:'bar',data:{labels,datasets:[{label:'平均との差',data:diffData,
+    backgroundColor:(c)=>{const a=c.chart.chartArea;if(!a)return '#ccc';const v=diffData[c.dataIndex];if(v===null)return '#d4d8e4';
+      return v>=0?hgrad(c.chart.ctx,a,'#3fd189','#0c8a4a'):hgrad(c.chart.ctx,a,'#f0432f','#cf2718');},borderRadius:6,maxBarThickness:22}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:tip},scales:{x:{grid:{color:grid},border:{display:false},ticks:{font:{family:"'JetBrains Mono',monospace"}}},y:{grid:{display:false},border:{display:false},ticks:{font:{family:"'Sora',sans-serif"}}}}}});
+
+  renderGauge(valid);
+  renderNorm(tip,grid);
+  renderDumbbell();
+}
+
+/* ===== 正規分布カーブ＋ヒストグラム ===== */
+function renderNorm(tip,grid){
+  const T=totalStats();
+  const pop=T.pop;
+  // なめらかなカーブ用の点（密度）
+  const pts=[];
+  for(let h=20;h<=80;h+=0.5){
+    const z=(h-50)/10;
+    pts.push({x:h,y:Math.exp(-z*z/2)});       // 標準正規の密度（相対高さ）
+  }
+  // ヒストグラム：5刻みビンの推定人数（学年人数×そのビン確率）
+  const binW=5, bins=[];
+  for(let lo=20;lo<80;lo+=binW){
+    const hi=lo+binW;
+    const p=normCdf((hi-50)/10)-normCdf((lo-50)/10);
+    bins.push({x:lo+binW/2,people:Math.round(pop*p)});
+  }
+  // カーブの高さを棒の最大人数に合わせて正規化（同じy軸で重ねるため）
+  const maxPeople=Math.max(...bins.map(b=>b.people),1);
+  const curve=pts.map(p=>({x:p.x,y:p.y*maxPeople}));   // 密度ピーク(=1)を最大人数にスケール
+
+  const myH=T.cnt?T.hensa:null;
+  const fillData=pts.map(p=>({x:p.x,y:(myH!==null&&p.x>=myH)?p.y*maxPeople:null}));
+  const cap=document.getElementById('normCaption');
+  if(myH!==null){
+    cap.innerHTML=`総合偏差値 <b style="color:var(--accent)">${myH.toFixed(1)}</b> ・ 上位 <b>${(T.upper*100).toFixed(1)}%</b> ・ 推定 <b>約${T.rank}位</b> / ${pop}人（棒＝各偏差値帯の推定人数、塗り＝自分より上位）`;
+  }else cap.textContent='点数を入力すると、自分の位置が表示されます。';
+
+  if(charts.norm)charts.norm.destroy();
+  charts.norm=new Chart(normChart,{
+    data:{datasets:[
+      {type:'line',label:'学年分布',data:curve,parsing:false,borderColor:(c)=>hgrad(c.chart.ctx,c.chart.chartArea,'#7d7dff','#0fb5c4'),
+        borderWidth:2.8,pointRadius:0,tension:.4,fill:false,order:0},
+      {type:'line',label:'自分より上位',data:fillData,parsing:false,borderColor:'transparent',pointRadius:0,tension:.4,
+        fill:'origin',backgroundColor:(c)=>vgrad(c.chart.ctx,c.chart.chartArea,'rgba(91,91,240,.28)','rgba(91,91,240,.03)'),order:1},
+    ]},
+    options:{plugins:{legend:{display:false},tooltip:{enabled:false}},
+      scales:{x:{type:'linear',min:20,max:80,offset:false,
+        grid:{color:(ctx)=>ctx.tick&&ctx.tick.value===50?'rgba(120,130,170,.35)':grid,lineWidth:(ctx)=>ctx.tick&&ctx.tick.value===50?1.5:1},
+        border:{display:false},ticks:{stepSize:10,font:{family:"'JetBrains Mono',monospace"},callback:v=>v===50?'50':v}},
+        y:{display:false,min:0,beginAtZero:true,suggestedMax:maxPeople*1.08}},
+      elements:{line:{borderJoinStyle:'round'}}},
+    plugins:[
+      // ヒストグラム：ビン中心に正確な幅で矩形を描画（線形軸の左寄せズレを回避）
+      {id:'histo',beforeDatasetsDraw:(chart)=>{
+        const ctx=chart.ctx,xs=chart.scales.x,ys=chart.scales.y;
+        const a=chart.chartArea;if(!a)return;
+        bins.forEach(b=>{
+          const xL=xs.getPixelForValue(b.x-binW/2);
+          const xR=xs.getPixelForValue(b.x+binW/2);
+          const yT=ys.getPixelForValue(b.people);
+          const yB=ys.getPixelForValue(0);
+          const w=(xR-xL)*0.9, gap=(xR-xL)*0.05;
+          const hot=(myH!==null && b.x>=myH-binW/2);
+          const g=ctx.createLinearGradient(0,yT,0,yB);
+          if(hot){g.addColorStop(0,'rgba(91,91,240,.5)');g.addColorStop(1,'rgba(91,91,240,.1)');}
+          else{g.addColorStop(0,'rgba(150,158,200,.38)');g.addColorStop(1,'rgba(150,158,200,.07)');}
+          ctx.save();ctx.fillStyle=g;
+          const rx=xL+gap, rw=w, rTop=yT, rH=Math.max(0,yB-yT), r=Math.min(5,rw/2);
+          ctx.beginPath();
+          ctx.moveTo(rx,yB);ctx.lineTo(rx,rTop+r);
+          ctx.quadraticCurveTo(rx,rTop,rx+r,rTop);
+          ctx.lineTo(rx+rw-r,rTop);
+          ctx.quadraticCurveTo(rx+rw,rTop,rx+rw,rTop+r);
+          ctx.lineTo(rx+rw,yB);ctx.closePath();ctx.fill();ctx.restore();
+        });
+      }},
+      {id:'myline',afterDraw:(chart)=>{
+      if(myH===null)return;
+      const x=chart.scales.x.getPixelForValue(myH);
+      const ctx=chart.ctx,top=chart.chartArea.top,bot=chart.chartArea.bottom;
+      ctx.save();ctx.strokeStyle='#5b5bf0';ctx.lineWidth=2;ctx.setLineDash([5,4]);
+      ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x,bot);ctx.stroke();
+      ctx.setLineDash([]);ctx.fillStyle='#5b5bf0';
+      ctx.font="700 12px 'Sora',sans-serif";ctx.textAlign='center';
+      ctx.fillText('あなた '+myH.toFixed(1),x,top-4);ctx.restore();
+    }}]
   });
-});
-buildQuiz(); renderQuiz();
+}
 
-/* ================================================================
-   TYPING
-================================================================ */
-let typeMode = "ion";
-let typeIdx = 0;
-let typeList = [];
-
-function buildTypeList(){
-  if(typeMode==="ion"){
-    typeList = [...CATIONS,...ANIONS].sort(()=>Math.random()-0.5);
-  }else{
-    typeList = DENRI.slice().sort(()=>Math.random()-0.5);
+/* ===== 目標ダンベルチャート ===== */
+function renderDumbbell(){
+  const rows=SUBJECTS.map(su=>{
+    const mine=numOrNull(state.rows[su.key].mine);
+    const goal=numOrNull(state.goals[su.key]);
+    const full=num(su.full||state.rows[su.key].full);
+    return {su,mine,goal,full};
+  }).filter(r=>r.goal!==null||r.mine!==null);
+  const area=document.getElementById('dumbbell');
+  if(!rows.some(r=>r.goal!==null)){
+    area.innerHTML='<div class="note">「目標点 & 達成度ゲージ」で目標点を入力すると、ここに現在→目標の距離が表示されます。</div>';
+    return;
   }
-  typeIdx = 0;
-}
-function renderType(){
-  if(typeList.length===0) buildTypeList();
-  const t = typeList[typeIdx];
-  document.getElementById("typeInput").value="";
-  document.getElementById("typeInput").className = "type-input";
-  document.getElementById("typeFeedback").textContent = `${typeIdx+1} / ${typeList.length}`;
-  if(typeMode==="ion"){
-    document.getElementById("typeLabel").textContent = "このイオン名の化学式を入力";
-    document.getElementById("typeQ").textContent = t.n;
-    document.getElementById("typeQ").style.fontSize="28px";
-    document.getElementById("typeInput").placeholder = "例: Na+, SO4 2-, NH4+";
-  }else{
-    document.getElementById("typeLabel").textContent = "この物質の電離式を入力（→の右辺）";
-    document.getElementById("typeQ").innerHTML = `${t.name}<br><span style="font-size:18px;color:var(--ink-mute);">${t.left} →</span>`;
-    document.getElementById("typeQ").style.fontSize="22px";
-    document.getElementById("typeInput").placeholder = "例: 2Na+ + SO4 2-";
-  }
-}
-function normalize(s){
-  if(!s) return "";
-  // 全角→半角、特殊記号正規化
-  let r = s.trim()
-    .replace(/[０-９]/g, ch=>String.fromCharCode(ch.charCodeAt(0)-0xFEE0))
-    .replace(/[₀-₉]/g, ch=>String(ch.charCodeAt(0)-0x2080)) // 下付き→普通の数字
-    .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g, ch=>"⁰¹²³⁴⁵⁶⁷⁸⁹".indexOf(ch)+"")
-    .replace(/⁺/g,"+").replace(/⁻/g,"-")
-    .replace(/[\s　]/g,"") // 空白除去
-    .replace(/→/g,"→");
-  return r;
-}
-function checkType(){
-  const t = typeList[typeIdx];
-  const input = document.getElementById("typeInput").value;
-  const got = normalize(input);
-  let want;
-  if(typeMode==="ion"){
-    want = normalize(t.f);
-  }else{
-    want = normalize(t.right);
-  }
-  const inp = document.getElementById("typeInput");
-  if(got===want){
-    inp.classList.add("ok");
-    document.getElementById("typeFeedback").innerHTML = `<span style="color:var(--good);font-weight:600;">✓ 正解！</span>`;
-    recordCorrect();
-    if(typeMode==="ion" && state.weak[t.f]){ delete state.weak[t.f]; save(); renderHeader(); renderWeak(); }
-  }else{
-    inp.classList.add("ng");
-    const correct = typeMode==="ion" ? t.f : (t.left+" → "+t.right);
-    document.getElementById("typeFeedback").innerHTML = `<span style="color:var(--bad);font-weight:600;">✗ 不正解：正解は ${correct}</span>`;
-    recordWrong(typeMode==="ion" ? t.f : t.left);
-  }
-}
-document.getElementById("typeCheck").addEventListener("click", checkType);
-document.getElementById("typeInput").addEventListener("keydown", e=>{
-  if(e.key==="Enter"){
-    if(document.getElementById("typeInput").classList.contains("ok") || document.getElementById("typeInput").classList.contains("ng")){
-      typeIdx=(typeIdx+1)%typeList.length; renderType();
-    }else{
-      checkType();
+  let html='<div class="dumb-legend"><span><i style="background:var(--accent)"></i>現在の点</span><span><i style="background:#fff;border:2px solid var(--good)"></i>目標点</span></div>';
+  rows.forEach(r=>{
+    const full=r.full||100;
+    const mp=r.mine!==null?(r.mine/full*100):null;
+    const gp=r.goal!==null?(r.goal/full*100):null;
+    let conn='';
+    if(mp!==null&&gp!==null){
+      const lo=Math.min(mp,gp),hi=Math.max(mp,gp);
+      const reached=r.mine>=r.goal;
+      conn=`<div class="conn" style="left:${lo}%;width:${hi-lo}%;background:${reached?'var(--good)':'linear-gradient(90deg,var(--accent),var(--warn))'}"></div>`;
     }
-  }
-});
-document.getElementById("typeNext").addEventListener("click", ()=>{ typeIdx=(typeIdx+1)%typeList.length; renderType(); });
-document.getElementById("typeSkip").addEventListener("click", ()=>{ typeIdx=(typeIdx+1)%typeList.length; renderType(); });
-document.querySelectorAll("[data-typemode]").forEach(b=>{
-  b.addEventListener("click", ()=>{
-    document.querySelectorAll("[data-typemode]").forEach(x=>x.classList.remove("active"));
-    b.classList.add("active");
-    typeMode = b.dataset.typemode;
-    buildTypeList(); renderType();
+    let valTxt='';
+    if(r.mine!==null&&r.goal!==null) valTxt=r.mine>=r.goal?`達成 (${r.mine}/${r.goal})`:`あと${r.goal-r.mine}点`;
+    else if(r.goal!==null) valTxt=`目標${r.goal}（点未入力）`;
+    else valTxt=`現在${r.mine}（目標未設定）`;
+    html+=`<div class="dumb-row"><span class="dumb-name">${r.su.name}</span>
+      <div class="dumb-track"><div class="axis"></div>${conn}
+        ${mp!==null?`<div class="pt now" style="left:${mp}%" title="現在 ${r.mine}"></div>`:''}
+        ${gp!==null?`<div class="pt goal" style="left:${gp}%" title="目標 ${r.goal}"></div>`:''}
+      </div><span class="dumb-val">${valTxt}</span></div>`;
   });
-});
-document.querySelectorAll(".ion-key").forEach(k=>{
-  k.addEventListener("click", ()=>{
-    const inp = document.getElementById("typeInput");
-    inp.focus();
-    const ins = k.dataset.ins;
-    inp.value += ins;
-  });
-});
-buildTypeList(); renderType();
-
-/* ================================================================
-   DENRI BUILDER
-================================================================ */
-let denriIdx = 0;
-let denriOrder = [];
-let denriBuilt = []; // 配置されたparts
-
-function shuffleDenri(){
-  denriOrder = DENRI.map((_,i)=>i).sort(()=>Math.random()-0.5);
-  denriIdx = 0;
+  area.innerHTML=html;
 }
-function renderDenri(){
-  if(denriOrder.length===0) shuffleDenri();
-  const d = DENRI[denriOrder[denriIdx]];
-  document.getElementById("denriName").textContent = d.name;
-  document.getElementById("denriLeft").textContent = d.left;
-  denriBuilt = [];
-  document.getElementById("denriBuild").innerHTML = '<span style="color:var(--ink-mute);font-size:14px;">↓ ここに組み立て</span>';
-  document.getElementById("denriFeedback").textContent = "";
+function renderGauge(valid){
+  const v=valid.filter(a=>a.valid);
+  const T=totalStats();
+  const avgH=v.length?T.hensa:0;
+  const valEl=document.getElementById('gaugeVal');
+  const rankEl=document.getElementById('gaugeRank');
+  valEl.textContent=v.length?avgH.toFixed(1):'—';
+  if(!v.length){
+    rankEl.textContent='未入力';rankEl.className='grank r-na';
+  }else{
+    let txt,cls;
+    if(avgH>=65){txt='トップ層';cls='r-top';}
+    else if(avgH>=58){txt='上位';cls='r-top';}
+    else if(avgH>=50){txt='平均以上';cls='r-good';}
+    else if(avgH>=42){txt='平均前後';cls='r-mid';}
+    else{txt='要強化';cls='r-low';}
+    rankEl.textContent=txt;rankEl.className='grank '+cls;
+  }
+  const pct=Math.max(0,Math.min(100,(avgH-25)/50*100)); // 25-75 を 0-100に
+  const col=avgH>=58?'#16b364':avgH>=50?'#5b5bf0':avgH>=42?'#f59e0b':'#f0432f';
+  valEl.style.color=v.length?col:'var(--ink-faint)';
+  if(charts.gauge)charts.gauge.destroy();
+  charts.gauge=new Chart(gaugeChart,{type:'doughnut',data:{datasets:[{data:[pct,Math.max(0.001,100-pct)],
+    backgroundColor:[col,'rgba(120,130,170,.1)'],borderWidth:0,circumference:270,rotation:225,borderRadius:[20,0]}]},
+    options:{cutout:'80%',plugins:{legend:{display:false},tooltip:{enabled:false}},animation:{animateRotate:true,duration:800}}});
+}
 
-  // プール：正解parts + ダミー2個
-  const correctParts = d.parts.slice();
-  // ダミー：他のDENRIから適当に
-  const allParts = new Set();
-  DENRI.forEach(x=>x.parts.forEach(p=>{ if(p!=="+") allParts.add(p); }));
-  const dummies = [...allParts].filter(p=>!correctParts.includes(p)).sort(()=>Math.random()-0.5).slice(0,3);
-  const poolParts = [...correctParts, ...dummies].sort(()=>Math.random()-0.5);
-
-  const pool = document.getElementById("denriPool");
-  pool.innerHTML = poolParts.map((p,i)=>`<button class="denri-chip" data-i="${i}" data-p="${p}">${p}</button>`).join("");
-  pool.querySelectorAll(".denri-chip").forEach(c=>{
-    c.addEventListener("click", ()=>{
-      if(c.classList.contains("placed")) return;
-      c.classList.add("placed");
-      c.style.display="none";
-      denriBuilt.push(c.dataset.p);
-      renderBuild();
+/* ===== 入力バインド ===== */
+function bindInputs(){
+  document.querySelectorAll('input.cell[data-k]').forEach(inp=>{
+    inp.addEventListener('input',e=>{
+      const k=e.target.dataset.k,f=e.target.dataset.f;
+      state.rows[k][f]=e.target.value;persist();
+      refreshAnalytics();
     });
   });
 }
-function renderBuild(){
-  const box = document.getElementById("denriBuild");
-  if(denriBuilt.length===0){
-    box.innerHTML = '<span style="color:var(--ink-mute);font-size:14px;">↓ ここに組み立て</span>';
-    return;
-  }
-  box.innerHTML = denriBuilt.map((p,i)=>`<button class="denri-chip placed" data-rm="${i}">${p}</button>`).join("");
-  box.querySelectorAll("[data-rm]").forEach(c=>{
-    c.addEventListener("click", ()=>{
-      const i = parseInt(c.dataset.rm);
-      const removed = denriBuilt.splice(i,1)[0];
-      // プールに戻す
-      document.querySelectorAll("#denriPool .denri-chip").forEach(x=>{
-        if(x.dataset.p===removed && x.style.display==="none"){
-          x.style.display=""; x.classList.remove("placed"); 
-        }
-      });
-      // 1個ずつしか戻さない
-      let found=false;
-      document.querySelectorAll("#denriPool .denri-chip").forEach(x=>{
-        if(!found && x.dataset.p===removed){ found=true; }
-      });
-      renderBuild();
-    });
+document.getElementById('population').addEventListener('input',e=>{state.population=e.target.value;persist();refreshAnalytics();});
+
+function refreshAnalytics(){
+  renderSummary();renderFoot();renderRanks();renderPro();renderCharts();
+  // 目標欄はinnerHTML再生成せず、各行の数値だけ更新（フォーカス維持）
+  SUBJECTS.forEach(su=>updateGoalRow(su.key));
+  // 自動列の色更新のため行内の自動セルだけ更新
+  updateAutoCells();
+}
+function updateAutoCells(){
+  const rows=document.querySelectorAll('#tbody tr');
+  SUBJECTS.forEach((su,i)=>{
+    const a=analyzeRow(su);const tds=rows[i].querySelectorAll('td');
+    if(!tds.length)return;
+    const rateBg=a.valid?rateColor(a.rate):'';const diffBg=a.valid?diffColor(a.diff):'';
+    tds[6].style.background=rateBg;tds[6].textContent=a.valid?(a.rate*100).toFixed(1)+'%':'—';
+    tds[7].style.background=diffBg;tds[7].className=a.valid?(a.diff>=0?'pos':'neg'):'';tds[7].textContent=a.valid?sign(+a.diff.toFixed(1)):'—';
+    tds[8].textContent=a.valid?a.sigma.toFixed(1):'—';
+    tds[9].innerHTML=a.valid?dataBar(a.hensa):'—';
+    tds[10].innerHTML=a.valid?`上位${(a.upper*100).toFixed(1)}%<br><small>${a.rank}位</small>`:'—';
+    tds[11].innerHTML=a.valid?`<span class="badge ${a.reachCls}">${a.reach}</span>`:'—';
+    tds[12].className=a.valid?a.cmpCls:'';tds[12].textContent=a.valid?a.cmp:'—';
+    tds[13].textContent=a.valid?a.one:'—';
   });
 }
-document.getElementById("denriClear").addEventListener("click", ()=>{
-  denriBuilt = [];
-  document.querySelectorAll("#denriPool .denri-chip").forEach(c=>{
-    c.style.display=""; c.classList.remove("placed");
-  });
-  renderBuild();
-});
-document.getElementById("denriCheck").addEventListener("click", ()=>{
-  const d = DENRI[denriOrder[denriIdx]];
-  // 正解判定：partsの並びを比較（"+"も含めて）
-  const want = d.parts.join("");
-  const got = denriBuilt.join("");
-  const fb = document.getElementById("denriFeedback");
-  if(got===want){
-    fb.innerHTML = '<span class="ok" style="color:var(--good);font-weight:600;">✓ 正解！</span>';
-    recordCorrect();
-  }else{
-    fb.innerHTML = `<span class="ng" style="color:var(--bad);font-weight:600;">✗ 不正解：正解は ${d.left} → ${d.right}</span>`;
-    recordWrong(d.left);
-  }
-});
-document.getElementById("denriShow").addEventListener("click", ()=>{
-  const d = DENRI[denriOrder[denriIdx]];
-  document.getElementById("denriFeedback").innerHTML = `答え：<b>${d.left} → ${d.right}</b>`;
-});
-document.getElementById("denriNext").addEventListener("click", ()=>{
-  denriIdx = (denriIdx+1)%denriOrder.length;
-  renderDenri();
-});
-shuffleDenri(); renderDenri();
 
-/* ================================================================
-   FILL IN (穴埋め表)
-================================================================ */
-let fillMode = "cation";
-function renderFill(){
-  const head = document.getElementById("fillHead");
-  const body = document.getElementById("fillBody");
-  body.innerHTML = "";
-  document.getElementById("fillFeedback").textContent = "";
+/* ===== ボタン ===== */
+document.getElementById('saveBtn').onclick=()=>{persist();toast('保存しました');};
+document.getElementById('resetAll').onclick=()=>{
+  if(!confirm('入力をすべてリセットしますか？'))return;
+  localStorage.removeItem('seiseki_v1');state=loadState();renderAll();toast('リセットしました');
+};
+document.getElementById('loadDemo').onclick=()=>{
+  const demo={math_a:[78,62],math_b:[71,58],sci_butsuri:[46,38],sci_kagaku:[44,40],sci_2:[83,69],
+    koumin:[44,37],history:[46,39],english:[69,72],kokugo_a:[64,55],kokugo_b:[15,13]};
+  SUBJECTS.forEach(su=>{const d=demo[su.key];state.rows[su.key].mine=d[0];state.rows[su.key].avg=d[1];});
+  persist();renderAll();toast('サンプルを投入しました');
+};
+document.getElementById('exportTxt').onclick=()=>{
+  let out='■ 成績分析 一覧\t（'+new Date().toLocaleString('ja-JP')+'）\n';
+  out+='科目\t満点\t自分\t平均\t得点率\t差\t偏差値\t上位%\t順位\t到達度\t分析\n';
+  SUBJECTS.forEach(su=>{const a=analyzeRow(su);
+    if(a.valid)out+=`${su.name}\t${a.full}\t${a.mine}\t${a.avg}\t${(a.rate*100).toFixed(1)}%\t${sign(+a.diff.toFixed(1))}\t${a.hensa.toFixed(1)}\t${(a.upper*100).toFixed(1)}%\t${a.rank}位\t${a.reach}\t${a.one}\n`;
+    else out+=`${su.name}\t${a.full}\t-\t-\t（未入力）\n`;});
+  const blob=new Blob([out],{type:'text/plain'});const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');link.href=url;link.download='成績分析.txt';link.click();URL.revokeObjectURL(url);
+  toast('テキストを書き出しました');
+};
 
-  if(fillMode==="cation" || fillMode==="anion"){
-    head.innerHTML = '<div>イオン名</div><div>イオン式</div><div>分類</div>';
-    const src = fillMode==="cation" ? CATIONS : ANIONS;
-    // ランダムに片方を空欄に
-    body.innerHTML = src.map((it,i)=>{
-      const blankFormula = Math.random()<0.5;
-      const nameCell = blankFormula ? it.n : `<input data-ans="${it.n}" data-i="${i}" data-k="n" placeholder="イオン名">`;
-      const formulaCell = blankFormula ? `<input data-ans="${it.f}" data-i="${i}" data-k="f" placeholder="イオン式">` : it.f;
-      return `<div class="fill-row">
-        <div>${nameCell}</div>
-        <div class="formula">${formulaCell}</div>
-        <div>${it.poly?'多原子':'単原子'}</div>
-      </div>`;
-    }).join("");
-  }else{
-    head.innerHTML = '<div>物質名</div><div>化学式</div><div>電離式</div>';
-    body.innerHTML = DENRI.map((d,i)=>{
-      return `<div class="fill-row">
-        <div>${d.name}</div>
-        <div class="formula">${d.left}</div>
-        <div><input data-ans="${d.right}" data-i="${i}" data-k="d" placeholder="例: 2H+ + Cl-" style="font-size:13px;"></div>
-      </div>`;
-    }).join("");
-  }
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800);}
+
+/* ===== テスト日付メモ ===== */
+(function(){
+  const today=new Date();const opts={month:'long',day:'numeric',weekday:'short'};
+  document.getElementById('dateNote').textContent='本日 '+today.toLocaleDateString('ja-JP',opts)+'（テスト 5/19〜）';
+})();
+
+function renderAll(){
+  document.getElementById('population').value=state.population;
+  renderTable();renderSummary();renderRanks();renderGoals();renderLinks();renderPro();renderCharts();
 }
-document.getElementById("fillCheck").addEventListener("click", ()=>{
-  let ok=0, total=0;
-  document.querySelectorAll("#fillBody input").forEach(inp=>{
-    total++;
-    const got = normalize(inp.value);
-    const want = normalize(inp.dataset.ans);
-    if(got===want){
-      inp.classList.remove("ng"); inp.classList.add("ok"); ok++;
-    }else{
-      inp.classList.remove("ok"); inp.classList.add("ng");
-    }
-  });
-  document.getElementById("fillFeedback").innerHTML = 
-    `<span style="color:${ok===total?'var(--good)':'var(--ink)'};font-weight:600;">${ok} / ${total} 正解</span>`;
-});
-document.getElementById("fillReset").addEventListener("click", renderFill);
-document.getElementById("fillShow").addEventListener("click", ()=>{
-  document.querySelectorAll("#fillBody input").forEach(inp=>{
-    inp.value = inp.dataset.ans;
-    inp.classList.add("ok");
-  });
-});
-document.querySelectorAll("[data-fillmode]").forEach(b=>{
-  b.addEventListener("click", ()=>{
-    document.querySelectorAll("[data-fillmode]").forEach(x=>x.classList.remove("active"));
-    b.classList.add("active");
-    fillMode = b.dataset.fillmode;
-    renderFill();
-  });
-});
-
-/* ================================================================
-   WEAK LIST
-================================================================ */
-function renderWeak(){
-  const box = document.getElementById("weakList");
-  const keys = Object.keys(state.weak);
-  if(keys.length===0){
-    box.innerHTML = '<div style="text-align:center;color:var(--ink-mute);padding:40px 20px;">まだ苦手はありません。クイズ・タイピングで間違えるとここに集まります。</div>';
-    return;
-  }
-  // ソート：ミス回数多い順
-  keys.sort((a,b)=>state.weak[b]-state.weak[a]);
-  box.innerHTML = keys.map(k=>{
-    const ion = ALL_IONS.find(x=>x.f===k);
-    if(!ion){
-      // 電離式の物質名(left)で記録された場合
-      const d = DENRI.find(x=>x.left===k);
-      if(d) return `<div class="weak-item"><div><div class="f">${d.left} → ${d.right}</div><div class="n">${d.name}</div></div><div class="c">${state.weak[k]} 回</div></div>`;
-      return "";
-    }
-    return `<div class="weak-item">
-      <div><div class="f">${ion.f}</div><div class="n">${ion.n}${ion.poly?'　（多原子）':''}</div></div>
-      <div style="display:flex;gap:10px;align-items:center;">
-        <span class="c">${state.weak[k]} 回ミス</span>
-        <button class="btn sm" onclick="(()=>{ delete state.weak['${k.replace(/'/g,"\\'")}']; save(); renderHeader(); renderWeak(); })()">克服</button>
-      </div>
-    </div>`;
-  }).join("");
-}
-document.getElementById("weakClear").addEventListener("click", ()=>{
-  if(confirm("苦手リストを全消去しますか？")){
-    state.weak = {}; save(); renderHeader(); renderWeak();
-  }
-});
-renderWeak();
-
-/* ================================================================
-   SETTING
-================================================================ */
-document.getElementById("resetAll").addEventListener("click", ()=>{
-  if(confirm("学習データをすべてリセットしますか？")){
-    state = {total:0,correct:0,streak:0,bestStreak:0,weak:{}};
-    save(); renderHeader(); renderHomeStats(); renderWeak();
-    alert("リセットしました");
-  }
-});
-
-/* 初期描画 */
-renderHeader();
-renderHomeStats();
+renderAll();
 </script>
 </body>
 </html>
